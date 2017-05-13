@@ -128,6 +128,7 @@ bool ISimpleGameListView::input(InputConfig* config, Input input)
 			cursor->metadata.set("favorite", newval);
 			cursor->getSystem()->getIndex()->addToIndex(cursor);
 			onFileChanged(cursor, FILE_METADATA_CHANGED);
+			return true;
 		}
 	}
 
