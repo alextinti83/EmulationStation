@@ -4,6 +4,8 @@
 #include "views/ViewController.h"
 #include "Sound.h"
 #include "Settings.h"
+#include "FileData.h"
+#include "SystemData.h"
 
 ISimpleGameListView::ISimpleGameListView(Window* window, FileData* root) : IGameListView(window, root),
 	mHeaderText(window), mHeaderImage(window), mBackground(window), mThemeExtras(window)
@@ -79,7 +81,8 @@ bool ISimpleGameListView::input(InputConfig* config, Input input)
 			}
 				
 			return true;
-		}else if(config->isMappedTo("b", input))
+		}
+		else if(config->isMappedTo("b", input))
 		{
 			if(mCursorStack.size())
 			{
@@ -93,7 +96,8 @@ bool ISimpleGameListView::input(InputConfig* config, Input input)
 			}
 
 			return true;
-		}else if(config->isMappedTo("right", input))
+		}
+		else if(config->isMappedTo("right", input))
 		{
 			if(Settings::getInstance()->getBool("QuickSystemSelect"))
 			{
@@ -101,7 +105,8 @@ bool ISimpleGameListView::input(InputConfig* config, Input input)
 				ViewController::get()->goToNextGameList();
 				return true;
 			}
-		}else if(config->isMappedTo("left", input))
+		}
+		else if(config->isMappedTo("left", input))
 		{
 			if(Settings::getInstance()->getBool("QuickSystemSelect"))
 			{
@@ -109,10 +114,20 @@ bool ISimpleGameListView::input(InputConfig* config, Input input)
 				ViewController::get()->goToPrevGameList();
 				return true;
 			}
-		}else if (config->isMappedTo("x", input))
+		}
+		else if (config->isMappedTo("x", input))
 		{
 			ViewController::get()->goToRandomGame();
 			return true;
+		}
+		else if (config->isMappedTo("y", input))  // Toggle favorites status
+		{
+			FileData* cursor = getCursor();
+			cursor->getSystem()->getIndex()->removeFromIndex(cursor);
+			std::string newval = (cursor->metadata.get("favorite").compare("true") == 0) ? "false" : "true";
+			cursor->metadata.set("favorite", newval);
+			cursor->getSystem()->getIndex()->addToIndex(cursor);
+			onFileChanged(cursor, FILE_METADATA_CHANGED);
 		}
 	}
 

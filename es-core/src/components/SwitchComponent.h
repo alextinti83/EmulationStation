@@ -15,7 +15,9 @@ public:
 	void onSizeChanged() override;
 
 	bool getState() const;
+	std::string getValue() const;
 	void setState(bool state);
+	void setValue(const std::string& stateString) override;
 
 	virtual std::vector<HelpPrompt> getHelpPrompts() override;
 

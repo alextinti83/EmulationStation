@@ -45,7 +45,18 @@ void BasicGameListView::populateList(const std::vector<FileData*>& files)
 
 		for(auto it = files.begin(); it != files.end(); it++)
 		{
-			mList.add((*it)->getName(), *it, ((*it)->getType() == FOLDER));
+			if ((*it)->getType() != FOLDER && (*it)->metadata.get("favorite").compare("true") == 0)
+			{
+				mList.add("* " + (*it)->getName(), *it, 0);
+			}
+			else if ((*it)->getType() != FOLDER)
+			{
+				mList.add("  " + (*it)->getName(), *it, 0);
+			}
+			else // its a folder!
+			{
+				mList.add("[ " + (*it)->getName() + " ]", *it, 1);
+			}
 		}
 	}
 	else
@@ -128,7 +139,8 @@ std::vector<HelpPrompt> BasicGameListView::getHelpPrompts()
 	prompts.push_back(HelpPrompt("up/down", "choose"));
 	prompts.push_back(HelpPrompt("a", "launch"));
 	prompts.push_back(HelpPrompt("b", "back"));
+	prompts.push_back(HelpPrompt("x", "random")); 
+	prompts.push_back(HelpPrompt("y", "toggle fav")); 
 	prompts.push_back(HelpPrompt("select", "options"));
-	prompts.push_back(HelpPrompt("x", "random"));
 	return prompts;
 }
