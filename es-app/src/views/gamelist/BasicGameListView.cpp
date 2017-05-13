@@ -1,4 +1,4 @@
-#include "views/gamelist/BasicGameListView.h"
+﻿#include "views/gamelist/BasicGameListView.h"
 #include "views/ViewController.h"
 #include "Renderer.h"
 #include "Window.h"
@@ -43,19 +43,24 @@ void BasicGameListView::populateList(const std::vector<FileData*>& files)
 	{
 		mHeaderText.setText(files.at(0)->getSystem()->getFullName());
 
-		for(auto it = files.begin(); it != files.end(); it++)
+
+		for ( FileData* filedata : files )
 		{
-			if ((*it)->getType() != FOLDER && (*it)->metadata.get("favorite").compare("true") == 0)
+			switch ( filedata->getType() )
 			{
-				mList.add("* " + (*it)->getName(), *it, 0);
-			}
-			else if ((*it)->getType() != FOLDER)
-			{
-				mList.add("  " + (*it)->getName(), *it, 0);
-			}
-			else // its a folder!
-			{
-				mList.add("[ " + (*it)->getName() + " ]", *it, 1);
+			case FOLDER:
+				mList.add("[ " + filedata->getName() + " ]", filedata, 1);
+				break;
+			default:
+				if ( filedata->metadata.get("favorite").compare("true") == 0 )
+				{
+					mList.add("* " + filedata->getName(), filedata, 0);
+				}
+				else
+				{
+					mList.add("  " + filedata->getName(), filedata, 0);
+				}
+				break;
 			}
 		}
 	}
