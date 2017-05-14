@@ -84,12 +84,10 @@ protected:
 	virtual void onCursorChanged(const CursorState& state);
 
 private:
-	static const int MARQUEE_DELAY = 2000;
-	static const int MARQUEE_SPEED = 8;
-	static const int MARQUEE_RATE = 1;
 
 	int mMarqueeOffset;
-	int mMarqueeTime;
+	int mMarqueeWaitTime = 0;
+	bool mMarqueeGoBack = false;
 
 	Alignment mAlignment;
 	float mHorizontalMargin;
@@ -104,14 +102,19 @@ private:
 	std::shared_ptr<Sound> mScrollSound;
 	static const unsigned int COLOR_ID_COUNT = 2;
 	unsigned int mColors[COLOR_ID_COUNT];
+
+	ImageComponent m_favoriteImage;
 };
 
 template <typename T>
 TextListComponent<T>::TextListComponent(Window* window) : 
-	IList<TextListData, T>(window)
+	IList<TextListData, T>(window),
+	m_favoriteImage(window)
 {
+	
+	m_favoriteImage.setImage(":/star_filled.svg");
+
 	mMarqueeOffset = 0;
-	mMarqueeTime = -MARQUEE_DELAY;
 
 	mHorizontalMargin = 0;
 	mAlignment = ALIGN_CENTER;
@@ -156,12 +159,12 @@ void TextListComponent<T>::render(const Eigen::Affine3f& parentTrans)
 	int listCutoff = startEntry + screenCount;
 	if(listCutoff > size())
 		listCutoff = size();
-
+	const float fontHeight = font->getHeight();
 	// draw selector bar
 	if(startEntry < listCutoff)
 	{
 		Renderer::setMatrix(trans);
-		Renderer::drawRect(0.f, (mCursor - startEntry)*entrySize + (entrySize - font->getHeight())/2, mSize.x(), font->getHeight(), mSelectorColor);
+		Renderer::drawRect(0.f, (mCursor - startEntry)*entrySize + (entrySize - fontHeight )/2, mSize.x(), fontHeight, mSelectorColor);
 	}
 
 	// clip to inside margins
@@ -186,11 +189,21 @@ void TextListComponent<T>::render(const Eigen::Affine3f& parentTrans)
 		entry.data.textCache->setColor(color);
 
 		Eigen::Vector3f offset(0, y, 0);
+#define DRAW_FAVORITE 0
+#if	DRAW_FAVORITE
+		float favScale = 0.7f;
+		const Eigen::Vector2f favImageSize = m_favoriteImage.getSize() * favScale;
+		const float favHeight = favImageSize.y();
+		const float verticalCenterShift = (fontHeight - favHeight) * 0.5f;
+		const float horizMargin = mHorizontalMargin + favImageSize.x();
+#else
+		const float horizMargin = mHorizontalMargin;
+#endif
 
 		switch(mAlignment)
 		{
 		case ALIGN_LEFT:
-			offset[0] = mHorizontalMargin;
+			offset[0] = horizMargin;
 			break;
 		case ALIGN_CENTER:
 			offset[0] = (mSize.x() - entry.data.textCache->metrics.size.x()) / 2;
@@ -199,21 +212,28 @@ void TextListComponent<T>::render(const Eigen::Affine3f& parentTrans)
 			break;
 		case ALIGN_RIGHT:
 			offset[0] = (mSize.x() - entry.data.textCache->metrics.size.x());
-			offset[0] -= mHorizontalMargin;
+			offset[0] -= horizMargin;
 			if(offset[0] < 0)
 				offset[0] = 0;
 			break;
 		}
 		
 		if(mCursor == i)
-			offset[0] -= mMarqueeOffset;
+			offset[0] += mMarqueeOffset;
 		
-		Eigen::Affine3f drawTrans = trans;
-		drawTrans.translate(offset);
-		Renderer::setMatrix(drawTrans);
+		Eigen::Affine3f textTrans = trans;
+		textTrans.translate(offset);
+		Renderer::setMatrix(textTrans);
 
 		font->renderTextCache(entry.data.textCache.get());
-		
+
+#if DRAW_FAVORITE
+		Eigen::Affine3f favTrans = trans;
+		Eigen::Vector3f favOffset(mHorizontalMargin, y + verticalCenterShift, 0);
+		favTrans.translate(favOffset);
+		favTrans.scale(Eigen::Vector3f(favScale, favScale, favScale));
+		m_favoriteImage.render(favTrans);
+#endif
 		y += entrySize;
 	}
 
@@ -271,19 +291,45 @@ void TextListComponent<T>::update(int deltaTime)
 	listUpdate(deltaTime);
 	if(!isScrolling() && size() > 0)
 	{
-		//if we're not scrolling and this object's text goes outside our size, marquee it!
-		const std::string& text = mEntries.at((unsigned int)mCursor).name;
+		static const int k_maxWaitTime = 1000; //ms
+		static const int k_marqueeDeltaShift = 1;
 
-		Eigen::Vector2f textSize = mFont->sizeText(text);
-
-		//it's long enough to marquee
-		if(textSize.x() - mMarqueeOffset > mSize.x() - 12 - (mAlignment != ALIGN_CENTER ? mHorizontalMargin : 0))
+		const std::string& text = mEntries.at(( unsigned int ) mCursor).name;
+		const Eigen::Vector2f textSize = mFont->sizeText(text);
+		const float exceedingTextSize = textSize.x() - (mSize.x() -mHorizontalMargin*2);
+		const float rightExtraMargin = 5;
+		if ( exceedingTextSize > 0)
 		{
-			mMarqueeTime += deltaTime;
-			while(mMarqueeTime > MARQUEE_SPEED)
+			if ( mMarqueeWaitTime > k_maxWaitTime )
 			{
-				mMarqueeOffset += MARQUEE_RATE;
-				mMarqueeTime -= MARQUEE_SPEED;
+				if (mMarqueeGoBack)
+				{
+					if ( mMarqueeOffset < 0)
+					{
+						mMarqueeOffset += k_marqueeDeltaShift;
+					}
+					else
+					{
+						mMarqueeWaitTime = 0;
+						mMarqueeGoBack = false;
+					}
+				}
+				else
+				{
+					if ( exceedingTextSize + rightExtraMargin + mMarqueeOffset > 0 )
+					{
+						mMarqueeOffset -= k_marqueeDeltaShift;
+					}
+					else
+					{
+						mMarqueeWaitTime = 0;
+						mMarqueeGoBack = true;
+					}
+				}
+			}
+			else
+			{
+				mMarqueeWaitTime += deltaTime;
 			}
 		}
 	}
@@ -308,8 +354,7 @@ template <typename T>
 void TextListComponent<T>::onCursorChanged(const CursorState& state)
 {
 	mMarqueeOffset = 0;
-	mMarqueeTime = -MARQUEE_DELAY;
-
+	mMarqueeWaitTime = 0;
 	if(mCursorChangedCallback)
 		mCursorChangedCallback(state);
 }
