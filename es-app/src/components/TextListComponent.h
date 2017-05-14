@@ -92,6 +92,15 @@ protected:
 		return isFavorite;
 	}
 
+	void PushClipRect(const Eigen::Affine3f& trans, float extraLeftMargin = 0.0f)
+	{
+		// clip to inside margins
+		Eigen::Vector3f dim(mSize.x(), mSize.y(), 0);
+		dim = trans * dim - trans.translation();
+		Renderer::pushClipRect(Eigen::Vector2i(( int ) ( trans.translation().x() + mHorizontalMargin + extraLeftMargin ), ( int ) trans.translation().y()),
+			Eigen::Vector2i(( int ) ( dim.x() - mHorizontalMargin * 2 ), ( int ) dim.y()));
+	}
+
 private:
 
 	int mMarqueeOffset;
@@ -182,11 +191,7 @@ void TextListComponent<T>::render(const Eigen::Affine3f& parentTrans)
 		Renderer::drawRect(0.f, (mCursor - startEntry)*entrySize + (entrySize - fontHeight )/2, mSize.x(), fontHeight, mSelectorColor);
 	}
 
-	// clip to inside margins
-	Eigen::Vector3f dim(mSize.x(), mSize.y(), 0);
-	dim = trans * dim - trans.translation();
-	Renderer::pushClipRect(Eigen::Vector2i((int)(trans.translation().x() + mHorizontalMargin), (int)trans.translation().y()), 
-		Eigen::Vector2i((int)(dim.x() - mHorizontalMargin*2), (int)dim.y()));
+	PushClipRect(trans);
 
 	for(int i = startEntry; i < listCutoff; i++)
 	{
@@ -215,7 +220,9 @@ void TextListComponent<T>::render(const Eigen::Affine3f& parentTrans)
 			const Eigen::Vector2f favImageSize = m_favoriteImage.getSize() * k_favoriteImageScale;
 			const float favHeight = favImageSize.y();
 			verticalCenterShift = ( fontHeight - favHeight ) * 0.5f;
-			horizMargin += favImageSize.x();
+			const float extraLeftMargin = favImageSize.x();
+			PushClipRect(trans, extraLeftMargin);
+			horizMargin += extraLeftMargin;
 		}
 #else
 		const float horizMargin = mHorizontalMargin;
@@ -258,6 +265,7 @@ void TextListComponent<T>::render(const Eigen::Affine3f& parentTrans)
 				const float scale = k_favoriteImageScale;
 				favTrans.scale(Eigen::Vector3f(scale, scale, scale));
 			}
+			Renderer::popClipRect(); //pop extra margin
 			m_favoriteImage.render(favTrans);
 		}
 #endif
