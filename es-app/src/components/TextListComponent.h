@@ -13,6 +13,7 @@
 #include <memory>
 #include <functional>
 
+
 struct TextListData
 {
 	unsigned int colorId;
@@ -83,6 +84,14 @@ protected:
 	virtual void onScroll(int amt) { if(mScrollSound) mScrollSound->play(); }
 	virtual void onCursorChanged(const CursorState& state);
 
+	bool IsFavorite(unsigned int entryIndex)
+	{
+		const Entry& selectedEntry = mEntries.at(entryIndex);
+		const FileData& fileData = *selectedEntry.object;
+		const bool isFavorite = fileData.isFavorite();
+		return isFavorite;
+	}
+
 private:
 
 	int mMarqueeOffset;
@@ -104,7 +113,13 @@ private:
 	unsigned int mColors[COLOR_ID_COUNT];
 
 	ImageComponent m_favoriteImage;
+	static const float k_favoriteImageScale;
+
 };
+
+template <typename T>
+const float 
+TextListComponent<T>::k_favoriteImageScale = 0.7f;
 
 template <typename T>
 TextListComponent<T>::TextListComponent(Window* window) : 
@@ -189,13 +204,19 @@ void TextListComponent<T>::render(const Eigen::Affine3f& parentTrans)
 		entry.data.textCache->setColor(color);
 
 		Eigen::Vector3f offset(0, y, 0);
-#define DRAW_FAVORITE 0
+
+#define DRAW_FAVORITE 1
 #if	DRAW_FAVORITE
-		float favScale = 0.7f;
-		const Eigen::Vector2f favImageSize = m_favoriteImage.getSize() * favScale;
-		const float favHeight = favImageSize.y();
-		const float verticalCenterShift = (fontHeight - favHeight) * 0.5f;
-		const float horizMargin = mHorizontalMargin + favImageSize.x();
+		float horizMargin = mHorizontalMargin;
+		float verticalCenterShift;
+		const bool isFavorite = IsFavorite(i);
+		if (isFavorite)
+		{
+			const Eigen::Vector2f favImageSize = m_favoriteImage.getSize() * k_favoriteImageScale;
+			const float favHeight = favImageSize.y();
+			verticalCenterShift = ( fontHeight - favHeight ) * 0.5f;
+			horizMargin += favImageSize.x();
+		}
 #else
 		const float horizMargin = mHorizontalMargin;
 #endif
@@ -228,11 +249,17 @@ void TextListComponent<T>::render(const Eigen::Affine3f& parentTrans)
 		font->renderTextCache(entry.data.textCache.get());
 
 #if DRAW_FAVORITE
-		Eigen::Affine3f favTrans = trans;
-		Eigen::Vector3f favOffset(mHorizontalMargin, y + verticalCenterShift, 0);
-		favTrans.translate(favOffset);
-		favTrans.scale(Eigen::Vector3f(favScale, favScale, favScale));
-		m_favoriteImage.render(favTrans);
+		if (isFavorite)
+		{
+			Eigen::Affine3f favTrans = trans;
+			Eigen::Vector3f favOffset(mHorizontalMargin, y + verticalCenterShift, 0);
+			favTrans.translate(favOffset);
+			{
+				const float scale = k_favoriteImageScale;
+				favTrans.scale(Eigen::Vector3f(scale, scale, scale));
+			}
+			m_favoriteImage.render(favTrans);
+		}
 #endif
 		y += entrySize;
 	}
@@ -294,10 +321,21 @@ void TextListComponent<T>::update(int deltaTime)
 		static const int k_maxWaitTime = 1000; //ms
 		static const int k_marqueeDeltaShift = 1;
 
-		const std::string& text = mEntries.at(( unsigned int ) mCursor).name;
+		const Entry& selectedEntry = mEntries.at(( unsigned int ) mCursor);
+
+		const bool hasFavorites = true; 
+		float extraLeftMargin = 0;
+		if ( hasFavorites )
+		{
+			extraLeftMargin = m_favoriteImage.getSize().x() * k_favoriteImageScale;
+		}
+
+		const std::string& text = selectedEntry.name;
 		const Eigen::Vector2f textSize = mFont->sizeText(text);
-		const float exceedingTextSize = textSize.x() - (mSize.x() -mHorizontalMargin*2);
-		const float rightExtraMargin = 5;
+
+		const float textBoxSize = mSize.x() - mHorizontalMargin * 2 - extraLeftMargin;
+		const float exceedingTextSize = textSize.x() - textBoxSize;
+		const float extraRightMargin = 5;
 		if ( exceedingTextSize > 0)
 		{
 			if ( mMarqueeWaitTime > k_maxWaitTime )
@@ -316,7 +354,7 @@ void TextListComponent<T>::update(int deltaTime)
 				}
 				else
 				{
-					if ( exceedingTextSize + rightExtraMargin + mMarqueeOffset > 0 )
+					if ( exceedingTextSize + extraRightMargin + mMarqueeOffset > 0 )
 					{
 						mMarqueeOffset -= k_marqueeDeltaShift;
 					}

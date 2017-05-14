@@ -52,14 +52,7 @@ void BasicGameListView::populateList(const std::vector<FileData*>& files)
 				mList.add("[ " + filedata->getName() + " ]", filedata, 1);
 				break;
 			default:
-				if ( filedata->metadata.get("favorite").compare("true") == 0 )
-				{
-					mList.add("* " + filedata->getName(), filedata, 0);
-				}
-				else
-				{
-					mList.add("  " + filedata->getName(), filedata, 0);
-				}
+				mList.add("  " + filedata->getName(), filedata, 0);
 				break;
 			}
 		}
