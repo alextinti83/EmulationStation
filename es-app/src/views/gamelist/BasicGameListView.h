@@ -25,5 +25,5 @@ protected:
 	virtual void launch(FileData* game) override;
 	virtual void remove(FileData* game) override;
 
-	TextListComponent<FileData*> mList;
+	TextListComponent mList;
 };
