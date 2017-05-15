@@ -57,7 +57,7 @@ SystemData::~SystemData()
 	//save changed game data back to xml
 	if(!Settings::getInstance()->getBool("IgnoreGamelist") && Settings::getInstance()->getBool("SaveGamelistsOnExit"))
 	{
-		updateGamelist(this);
+		writeGamelistToFile(this);
 	}
 
 	delete mRootFolder;
