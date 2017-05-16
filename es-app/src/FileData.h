@@ -48,10 +48,9 @@ public:
 	virtual const std::string& getThumbnailPath() const;
 	virtual const std::string& getVideoPath() const;
 	virtual const std::string& getMarqueePath() const;
-	bool isFavorite() const
-	{
-		return metadata.get("favorite").compare("true") == 0;
-	}
+	std::string getFilenameNoExt() const;
+	bool isFavorite() const;
+	void SetIsFavorite(bool isFavorite);
 
 	const std::vector<FileData*>& getChildrenListToDisplay();
 	std::vector<FileData*> getFilesRecursive(unsigned int typeMask, bool displayedOnly = false) const;	

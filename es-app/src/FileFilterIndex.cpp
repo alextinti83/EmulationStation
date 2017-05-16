@@ -361,7 +361,8 @@ void FileFilterIndex::manageRatingsEntryInIndex(FileData* game, bool remove)
 
 void FileFilterIndex::manageFavoritesEntryInIndex(FileData* game, bool remove)
 {
-	std::string key = getIndexableKey(game, FAVORITES_FILTER, false);
+	const bool getSecondary = false;
+	std::string key = getIndexableKey(game, FAVORITES_FILTER, getSecondary);
 
 	// flag for including unknowns
 	bool includeUnknown = INCLUDE_UNKNOWN;

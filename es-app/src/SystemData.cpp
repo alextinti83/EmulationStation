@@ -455,3 +455,37 @@ void SystemData::loadTheme()
 		mTheme = std::make_shared<ThemeData>(); // reset to empty
 	}
 }
+
+
+bool SystemData::isFavorite(const FileData& filedata) const 
+{
+	auto favIt = mFavoritesMap.find(filedata.getFilenameNoExt());
+	return favIt != mFavoritesMap.end();
+}
+
+void SystemData::removeFavorite(const FileData& filedata)
+{
+	auto favIt = mFavoritesMap.find(filedata.getFilenameNoExt());
+	if ( favIt != mFavoritesMap.end() )
+	{
+		mFavoritesMap.erase(favIt);
+	}
+	else
+	{
+		LOG(LogWarning) << "Favorite game " << filedata.getPath() << " not found";
+	}
+}
+
+void SystemData::addFavorite(const FileData& filedata)
+{
+	const std::string simpleName = filedata.getFilenameNoExt();
+	auto favIt = mFavoritesMap.find(simpleName);
+	if ( favIt == mFavoritesMap.end() )
+	{
+		mFavoritesMap.emplace(simpleName, filedata);
+	}
+	else
+	{
+		LOG(LogWarning) << "Favorite game " << filedata.getPath() << "already set";
+	}
+}

@@ -122,12 +122,18 @@ bool ISimpleGameListView::input(InputConfig* config, Input input)
 		}
 		else if (config->isMappedTo("y", input))  // Toggle favorites status
 		{
+			//Alex: metadata change here
 			FileData* cursor = getCursor();
+#if 0
 			cursor->getSystem()->getIndex()->removeFromIndex(cursor);
 			std::string newval = (cursor->metadata.get("favorite").compare("true") == 0) ? "false" : "true";
 			cursor->metadata.set("favorite", newval);
+			
 			cursor->getSystem()->getIndex()->addToIndex(cursor);
 			onFileChanged(cursor, FILE_METADATA_CHANGED);
+#else
+			cursor->SetIsFavorite(!cursor->isFavorite());
+#endif
 			return true;
 		}
 	}

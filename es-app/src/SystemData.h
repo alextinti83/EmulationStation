@@ -12,6 +12,8 @@
 class SystemData
 {
 public:
+	using FavoritesMap = std::map<std::string, const FileData&>;
+public:
 	SystemData(const std::string& name, const std::string& fullName, const std::string& startPath, const std::vector<std::string>& extensions, 
 		const std::string& command, const std::vector<PlatformIds::PlatformId>& platformIds, const std::string& themeFolder);
 	~SystemData();
@@ -66,7 +68,12 @@ public:
 	// Load or re-load theme.
 	void loadTheme();
 
+	bool isFavorite(const FileData& filedata) const;
+	void removeFavorite(const FileData& filedata);
+	void addFavorite(const FileData& filedata);
+
 	FileFilterIndex* getIndex() { return mFilterIndex; };
+
 
 private:
 	std::string mName;
@@ -83,4 +90,7 @@ private:
 	FileFilterIndex* mFilterIndex;
 
 	FileData* mRootFolder;
+
+	FavoritesMap mFavoritesMap;
+
 };

@@ -81,7 +81,23 @@ const std::string& FileData::getThumbnailPath() const
 		return metadata.get("image");
 }
 
-const std::vector<FileData*>& FileData::getChildrenListToDisplay() {
+void FileData::SetIsFavorite(bool isFavorite)
+{
+	if ( mSystem )
+	{
+		if (isFavorite)
+		{
+			mSystem->addFavorite(*this);
+		}
+		else
+		{
+			mSystem->removeFavorite(*this);
+		}
+	}
+}
+
+const std::vector<FileData*>& FileData::getChildrenListToDisplay()
+{
 	
 	FileFilterIndex* idx = mSystem->getIndex();
 	if (idx->isFiltered()) {
@@ -109,6 +125,19 @@ const std::string& FileData::getVideoPath() const
 const std::string& FileData::getMarqueePath() const
 {
 	return metadata.get("marquee");
+}
+
+std::string FileData::getFilenameNoExt() const
+{
+	const boost::filesystem::path gameRelativePath = getPath();
+	const std::string simpleName = gameRelativePath.filename().stem().generic_string();
+	return simpleName;
+}
+
+bool FileData::isFavorite() const
+{
+	//return metadata.get("favorite").compare("true") == 0;
+	return mSystem->isFavorite(*this);
 }
 
 std::vector<FileData*> FileData::getFilesRecursive(unsigned int typeMask, bool displayedOnly) const
