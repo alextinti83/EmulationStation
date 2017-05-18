@@ -34,12 +34,18 @@ std::string removeParenthesis(const std::string& str);
 class FileData
 {
 public:
-	FileData(FileType type, const boost::filesystem::path& path, SystemData* system);
+	FileData(FileType type, 
+		const boost::filesystem::path& path, 
+		SystemData* system, 
+		bool computeRelativePath = true);
 	virtual ~FileData();
 
 	inline const std::string& getName() const { return metadata.get("name"); }
+
 	inline FileType getType() const { return mType; }
 	inline const boost::filesystem::path& getPath() const { return mPath; }
+	inline const std::string& getRelativePath() const { return mRelativePath; }
+
 	inline FileData* getParent() const { return mParent; }
 	inline const std::unordered_map<std::string, FileData*>& getChildrenByFilename() const { return mChildrenByFilename; }
 	inline const std::vector<FileData*>& getChildren() const { return mChildren; }
@@ -48,9 +54,10 @@ public:
 	virtual const std::string& getThumbnailPath() const;
 	virtual const std::string& getVideoPath() const;
 	virtual const std::string& getMarqueePath() const;
-	std::string getFilenameNoExt() const;
+
 	bool isFavorite() const;
 	void SetIsFavorite(bool isFavorite);
+	void SetMetadata(const MetaDataList& i_metadata);
 
 	const std::vector<FileData*>& getChildrenListToDisplay();
 	std::vector<FileData*> getFilesRecursive(unsigned int typeMask, bool displayedOnly = false) const;	
@@ -82,9 +89,14 @@ public:
 
 	MetaDataList metadata;
 
+protected:
+	void importLegacyFavoriteTag();
+
 private:
 	FileType mType;
 	boost::filesystem::path mPath;
+	std::string mRelativePath;
+
 	SystemData* mSystem;
 	FileData* mParent;
 	std::unordered_map<std::string,FileData*> mChildrenByFilename;

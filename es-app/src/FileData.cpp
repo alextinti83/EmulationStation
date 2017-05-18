@@ -43,20 +43,34 @@ std::string removeParenthesis(const std::string& str)
 }
 
 
-FileData::FileData(FileType type, const fs::path& path, SystemData* system)
+FileData::FileData(FileType type, const fs::path& path, SystemData* system, bool computeRelativePath)
 	: mType(type), mPath(path), mSystem(system), mParent(NULL), metadata(type == GAME ? GAME_METADATA : FOLDER_METADATA) // metadata is REALLY set in the constructor!
 {
 	// metadata needs at least a name field (since that's what getName() will return)
-	if(metadata.get("name").empty())
+	if ( metadata.get("name").empty() )
+	{
 		metadata.set("name", getDisplayName());
+	}
+
+	if ( computeRelativePath )
+	{
+		const bool forWrite = false;
+		const std::string gamelistPath = system->getGamelistPath(forWrite);
+		mRelativePath = boost::filesystem::relative(path, gamelistPath).generic_string();
+	}
+
+	importLegacyFavoriteTag();
 }
+
+
 
 FileData::~FileData()
 {
-	if(mParent)
+	if ( mParent )
+	{
 		mParent->removeChild(this);
-
-		mChildren.clear();
+	}
+	mChildren.clear();
 }
 
 std::string FileData::getDisplayName() const
@@ -96,6 +110,19 @@ void FileData::SetIsFavorite(bool isFavorite)
 	}
 }
 
+void FileData::SetMetadata(const MetaDataList& i_metadata)
+{
+	std::string defaultName = metadata.get("name");
+	metadata = i_metadata;
+	if ( metadata.get("name").empty() )
+	{
+		metadata.set("name", defaultName);
+	}
+	metadata.resetChangedFlag();
+
+	importLegacyFavoriteTag();
+}
+
 const std::vector<FileData*>& FileData::getChildrenListToDisplay()
 {
 	
@@ -125,13 +152,6 @@ const std::string& FileData::getVideoPath() const
 const std::string& FileData::getMarqueePath() const
 {
 	return metadata.get("marquee");
-}
-
-std::string FileData::getFilenameNoExt() const
-{
-	const boost::filesystem::path gameRelativePath = getPath();
-	const std::string simpleName = gameRelativePath.filename().stem().generic_string();
-	return simpleName;
 }
 
 bool FileData::isFavorite() const
@@ -213,4 +233,13 @@ void FileData::sort(ComparisonFunction& comparator, bool ascending)
 void FileData::sort(const SortType& type)
 {
 	sort(*type.comparisonFunction, type.ascending);
+}
+
+void FileData::importLegacyFavoriteTag()
+{
+	if ( metadata.get("favorite").compare("true") == 0 )
+	{
+		SetIsFavorite(true);
+		metadata.erase("favorite");
+	}
 }

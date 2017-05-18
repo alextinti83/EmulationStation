@@ -38,14 +38,20 @@ SystemData::SystemData(const std::string& name, const std::string& fullName, con
 
 	mFilterIndex = new FileFilterIndex();
 
-	mRootFolder = new FileData(FOLDER, mStartPath, this);
+	const bool computeRelativePath = false;
+	mRootFolder = new FileData(FOLDER, mStartPath, this, computeRelativePath);
 	mRootFolder->metadata.set("name", mFullName);
 
-	if(!Settings::getInstance()->getBool("ParseGamelistOnly"))
+	if ( !Settings::getInstance()->getBool("ParseGamelistOnly") )
+	{
 		populateFolder(mRootFolder);
+	}
 
-	if(!Settings::getInstance()->getBool("IgnoreGamelist"))
+	deserializeFavorites();
+	if ( !Settings::getInstance()->getBool("IgnoreGamelist") )
+	{
 		parseGamelist(this);
+	}
 
 	mRootFolder->sort(FileSorts::SortTypes.at(0));
 
@@ -54,6 +60,8 @@ SystemData::SystemData(const std::string& name, const std::string& fullName, con
 
 SystemData::~SystemData()
 {
+
+	serializeFavorites();
 	//save changed game data back to xml
 	if(!Settings::getInstance()->getBool("IgnoreGamelist") && Settings::getInstance()->getBool("SaveGamelistsOnExit"))
 	{
@@ -457,15 +465,29 @@ void SystemData::loadTheme()
 }
 
 
+
+
+
+std::string SystemData::getFavoritesPath() const
+{
+	return ( mRootFolder->getPath() / "favorites.xml" ).generic_string();
+}
+
+std::string SystemData::getFavoriteKey(const FileData& filedata) const
+{
+	const std::string& relativepath = filedata.getRelativePath();
+	return relativepath;
+}
+
 bool SystemData::isFavorite(const FileData& filedata) const 
 {
-	auto favIt = mFavoritesMap.find(filedata.getFilenameNoExt());
-	return favIt != mFavoritesMap.end();
+	auto favIt = mFavoritesMap.find(getFavoriteKey(filedata));
+	return favIt != mFavoritesMap.end() && favIt->second.IsValid();
 }
 
 void SystemData::removeFavorite(const FileData& filedata)
 {
-	auto favIt = mFavoritesMap.find(filedata.getFilenameNoExt());
+	auto favIt = mFavoritesMap.find(getFavoriteKey(filedata));
 	if ( favIt != mFavoritesMap.end() )
 	{
 		mFavoritesMap.erase(favIt);
@@ -474,18 +496,93 @@ void SystemData::removeFavorite(const FileData& filedata)
 	{
 		LOG(LogWarning) << "Favorite game " << filedata.getPath() << " not found";
 	}
+	//serializeFavorites();
 }
 
 void SystemData::addFavorite(const FileData& filedata)
 {
-	const std::string simpleName = filedata.getFilenameNoExt();
+	const std::string simpleName = getFavoriteKey(filedata);
 	auto favIt = mFavoritesMap.find(simpleName);
 	if ( favIt == mFavoritesMap.end() )
 	{
-		mFavoritesMap.emplace(simpleName, filedata);
+		mFavoritesMap.emplace(simpleName, Favorite(filedata));
 	}
 	else
 	{
 		LOG(LogWarning) << "Favorite game " << filedata.getPath() << "already set";
 	}
+	//serializeFavorites();
 }
+
+
+
+void SystemData::favoriteValidation(const FileData& filedata)
+{
+	std::string key = getFavoriteKey(filedata);
+	auto favIt = mFavoritesMap.find(key);
+	if (favIt != mFavoritesMap.end())
+	{
+		favIt->second = Favorite(filedata);
+	}
+}
+
+void SystemData::serializeFavorites()
+{
+	pugi::xml_document doc;
+	pugi::xml_node root;
+	const bool forWrite = false;
+	std::string xmlPath = getFavoritesPath();
+
+	if ( boost::filesystem::exists(xmlPath) )
+	{
+		//TODO:: overwrite it?
+	}
+	
+	root = doc.append_child("favorites");
+
+	for ( auto const& fav : mFavoritesMap )
+	{
+		const Favorite& favorite = fav.second;
+		if ( favorite.IsValid() )
+		{
+			const FileData&  gamedata = favorite.GetFiledata();
+			const std::string key = fav.first;
+			pugi::xml_node newNode = root.append_child("game");
+			pugi::xml_attribute attr = newNode.append_attribute("key");
+			attr.set_value(key.c_str());
+		}
+	}
+	if ( !doc.save_file(xmlPath.c_str()) )
+	{
+		LOG(LogError) << "Error saving \"" << xmlPath << "\" (for system " << getName() << ")!";
+	}
+}
+
+void SystemData::deserializeFavorites()
+{
+	pugi::xml_document doc;
+	pugi::xml_node root;
+	const bool forWrite = false;
+	std::string xmlPath = getFavoritesPath();
+
+	if ( boost::filesystem::exists(xmlPath) )
+	{
+		pugi::xml_parse_result result = doc.load_file(xmlPath.c_str());
+		pugi::xml_node root = doc.child("favorites");
+		if ( root )
+		{
+			for ( auto const& child : root.children() )
+			{
+				std::string key = child.attribute("key").as_string();
+				const Favorite placeholder;
+				mFavoritesMap.emplace(key, placeholder);
+			}
+		}
+		else
+		{
+			LOG(LogError) << "Could parsing favorites list: \"" << xmlPath << "\"!";
+		}
+	}
+
+}
+

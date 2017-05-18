@@ -140,15 +140,10 @@ void parseGamelistAtPath(const std::string& xmlpath, SystemData* system)
 				continue;
 			}
 
-			//load the metadata
-			std::string defaultName = file->metadata.get("name");
-			file->metadata = MetaDataList::createFromXML(GAME_METADATA, fileNode, relativeTo);
-
-			//make sure name gets set if one didn't exist
-			if(file->metadata.get("name").empty())
-				file->metadata.set("name", defaultName);
-
-			file->metadata.resetChangedFlag();
+			MetaDataList metadata = MetaDataList::createFromXML(GAME_METADATA, fileNode, relativeTo);
+			file->SetMetadata(metadata);
+			
+			system->favoriteValidation(*file);
 
 			// index if it's a game!
 			if(type == GAME)
