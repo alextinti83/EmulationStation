@@ -123,6 +123,16 @@ void MetaDataList::set(const std::string& key, const std::string& value)
 	mWasChanged = true;
 }
 
+void MetaDataList::erase(const std::string& key)
+{
+	auto it = mMap.find(key);
+	if (it != mMap.end())
+	{
+		mMap.erase(it);
+	}
+	mWasChanged = true;
+}
+
 void MetaDataList::setTime(const std::string& key, const boost::posix_time::ptime& time)
 {
 	set(key, boost::posix_time::to_iso_string(time));

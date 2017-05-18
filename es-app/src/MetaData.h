@@ -52,6 +52,9 @@ public:
 	void set(const std::string& key, const std::string& value);
 	void setTime(const std::string& key, const boost::posix_time::ptime& time); //times are internally stored as ISO strings (e.g. boost::posix_time::to_iso_string(ptime))
 
+	void erase(const std::string& key);
+
+
 	const std::string& get(const std::string& key) const;
 	int getInt(const std::string& key) const;
 	float getFloat(const std::string& key) const;
