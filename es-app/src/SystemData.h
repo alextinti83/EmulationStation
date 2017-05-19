@@ -9,21 +9,10 @@
 #include "ThemeData.h"
 #include "FileFilterIndex.h"
 
-class Favorite
-{
-public:
-	Favorite() : m_filedata(nullptr) { }
-	Favorite(const FileData& fd) : m_filedata(&fd) { }
-	const FileData& GetFiledata() const { assert(m_filedata); return *m_filedata; }
-	bool IsValid() const { return m_filedata != nullptr; }
-private:
-	const FileData* m_filedata;
-};
+class GameCollection;
 
 class SystemData
 {
-public:
-	using FavoritesMap = std::map<std::string, Favorite>;
 public:
 	SystemData(const std::string& name, const std::string& fullName, const std::string& startPath, const std::vector<std::string>& extensions, 
 		const std::string& command, const std::vector<PlatformIds::PlatformId>& platformIds, const std::string& themeFolder);
@@ -80,18 +69,12 @@ public:
 	void loadTheme();
 
 	// favorites
-	std::string getFavoritesPath() const;
 	bool isFavorite(const FileData& filedata) const;
 	void removeFavorite(const FileData& filedata);
 	void addFavorite(const FileData& filedata);
 	void favoriteValidation(const FileData& filedata);
-	void serializeFavorites();
-	void deserializeFavorites();
 
 	FileFilterIndex* getIndex() { return mFilterIndex; };
-
-private:
-	std::string getFavoriteKey(const FileData& filedata) const;
 
 private:
 	std::string mName;
@@ -109,6 +92,5 @@ private:
 
 	FileData* mRootFolder;
 
-	FavoritesMap mFavoritesMap;
-
+	std::unique_ptr<GameCollection> mFavorites;
 };
