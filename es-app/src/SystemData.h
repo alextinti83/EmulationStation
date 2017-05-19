@@ -72,7 +72,7 @@ public:
 	bool isFavorite(const FileData& filedata) const;
 	void removeFavorite(const FileData& filedata);
 	void addFavorite(const FileData& filedata);
-	void favoriteValidation(const FileData& filedata);
+	void replaceFavoritePlacholder(const FileData& filedata);
 
 	FileFilterIndex* getIndex() { return mFilterIndex; };
 

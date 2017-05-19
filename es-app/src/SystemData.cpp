@@ -493,7 +493,7 @@ void SystemData::addFavorite(const FileData& filedata)
 }
 
 
-void SystemData::favoriteValidation(const FileData& filedata)
+void SystemData::replaceFavoritePlacholder(const FileData& filedata)
 {
 	mFavorites->ReplacePlaceholder(filedata);
 }
