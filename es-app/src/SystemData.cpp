@@ -12,13 +12,21 @@
 #include <iostream>
 #include "Settings.h"
 #include "FileSorts.h"
+#include "GameCollection.h"
 
 std::vector<SystemData*> SystemData::sSystemVector;
 
 namespace fs = boost::filesystem;
 
-SystemData::SystemData(const std::string& name, const std::string& fullName, const std::string& startPath, const std::vector<std::string>& extensions, 
-	const std::string& command, const std::vector<PlatformIds::PlatformId>& platformIds, const std::string& themeFolder)
+SystemData::SystemData(
+	const std::string& name, 
+	const std::string& fullName, 
+	const std::string& startPath, 
+	const std::vector<std::string>& extensions, 
+	const std::string& command, 
+	const std::vector<PlatformIds::PlatformId>& platformIds, 
+	const std::string& themeFolder)
+	: mFavorites()
 {
 	mName = name;
 	mFullName = fullName;
@@ -38,14 +46,22 @@ SystemData::SystemData(const std::string& name, const std::string& fullName, con
 
 	mFilterIndex = new FileFilterIndex();
 
-	mRootFolder = new FileData(FOLDER, mStartPath, this);
+	const bool computeRelativePath = false;
+	mRootFolder = new FileData(FOLDER, mStartPath, this, computeRelativePath);
 	mRootFolder->metadata.set("name", mFullName);
 
-	if(!Settings::getInstance()->getBool("ParseGamelistOnly"))
+	if ( !Settings::getInstance()->getBool("ParseGamelistOnly") )
+	{
 		populateFolder(mRootFolder);
+	}
 
-	if(!Settings::getInstance()->getBool("IgnoreGamelist"))
+	mFavorites.reset(new GameCollection("favorites"));
+	mFavorites->Deserialize(mRootFolder->getPath());
+
+	if ( !Settings::getInstance()->getBool("IgnoreGamelist") )
+	{
 		parseGamelist(this);
+	}
 
 	mRootFolder->sort(FileSorts::SortTypes.at(0));
 
@@ -54,6 +70,9 @@ SystemData::SystemData(const std::string& name, const std::string& fullName, con
 
 SystemData::~SystemData()
 {
+
+	mFavorites->Serialize(mRootFolder->getPath());
+
 	//save changed game data back to xml
 	if(!Settings::getInstance()->getBool("IgnoreGamelist") && Settings::getInstance()->getBool("SaveGamelistsOnExit"))
 	{
@@ -454,4 +473,27 @@ void SystemData::loadTheme()
 		LOG(LogError) << e.what();
 		mTheme = std::make_shared<ThemeData>(); // reset to empty
 	}
+}
+
+
+
+bool SystemData::isFavorite(const FileData& filedata) const 
+{
+	return mFavorites->HasGame(filedata);
+}
+
+void SystemData::removeFavorite(const FileData& filedata)
+{
+	mFavorites->RemoveGame(filedata);
+}
+
+void SystemData::addFavorite(const FileData& filedata)
+{
+	mFavorites->AddGame(filedata);
+}
+
+
+void SystemData::replaceFavoritePlacholder(const FileData& filedata)
+{
+	mFavorites->ReplacePlaceholder(filedata);
 }
