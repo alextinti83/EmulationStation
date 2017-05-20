@@ -7,10 +7,9 @@
 
 
 class FileData;
-
 class GameCollection
 {
-public:
+private:
 	class Game
 	{
 	public:
@@ -22,6 +21,33 @@ public:
 		const FileData* m_filedata;
 	};
 
+	using GamesMap = std::map<std::string, Game>;
+public:
+	class View
+	{
+	public:
+		class iterator {
+		public:
+			iterator(
+				const GamesMap::const_iterator& it,
+				const GamesMap::const_iterator& eIt);
+			iterator operator++();
+			bool operator!=(const iterator & other);
+			const FileData& operator*() const;
+		private:
+			GamesMap::const_iterator mapIt;
+			GamesMap::const_iterator endIt;
+
+		};
+
+		View(const GameCollection& gameCollection);
+		iterator begin() const;
+		iterator end() const;
+
+	private:
+		const GameCollection& m_gameCollection;
+	};
+
 public:
 	GameCollection(const std::string& name);
 
@@ -31,9 +57,12 @@ public:
 	void AddGame(const FileData& filedata);
 	void RemoveGame(const FileData& filedata);
 
-	// since we serialize/deserialize only key
-	// we need to map filedatas to their respective key
+	// since we deserialize only keys
+	// we need to map filedatas to their 
+	// respective keys once filedatas are created
 	void ReplacePlaceholder(const FileData& filedata); 
+
+	const View& GetView() const { return m_view;  }
 private:
 	std::string getFilePath(const boost::filesystem::path& folderPath) const;
 
@@ -42,7 +71,7 @@ private:
 private:
 	const std::string m_name;
 
-	using GamesMap = std::map<std::string, Game>;
 	GamesMap mGamesMap;
-
+	View m_view;
 };
+

@@ -12,6 +12,7 @@ GameCollection::GameCollection(
 	const std::string& name
 )
 	: m_name(name)
+	, m_view(*this)
 {
 	// nothing to do
 }
@@ -130,4 +131,50 @@ void GameCollection::Serialize(const boost::filesystem::path& folderPath)
 	{
 		LOG(LogError) << "Error saving \"" << xmlPath << "\" (for GameCollection " << m_name << ")!";
 	}
+}
+
+GameCollection::View::iterator::iterator(const GamesMap::const_iterator& it, const GamesMap::const_iterator& eIt) : mapIt(it), endIt(eIt)
+{
+	// nothing to do
+}
+
+GameCollection::View::iterator GameCollection::View::iterator::operator++()
+{
+	while ( ++mapIt != endIt )
+	{
+		if (mapIt->second.IsValid())
+		{
+			return *this;
+		}
+	}
+	return *this;
+}
+
+bool GameCollection::View::iterator::operator!=(const iterator & other)
+{
+	return mapIt != other.mapIt;
+}
+
+const FileData& GameCollection::View::iterator::operator*() const
+{
+	return mapIt->second.GetFiledata();
+}
+
+GameCollection::View::View(const GameCollection& gameCollection) :m_gameCollection(gameCollection)
+{
+	// nothing to do
+}
+
+GameCollection::View::iterator GameCollection::View::begin() const
+{
+	auto endIt = m_gameCollection.mGamesMap.cend();
+	auto begIt = m_gameCollection.mGamesMap.cbegin();
+	return iterator(begIt, endIt);
+}
+
+GameCollection::View::iterator GameCollection::View::end() const
+{
+
+	auto endIt = m_gameCollection.mGamesMap.cend();
+	return iterator(endIt, endIt);
 }
