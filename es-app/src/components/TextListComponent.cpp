@@ -21,6 +21,8 @@ TextListComponent::TextListComponent(Window* window) :
 	mSelectedColor = 0;
 	mColors[ 0 ] = 0x0000FFFF;
 	mColors[ 1 ] = 0x00FF00FF;
+	mColors[ 2 ] = 0xFFFF00FF;
+
 }
 
 
@@ -59,6 +61,8 @@ void TextListComponent::render(const Eigen::Affine3f& parentTrans)
 	if ( startEntry < listCutoff )
 	{
 		Renderer::setMatrix(trans);
+		//BaseT::Entry& entry = mEntries.at(( unsigned int ) mCursor);
+		//unsigned int color = mColors[ entry.data.colorId ];
 		Renderer::drawRect(0.f, ( mCursor - startEntry )*entrySize + ( entrySize - fontHeight ) / 2, mSize.x(), fontHeight, mSelectorColor);
 	}
 
@@ -129,6 +133,7 @@ void TextListComponent::render(const Eigen::Affine3f& parentTrans)
 #if DRAW_FAVORITE
 		if ( isFavorite )
 		{
+			m_favoriteImage.setColorShift(mColors[ entry.data.imageColorId]);
 			Eigen::Affine3f favTrans = trans;
 			Eigen::Vector3f favOffset(mHorizontalMargin, y + verticalCenterShift, 0);
 			favTrans.translate(favOffset);
@@ -257,7 +262,11 @@ void TextListComponent::update(int deltaTime)
 }
 
 //list management stuff
-void TextListComponent::add(const std::string& name, FileData* obj, unsigned int color)
+void TextListComponent::add(
+	const std::string& name, 
+	FileData* obj,
+	unsigned int color,
+	unsigned int imageColor)
 {
 	assert(color < COLOR_ID_COUNT);
 
@@ -265,6 +274,8 @@ void TextListComponent::add(const std::string& name, FileData* obj, unsigned int
 	entry.name = name;
 	entry.object = obj;
 	entry.data.colorId = color;
+	entry.data.imageColorId = imageColor;
+
 	BaseT::add(entry);
 }
 

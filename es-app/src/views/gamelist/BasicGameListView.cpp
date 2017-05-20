@@ -64,15 +64,15 @@ void BasicGameListView::populateList(const std::vector<FileData*>& files)
 
 		for ( FileData* filedata : favorites )
 		{
-			mList.add("  " + filedata->getName(), filedata, 1);
+			mList.add("  " + filedata->getName(), filedata, 0, 2);
 		}
 		for ( FileData* filedata : folders )
 		{
-			mList.add("[ " + filedata->getName() + " ]", filedata, 1);
+			mList.add("[ " + filedata->getName() + " ]", filedata, 1, 0);
 		}
 		for ( FileData* filedata : games )
 		{
-			mList.add("  " + filedata->getName(), filedata, 0);
+			mList.add("  " + filedata->getName(), filedata, 0, 0);
 		}
 
 	}
@@ -80,7 +80,7 @@ void BasicGameListView::populateList(const std::vector<FileData*>& files)
 	{
 		// empty list - add a placeholder
 		FileData* placeholder = new FileData(PLACEHOLDER, "<No Results Found for Current Filter Criteria>", this->mRoot->getSystem());
-		mList.add(placeholder->getName(), placeholder, (placeholder->getType() == PLACEHOLDER));
+		mList.add(placeholder->getName(), placeholder, (placeholder->getType() == PLACEHOLDER), 0);
 	}
 }
 

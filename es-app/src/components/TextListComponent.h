@@ -17,6 +17,7 @@
 struct TextListData
 {
 	unsigned int colorId;
+	unsigned int imageColorId;
 	std::shared_ptr<TextCache> textCache;
 };
 
@@ -46,7 +47,7 @@ public:
 	void render(const Eigen::Affine3f& parentTrans) override;
 	void applyTheme(const std::shared_ptr<ThemeData>& theme, const std::string& view, const std::string& element, unsigned int properties) override;
 
-	void add(const std::string& name, FileData* obj, unsigned int colorId);
+	void add(const std::string& name, FileData* obj, unsigned int colorId, unsigned int imageColor);
 	
 	enum Alignment
 	{
@@ -118,7 +119,7 @@ private:
 	unsigned int mSelectorColor;
 	unsigned int mSelectedColor;
 	std::shared_ptr<Sound> mScrollSound;
-	static const unsigned int COLOR_ID_COUNT = 2;
+	static const unsigned int COLOR_ID_COUNT = 3;
 	unsigned int mColors[COLOR_ID_COUNT];
 
 	ImageComponent m_favoriteImage;
