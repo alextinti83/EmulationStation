@@ -138,7 +138,7 @@ std::vector<HelpPrompt> BasicGameListView::getHelpPrompts()
 	prompts.push_back(HelpPrompt("a", "launch"));
 	prompts.push_back(HelpPrompt("b", "back"));
 	prompts.push_back(HelpPrompt("x", "random")); 
-	prompts.push_back(HelpPrompt("y", "toggle fav")); 
+	prompts.push_back(HelpPrompt("y", "favorite")); 
 	prompts.push_back(HelpPrompt("select", "options"));
 	return prompts;
 }
