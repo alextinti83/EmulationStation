@@ -125,11 +125,22 @@ public:
 		assert(size() > 0);
 		return mEntries.at(mCursor).object;
 	}
+	inline const int getSelectedIndex() const
+	{
+		assert(size() > 0);
+		return mCursor;
+	}
 
 	void setCursor(typename std::vector<Entry>::iterator& it)
 	{
 		assert(it != mEntries.end());
 		mCursor = it - mEntries.begin();
+		onCursorChanged(CURSOR_STOPPED);
+	}
+
+	void setCursorIndex(int cursorIndex)
+	{
+		mCursor = cursorIndex;
 		onCursorChanged(CURSOR_STOPPED);
 	}
 

@@ -21,6 +21,9 @@ public:
 
 	virtual FileData* getCursor() = 0;
 	virtual void setCursor(FileData*) = 0;
+	virtual int getCursorIndex() const = 0;
+	virtual void setCursorIndex(int index) = 0;
+	virtual uint32_t getFavoritesCount() const = 0;
 
 	virtual bool input(InputConfig* config, Input input) override;
 

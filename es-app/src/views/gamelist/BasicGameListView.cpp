@@ -43,19 +43,38 @@ void BasicGameListView::populateList(const std::vector<FileData*>& files)
 	{
 		mHeaderText.setText(files.at(0)->getSystem()->getFullName());
 
+		std::vector<FileData*> games, folders, favorites;
 
 		for ( FileData* filedata : files )
 		{
-			switch ( filedata->getType() )
+			if ( filedata->getType() == FOLDER )
 			{
-			case FOLDER:
-				mList.add("[ " + filedata->getName() + " ]", filedata, 1);
-				break;
-			default:
-				mList.add("  " + filedata->getName(), filedata, 0);
-				break;
+				folders.push_back(filedata);
+			}
+			else
+			{
+				games.push_back(filedata);
+				if (filedata->isFavorite())
+				{
+					favorites.push_back(filedata);
+				}
 			}
 		}
+		mFavoritesCount = favorites.size();
+
+		for ( FileData* filedata : favorites )
+		{
+			mList.add("  " + filedata->getName(), filedata, 1);
+		}
+		for ( FileData* filedata : folders )
+		{
+			mList.add("[ " + filedata->getName() + " ]", filedata, 1);
+		}
+		for ( FileData* filedata : games )
+		{
+			mList.add("  " + filedata->getName(), filedata, 0);
+		}
+
 	}
 	else
 	{
@@ -64,6 +83,7 @@ void BasicGameListView::populateList(const std::vector<FileData*>& files)
 		mList.add(placeholder->getName(), placeholder, (placeholder->getType() == PLACEHOLDER));
 	}
 }
+
 
 FileData* BasicGameListView::getCursor()
 {
