@@ -3,7 +3,7 @@
 #include <string>
 #include <map>
 #include <assert.h>
-#include "boost/filesystem/string_file.hpp"
+#include "boost/filesystem/path.hpp"
 
 
 class FileData;
