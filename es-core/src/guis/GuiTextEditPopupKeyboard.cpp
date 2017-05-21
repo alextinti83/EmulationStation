@@ -1,7 +1,6 @@
 #include "guis/GuiTextEditPopupKeyboard.h"
 #include "components/MenuComponent.h"
 #include "Log.h"
-#include "Locale.h"
 
 const char* _(const char* str) { return str; }
 
@@ -270,8 +269,8 @@ void GuiTextEditPopupKeyboard::onSizeChanged()
 	mGrid.setSize(gridSize);
 
 	const float keysScaleRatio = 0.8f;
-	mKeyboardGrid->setRowHeightPerc(0, 0.15, true); //top vertical padding
-	for (uint32_t i = 1; i < keyboardGridSize.y(); ++i)
+	mKeyboardGrid->setRowHeightPerc(0, 0.15f, true); //top vertical padding
+	for (int32_t i = 1; i < keyboardGridSize.y(); ++i)
 	{
 		mKeyboardGrid->setRowHeightPerc(i, std::min(keysScaleRatio, 1.0f), true);
 	}
