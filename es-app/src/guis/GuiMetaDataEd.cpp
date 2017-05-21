@@ -13,6 +13,8 @@
 #include "components/RatingComponent.h"
 #include "components/SwitchComponent.h"
 #include "guis/GuiTextEditPopup.h"
+#include "guis/GuiTextEditPopupKeyboard.h"
+
 
 using namespace Eigen;
 
@@ -121,8 +123,9 @@ GuiMetaDataEd::GuiMetaDataEd(Window* window, MetaDataList* md, const std::vector
 				bool multiLine = iter->type == MD_MULTILINE_STRING;
 				const std::string title = iter->displayPrompt;
 				auto updateVal = [ed](const std::string& newVal) { ed->setValue(newVal); }; // ok callback (apply new value to ed)
+				//Settings::getInstance()->setBool("DebugGrid", true);
 				row.makeAcceptInputHandler([this, title, ed, updateVal, multiLine] {
-					mWindow->pushGui(new GuiTextEditPopup(mWindow, title, ed->getValue(), updateVal, multiLine));
+					mWindow->pushGui(new GuiTextEditPopupKeyboard(mWindow, title, ed->getValue(), updateVal, multiLine));
 				});
 				break;
 			}

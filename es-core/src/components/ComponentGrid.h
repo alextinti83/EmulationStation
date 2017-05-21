@@ -52,6 +52,8 @@ public:
 	bool moveCursor(Eigen::Vector2i dir);
 	void setCursorTo(const std::shared_ptr<GuiComponent>& comp);
 
+	const Eigen::Vector2i& GetGridSize() const { return mGridSize; }
+
 	inline std::shared_ptr<GuiComponent> getSelectedComponent()
 	{
 		GridEntry* e = getCellAt(mCursor);
