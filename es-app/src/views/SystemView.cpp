@@ -216,7 +216,7 @@ void SystemView::onCursorChanged(const CursorState& state)
 		}, 300);
 
 		// wait 600ms to fade in
-		setAnimation(infoFadeIn, 2000, nullptr, false, 2);
+		setAnimation(infoFadeIn, 500, nullptr, false, 2);
 	}
 
 	// no need to animate transition, we're not going anywhere (probably mEntries.size() == 1)
