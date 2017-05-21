@@ -1,7 +1,6 @@
 #include "GameCollection.h"
 
 #include "pugixml/src/pugixml.hpp"
-#include "boost/filesystem/string_file.hpp"
 #include "Log.h"
 
 #include "FileData.h"
