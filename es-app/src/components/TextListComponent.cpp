@@ -1,6 +1,10 @@
 #include "TextListComponent.h"
 
+#ifdef WIN32
 const float TextListComponent::k_favoriteImageScale = 0.7f;
+#else
+const float TextListComponent::k_favoriteImageScale = 1.0f;
+#endif
 
 TextListComponent::TextListComponent(Window* window) :
 	BaseT(window),
