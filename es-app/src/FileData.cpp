@@ -56,7 +56,8 @@ FileData::FileData(FileType type, const fs::path& path, SystemData* system, bool
 	{
 		const bool forWrite = false;
 		const std::string gamelistPath = system->getGamelistPath(forWrite);
-		mRelativePath = boost::filesystem::relative(path, gamelistPath).generic_string();
+		bool contains = false;
+		mRelativePath = removeCommonPath(path, gamelistPath, contains).generic_string();;
 	}
 
 	importLegacyFavoriteTag();
