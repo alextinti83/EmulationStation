@@ -26,6 +26,9 @@ public:
 	void onFocusGained() override;
 	void onFocusLost() override;
 
+	void setColorShift(unsigned int color) { mModdedColor = color; mNewColor = true; updateImage(); }
+	void removeColorShift() { mNewColor = false; updateImage(); }
+
 	virtual std::vector<HelpPrompt> getHelpPrompts() override;
 
 private:
@@ -34,8 +37,12 @@ private:
 
 	bool mFocused;
 	bool mEnabled;
+
 	unsigned int mTextColorFocused;
 	unsigned int mTextColorUnfocused;
+	
+	bool mNewColor = false;
+	unsigned int mModdedColor;
 	
 	unsigned int getCurTextColor() const;
 	void updateImage();
