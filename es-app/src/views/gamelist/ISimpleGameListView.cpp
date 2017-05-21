@@ -4,6 +4,8 @@
 #include "views/ViewController.h"
 #include "Sound.h"
 #include "Settings.h"
+#include "FileData.h"
+#include "SystemData.h"
 
 ISimpleGameListView::ISimpleGameListView(Window* window, FileData* root) : IGameListView(window, root),
 	mHeaderText(window), mHeaderImage(window), mBackground(window), mThemeExtras(window)
@@ -79,7 +81,8 @@ bool ISimpleGameListView::input(InputConfig* config, Input input)
 			}
 				
 			return true;
-		}else if(config->isMappedTo("b", input))
+		}
+		else if(config->isMappedTo("b", input))
 		{
 			if(mCursorStack.size())
 			{
@@ -93,7 +96,8 @@ bool ISimpleGameListView::input(InputConfig* config, Input input)
 			}
 
 			return true;
-		}else if(config->isMappedTo("right", input))
+		}
+		else if(config->isMappedTo("right", input))
 		{
 			if(Settings::getInstance()->getBool("QuickSystemSelect"))
 			{
@@ -101,7 +105,8 @@ bool ISimpleGameListView::input(InputConfig* config, Input input)
 				ViewController::get()->goToNextGameList();
 				return true;
 			}
-		}else if(config->isMappedTo("left", input))
+		}
+		else if(config->isMappedTo("left", input))
 		{
 			if(Settings::getInstance()->getBool("QuickSystemSelect"))
 			{
@@ -109,9 +114,46 @@ bool ISimpleGameListView::input(InputConfig* config, Input input)
 				ViewController::get()->goToPrevGameList();
 				return true;
 			}
-		}else if (config->isMappedTo("x", input))
+		}
+		else if (config->isMappedTo("x", input))
 		{
 			ViewController::get()->goToRandomGame();
+			return true;
+		}
+		else if (config->isMappedTo("y", input))  // Toggle favorites status
+		{
+			//Alex: metadata change here
+			FileData* cursor = getCursor();
+#if 0
+			cursor->getSystem()->getIndex()->removeFromIndex(cursor);
+			std::string newval = (cursor->metadata.get("favorite").compare("true") == 0) ? "false" : "true";
+			cursor->metadata.set("favorite", newval);
+			
+			cursor->getSystem()->getIndex()->addToIndex(cursor);
+			onFileChanged(cursor, FILE_METADATA_CHANGED);
+#else
+			if (cursor->getType() != FOLDER)
+			{
+				const int cursorIndex = getCursorIndex();
+				const int favCount = getFavoritesCount();
+				const bool wasFavorite = cursor->isFavorite();
+				cursor->SetIsFavorite(!wasFavorite);
+				FileChangeType fileChangeType = wasFavorite ? FILE_REMOVED : FILE_ADDED;
+				onFileChanged(cursor, fileChangeType);
+
+				if (fileChangeType == FILE_ADDED)
+				{
+					setCursorIndex(cursorIndex + 1); //keep same file selected
+				}
+				else
+				{
+					if (cursorIndex < favCount)
+					{
+						setCursorIndex(cursorIndex);
+					}
+				}
+			}
+#endif
 			return true;
 		}
 	}

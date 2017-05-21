@@ -129,7 +129,7 @@ void ViewController::goToRandomGame()
 	}
 	
 	// get random number in range
-	int target = std::round(((double)std::rand() / (double)RAND_MAX) * total);
+	int target = std::lround(((double)std::rand() / (double)RAND_MAX) * total);
 	
 	for (auto it = SystemData::sSystemVector.begin(); it != SystemData::sSystemVector.end(); it++)
 	{

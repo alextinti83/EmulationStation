@@ -9,6 +9,7 @@ class FileData;
 class ThemeData;
 
 // This is an interface that defines the minimum for a GameListView.
+// Alex: It does't look like an Interface
 class IGameListView : public GuiComponent
 {
 public:

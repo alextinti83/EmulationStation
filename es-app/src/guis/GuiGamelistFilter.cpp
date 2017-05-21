@@ -10,12 +10,11 @@ GuiGamelistFilter::GuiGamelistFilter(Window* window, SystemData* system) : GuiCo
 	initializeMenu();
 }
 
-void GuiGamelistFilter::initializeMenu() 
+void GuiGamelistFilter::initializeMenu()
 {
 	addChild(&mMenu);
 
-	// get filters from system	
-
+	// get filters from system
 	mFilterIndex = mSystem->getIndex();
 
 	ComponentListRow row;
@@ -37,7 +36,8 @@ void GuiGamelistFilter::initializeMenu()
 void GuiGamelistFilter::resetAllFilters()
 {
 	mFilterIndex->clearAllFilters();
-	for (std::map<FilterIndexType, std::shared_ptr< OptionListComponent<std::string> >>::iterator it = mFilterOptions.begin(); it != mFilterOptions.end(); ++it ) {
+	for (std::map<FilterIndexType, std::shared_ptr< OptionListComponent<std::string> >>::iterator it = mFilterOptions.begin(); it != mFilterOptions.end(); ++it )
+	{
 		std::shared_ptr< OptionListComponent<std::string> > optionList = it->second;
 		optionList->selectNone();
 	}
@@ -45,25 +45,21 @@ void GuiGamelistFilter::resetAllFilters()
 
 GuiGamelistFilter::~GuiGamelistFilter()
 {
-    mFilterOptions.clear();
+	mFilterOptions.clear();
 }
 
 void GuiGamelistFilter::addFiltersToMenu() 
 {
 	std::vector<FilterDataDecl> decls = mFilterIndex->getFilterDataDecls();
-	for (std::vector<FilterDataDecl>::iterator it = decls.begin(); it != decls.end(); ++it ) {
-
+	for (std::vector<FilterDataDecl>::iterator it = decls.begin(); it != decls.end(); ++it )
+	{
 		FilterIndexType type = (*it).type; // type of filter
 		std::map<std::string, int>* allKeys = (*it).allIndexKeys; // all possible filters for this type
 		std::vector<std::string>* allFilteredKeys = (*it).currentFilteredKeys; // current keys being filtered for
 		std::string menuLabel = (*it).menuLabel; // text to show in menu
 		std::shared_ptr< OptionListComponent<std::string> > optionList;
 
-		
-		// add filters (with first one selected)
-		ComponentListRow row;	
-
-		// add genres
+		// Populate and add
 		optionList = std::make_shared< OptionListComponent<std::string> >(mWindow, menuLabel, true);
 		for(auto it: *allKeys)
 		{
@@ -72,21 +68,19 @@ void GuiGamelistFilter::addFiltersToMenu()
 		if (allKeys->size() > 0)
 			mMenu.addWithLabel(menuLabel, optionList);
 
-		mFilterOptions[type] = optionList;	
+		mFilterOptions[type] = optionList;
 	}
 }
 
 void GuiGamelistFilter::applyFilters()
 {
-	std::vector<FilterDataDecl> decls = mFilterIndex->getFilterDataDecls();
-	for (std::map<FilterIndexType, std::shared_ptr< OptionListComponent<std::string> >>::iterator it = mFilterOptions.begin(); it != mFilterOptions.end(); ++it ) {
+	for (std::map<FilterIndexType, std::shared_ptr< OptionListComponent<std::string> >>::iterator it = mFilterOptions.begin(); it != mFilterOptions.end(); ++it )
+	{
 		std::shared_ptr< OptionListComponent<std::string> > optionList = it->second;
 		std::vector<std::string> filters = optionList->getSelectedObjects();
 		mFilterIndex->setFilter(it->first, &filters);
 	}
-
 	delete this;
-	
 }
 
 bool GuiGamelistFilter::input(InputConfig* config, Input input)
@@ -99,7 +93,6 @@ bool GuiGamelistFilter::input(InputConfig* config, Input input)
 	{
 		applyFilters();
 	}
-
 
 	return false;
 }

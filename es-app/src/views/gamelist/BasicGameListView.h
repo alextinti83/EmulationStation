@@ -16,6 +16,10 @@ public:
 	virtual FileData* getCursor() override;
 	virtual void setCursor(FileData* file) override;
 
+	virtual int getCursorIndex() const override { return mList.getSelectedIndex(); }
+	virtual void setCursorIndex(int index) override { mList.setCursorIndex(index); }
+	virtual uint32_t getFavoritesCount() const override { return mFavoritesCount; }
+
 	virtual const char* getName() const override { return "basic"; }
 
 	virtual std::vector<HelpPrompt> getHelpPrompts() override;
@@ -25,5 +29,6 @@ protected:
 	virtual void launch(FileData* game) override;
 	virtual void remove(FileData* game) override;
 
-	TextListComponent<FileData*> mList;
+	TextListComponent mList;
+	uint32_t mFavoritesCount = 0;
 };

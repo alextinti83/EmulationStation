@@ -131,8 +131,11 @@ void Window::input(InputConfig* config, Input input)
 	}
 	else
 	{
-		if(peekGui())
-			this->peekGui()->input(config, input);
+		GuiComponent* guiComponent = peekGui();
+		if ( guiComponent )
+		{
+			guiComponent->input(config, input);
+		}
 	}
 }
 

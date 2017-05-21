@@ -19,6 +19,7 @@ MetaDataDecl gameDecls[] = {
 	{"publisher",	MD_STRING,				"unknown",			false,		"publisher",			"enter game publisher"},
 	{"genre",		MD_STRING,				"unknown",			false,		"genre",				"enter game genre"},
 	{"players",		MD_INT,					"1",				false,		"players",				"enter number of players"},
+	{"favorite",	MD_BOOL,				"false", 			false,		"favorite",				"toggle favorite status"},
 	{"playcount",	MD_INT,					"0",				true,		"play count",			"enter number of times played"},
 	{"lastplayed",	MD_TIME,				"0", 				true,		"last played",			"enter last played date"}
 };
@@ -36,7 +37,8 @@ MetaDataDecl folderDecls[] = {
 	{"developer",	MD_STRING,				"unknown",			false,		"developer",			"enter game developer"},
 	{"publisher",	MD_STRING,				"unknown",			false,		"publisher",			"enter game publisher"},
 	{"genre",		MD_STRING,				"unknown",			false,		"genre",				"enter game genre"},
-	{"players",		MD_INT,					"1",				false,		"players",				"enter number of players"}
+	{"players",		MD_INT,					"1",				false,		"players",				"enter number of players"},
+	{"favorite",	MD_BOOL,				"false", 			false,		"favorite",				"toggle favorite status"}
 };
 const std::vector<MetaDataDecl> folderMDD(folderDecls, folderDecls + sizeof(folderDecls) / sizeof(folderDecls[0]));
 
@@ -118,6 +120,16 @@ void MetaDataList::appendToXML(pugi::xml_node parent, bool ignoreDefaults, const
 void MetaDataList::set(const std::string& key, const std::string& value)
 {
 	mMap[key] = value;
+	mWasChanged = true;
+}
+
+void MetaDataList::erase(const std::string& key)
+{
+	auto it = mMap.find(key);
+	if (it != mMap.end())
+	{
+		mMap.erase(it);
+	}
 	mWasChanged = true;
 }
 

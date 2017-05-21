@@ -9,6 +9,8 @@
 #include "ThemeData.h"
 #include "FileFilterIndex.h"
 
+class GameCollection;
+
 class SystemData
 {
 public:
@@ -66,6 +68,12 @@ public:
 	// Load or re-load theme.
 	void loadTheme();
 
+	// favorites
+	bool isFavorite(const FileData& filedata) const;
+	void removeFavorite(const FileData& filedata);
+	void addFavorite(const FileData& filedata);
+	void replaceFavoritePlacholder(const FileData& filedata);
+
 	FileFilterIndex* getIndex() { return mFilterIndex; };
 
 private:
@@ -83,4 +91,6 @@ private:
 	FileFilterIndex* mFilterIndex;
 
 	FileData* mRootFolder;
+
+	std::unique_ptr<GameCollection> mFavorites;
 };

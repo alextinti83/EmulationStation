@@ -83,12 +83,20 @@ FileData* findOrCreateFile(SystemData* system, const boost::filesystem::path& pa
 
 void parseGamelist(SystemData* system)
 {
-	bool trustGamelist = Settings::getInstance()->getBool("ParseGamelistOnly");
-	std::string xmlpath = system->getGamelistPath(false);
+	const bool forWrite = false;
+	std::string xmlpath = system->getGamelistPath(forWrite);
+	parseGamelistAtPath(xmlpath, system);
+}
 
-	if(!boost::filesystem::exists(xmlpath))
+void parseGamelistAtPath(const std::string& xmlpath, SystemData* system)
+{
+	if ( !boost::filesystem::exists(xmlpath) )
+	{
+		LOG(LogError) << "Could not find XML file \"" << xmlpath << "\"...";
 		return;
+	}
 
+	bool trustGamelist = Settings::getInstance()->getBool("ParseGamelistOnly");
 	LOG(LogInfo) << "Parsing XML file \"" << xmlpath << "\"...";
 
 	pugi::xml_document doc;
@@ -132,15 +140,10 @@ void parseGamelist(SystemData* system)
 				continue;
 			}
 
-			//load the metadata
-			std::string defaultName = file->metadata.get("name");
-			file->metadata = MetaDataList::createFromXML(GAME_METADATA, fileNode, relativeTo);
-
-			//make sure name gets set if one didn't exist
-			if(file->metadata.get("name").empty())
-				file->metadata.set("name", defaultName);
-
-			file->metadata.resetChangedFlag();
+			MetaDataList metadata = MetaDataList::createFromXML(GAME_METADATA, fileNode, relativeTo);
+			file->SetMetadata(metadata);
+			
+			system->replaceFavoritePlacholder(*file);
 
 			// index if it's a game!
 			if(type == GAME)
@@ -176,7 +179,7 @@ void addFileDataNode(pugi::xml_node& parent, const FileData* file, const char* t
 	}
 }
 
-void updateGamelist(SystemData* system)
+void writeGamelistToFile(SystemData* system)
 {
 	//We do this by reading the XML again, adding changes and then writing it back,
 	//because there might be information missing in our systemdata which would then miss in the new XML.
@@ -188,7 +191,8 @@ void updateGamelist(SystemData* system)
 
 	pugi::xml_document doc;
 	pugi::xml_node root;
-	std::string xmlReadPath = system->getGamelistPath(false);
+	const bool forWrite = false;
+	std::string xmlReadPath = system->getGamelistPath(forWrite);
 
 	if(boost::filesystem::exists(xmlReadPath))
 	{
@@ -262,10 +266,11 @@ void updateGamelist(SystemData* system)
 		}
 
 		//now write the file
+		const bool forWrite = true;
 
 		if (numUpdated > 0) {
 			//make sure the folders leading up to this path exist (or the write will fail)
-			boost::filesystem::path xmlWritePath(system->getGamelistPath(true));
+			boost::filesystem::path xmlWritePath(system->getGamelistPath(forWrite));
 			boost::filesystem::create_directories(xmlWritePath.parent_path());
 
 			LOG(LogInfo) << "Added/Updated " << numUpdated << " entities in '" << xmlReadPath << "'";

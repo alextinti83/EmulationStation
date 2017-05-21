@@ -1,4 +1,4 @@
-#include "views/gamelist/BasicGameListView.h"
+﻿#include "views/gamelist/BasicGameListView.h"
 #include "views/ViewController.h"
 #include "Renderer.h"
 #include "Window.h"
@@ -43,18 +43,47 @@ void BasicGameListView::populateList(const std::vector<FileData*>& files)
 	{
 		mHeaderText.setText(files.at(0)->getSystem()->getFullName());
 
-		for(auto it = files.begin(); it != files.end(); it++)
+		std::vector<FileData*> games, folders, favorites;
+
+		for ( FileData* filedata : files )
 		{
-			mList.add((*it)->getName(), *it, ((*it)->getType() == FOLDER));
+			if ( filedata->getType() == FOLDER )
+			{
+				folders.push_back(filedata);
+			}
+			else
+			{
+				games.push_back(filedata);
+				if (filedata->isFavorite())
+				{
+					favorites.push_back(filedata);
+				}
+			}
 		}
+		mFavoritesCount = favorites.size();
+
+		for ( FileData* filedata : favorites )
+		{
+			mList.add("  " + filedata->getName(), filedata, 0, 2);
+		}
+		for ( FileData* filedata : folders )
+		{
+			mList.add("[ " + filedata->getName() + " ]", filedata, 1, 0);
+		}
+		for ( FileData* filedata : games )
+		{
+			mList.add("  " + filedata->getName(), filedata, 0, 0);
+		}
+
 	}
 	else
 	{
 		// empty list - add a placeholder
 		FileData* placeholder = new FileData(PLACEHOLDER, "<No Results Found for Current Filter Criteria>", this->mRoot->getSystem());
-		mList.add(placeholder->getName(), placeholder, (placeholder->getType() == PLACEHOLDER));
+		mList.add(placeholder->getName(), placeholder, (placeholder->getType() == PLACEHOLDER), 0);
 	}
 }
+
 
 FileData* BasicGameListView::getCursor()
 {
@@ -128,7 +157,8 @@ std::vector<HelpPrompt> BasicGameListView::getHelpPrompts()
 	prompts.push_back(HelpPrompt("up/down", "choose"));
 	prompts.push_back(HelpPrompt("a", "launch"));
 	prompts.push_back(HelpPrompt("b", "back"));
+	prompts.push_back(HelpPrompt("x", "random")); 
+	prompts.push_back(HelpPrompt("y", "favorite")); 
 	prompts.push_back(HelpPrompt("select", "options"));
-	prompts.push_back(HelpPrompt("x", "random"));
 	return prompts;
 }

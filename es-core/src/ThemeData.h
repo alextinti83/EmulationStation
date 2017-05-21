@@ -12,9 +12,7 @@
 #include "pugixml/src/pugixml.hpp"
 #include "GuiComponent.h"
 
-template<typename T>
 class TextListComponent;
-
 class Sound;
 class ImageComponent;
 class NinePatchComponent;

@@ -28,12 +28,13 @@ GuiComponent::~GuiComponent()
 
 bool GuiComponent::input(InputConfig* config, Input input)
 {
-	for(unsigned int i = 0; i < getChildCount(); i++)
+	for ( GuiComponent* child : mChildren )
 	{
-		if(getChild(i)->input(config, input))
+		if ( child->input(config, input) )
+		{
 			return true;
+		}
 	}
-
 	return false;
 }
 
