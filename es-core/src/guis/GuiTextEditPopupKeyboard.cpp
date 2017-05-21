@@ -15,7 +15,6 @@ GuiTextEditPopupKeyboard::GuiTextEditPopupKeyboard(Window* window, const std::st
 	addChild(&mGrid);
 
 	mTitle = std::make_shared<TextComponent>(mWindow, strToUpper(title), Font::get(FONT_SIZE_LARGE), 0x555555FF, ALIGN_CENTER);
-	mKeyboardGrid = std::make_shared<ComponentGrid>(mWindow, Vector2i(12, 5));
 
 	mText = std::make_shared<TextEditComponent>(mWindow);
 	mText->setValue(initValue);
@@ -29,7 +28,10 @@ GuiTextEditPopupKeyboard::GuiTextEditPopupKeyboard(Window* window, const std::st
 	// Text edit add
 	mGrid.setEntry(mText, Vector2i(0, 1), true, false, Vector2i(1, 1), GridFlags::BORDER_TOP | GridFlags::BORDER_BOTTOM);
 
-
+	const Vector2f keyboardKeySize = GetKeyboardKeySize();
+	mKeyboardGrid = std::make_shared<ComponentGrid>(mWindow, 
+		GetKeyboardGridSize());
+	
 	// Keyboard
 	// Case for if multiline is enabled, then don't create the keyboard.
 	if (!mMultiLine) {
@@ -55,8 +57,8 @@ GuiTextEditPopupKeyboard::GuiTextEditPopupKeyboard(Window* window, const std::st
 			}));
 
 			// Send just created button into mGrid
-			digitButtons[k]->setSize((Renderer::getScreenWidth() * 0.95f) / 12, (mText->getFont()->getHeight() + 6));
-			mKeyboardGrid->setEntry(digitButtons[k], Vector2i(k, 0), true, false);
+			digitButtons[k]->setSize(keyboardKeySize);
+			mKeyboardGrid->setEntry(digitButtons[k], Vector2i(k, 1), true, false);
 		}
 
 		// Accent Row & Special Chara.
@@ -77,111 +79,133 @@ GuiTextEditPopupKeyboard::GuiTextEditPopupKeyboard(Window* window, const std::st
 			}));
 
 			// Send just created button into mGrid
-			sButtons[k]->setSize((Renderer::getScreenWidth() * 0.95f) / 12, (mText->getFont()->getHeight() + 6));
-			mKeyboardGrid->setEntry(sButtons[k], Vector2i(k, 1), true, false);
+			sButtons[k]->setSize(keyboardKeySize);
+			mKeyboardGrid->setEntry(sButtons[k], Vector2i(k, 2), true, false);
 		}
 
 		// Top row [Q - P]
-		for (int k = 0; k < 10; k++) {
+		for (int k = 0; k < 10; k++)
+		{
 			kButtons.push_back(std::make_shared<ButtonComponent>
-				(mWindow, topRowUp[k], topRowUp[k], [this, k, loc] {
+				(mWindow, topRowUp[ k ], topRowUp[ k ], [ this, k, loc ]
+			{
 				mText->startEditing();
-				if (mShift) mText->textInput(topRowUp[k]);
-				else mText->textInput(topRow[k]);
+				if (mShift) mText->textInput(topRowUp[ k ]);
+				else mText->textInput(topRow[ k ]);
 				mText->stopEditing();
 			}));
 		}
 
 		// Top row - Add in the last three manualy because they're special chara [{ , }]
-		for (int k = 10; k < 12; k++) {
-			kButtons.push_back(std::make_shared<ButtonComponent>(mWindow, topRow[k], topRow[k], [this, k] {
+		for (int k = 10; k < 12; k++)
+		{
+			kButtons.push_back(std::make_shared<ButtonComponent>(mWindow, topRow[ k ], topRow[ k ], [ this, k ]
+			{
 				mText->startEditing();
-				if (mShift) mText->textInput(topRowUp[k]);
-				else mText->textInput(topRow[k]);
+				if (mShift) mText->textInput(topRowUp[ k ]);
+				else mText->textInput(topRow[ k ]);
 				mText->stopEditing();
 			}));
 		}
 
-		for (int k = 0; k < 12; k++) {
-			kButtons[k]->setSize((Renderer::getScreenWidth() * 0.95f) / 12, (mText->getFont()->getHeight() + 6));
-			mKeyboardGrid->setEntry(kButtons[k], Vector2i(k, 2), true, false);
+		for (int k = 0; k < 12; k++)
+		{
+			kButtons[ k ]->setSize( keyboardKeySize );
+			mKeyboardGrid->setEntry(kButtons[ k ], Vector2i(k, 3), true, false);
 		}
 
 		// Home row [A - L]
-		for (int k = 0; k < 9; k++) {
+		for (int k = 0; k < 9; k++)
+		{
 			hButtons.push_back(std::make_shared<ButtonComponent>
-				(mWindow, homeRowUp[k], homeRowUp[k], [this, k, loc] {
+				(mWindow, homeRowUp[ k ], homeRowUp[ k ], [ this, k, loc ]
+			{
 				mText->startEditing();
-				if (mShift) mText->textInput(homeRowUp[k]);
-				else mText->textInput(homeRow[k]);
+				if (mShift) mText->textInput(homeRowUp[ k ]);
+				else mText->textInput(homeRow[ k ]);
 				mText->stopEditing();
 			}));
 		}
 
 		// Home row - Add in the last three manualy because they're special chara [" , |]
-		for (int k = 9; k < 12; k++) {
-			hButtons.push_back(std::make_shared<ButtonComponent>(mWindow, homeRow[k], homeRow[k], [this, k] {
+		for (int k = 9; k < 12; k++)
+		{
+			hButtons.push_back(std::make_shared<ButtonComponent>(mWindow, homeRow[ k ], homeRow[ k ], [ this, k ]
+			{
 				mText->startEditing();
-				if (mShift) mText->textInput(homeRowUp[k]);
-				else mText->textInput(homeRow[k]);
+				if (mShift) mText->textInput(homeRowUp[ k ]);
+				else mText->textInput(homeRow[ k ]);
 				mText->stopEditing();
 			}));
 		}
 
-		for (int k = 0; k < 12; k++) {
-			hButtons[k]->setSize((Renderer::getScreenWidth() * 0.95f) / 12, (mText->getFont()->getHeight() + 6));
-			mKeyboardGrid->setEntry(hButtons[k], Vector2i(k, 3), true, false);
+		for (int k = 0; k < 12; k++)
+		{
+			hButtons[ k ]->setSize(keyboardKeySize);
+			mKeyboardGrid->setEntry(hButtons[ k ], Vector2i(k, 4), true, false);
 		}
 
 		// Special case for shift key
-		bButtons.push_back(std::make_shared<ButtonComponent>(mWindow, "SHIFT", _("SHIFTS FOR UPPER,LOWER, AND SPECIAL"), [this] {
+		bButtons.push_back(std::make_shared<ButtonComponent>(mWindow, "SHIFT", _("SHIFTS FOR UPPER,LOWER, AND SPECIAL"), [ this ]
+		{
 			if (mShift) mShift = false;
 			else mShift = true;
 			shiftKeys();
 		}));
 
 		// Bottom row - Add in the first manualy because it is a special chara [~]
-		for (int k = 0; k < 1; k++) {
-			bButtons.push_back(std::make_shared<ButtonComponent>(mWindow, bottomRow[0], bottomRow[0], [this, k] {
+		for (int k = 0; k < 1; k++)
+		{
+			bButtons.push_back(std::make_shared<ButtonComponent>(mWindow, bottomRow[ 0 ], bottomRow[ 0 ], [ this, k ]
+			{
 				mText->startEditing();
-				if (mShift) mText->textInput(bottomRowUp[k]);
-				else mText->textInput(bottomRow[k]);
+				if (mShift) mText->textInput(bottomRowUp[ k ]);
+				else mText->textInput(bottomRow[ k ]);
 				mText->stopEditing();
 			}));
 		}
 
 		// Bottom row [Z - M]
-		for (int k = 1; k < 8; k++) {
+		for (int k = 1; k < 8; k++)
+		{
 			bButtons.push_back(std::make_shared<ButtonComponent>
-				(mWindow, bottomRowUp[k], bottomRowUp[k], [this, k, loc] {
+				(mWindow, bottomRowUp[ k ], bottomRowUp[ k ], [ this, k, loc ]
+			{
 				mText->startEditing();
-				if (mShift) mText->textInput(bottomRowUp[k]);
-				else mText->textInput(bottomRow[k]);
+				if (mShift) mText->textInput(bottomRowUp[ k ]);
+				else mText->textInput(bottomRow[ k ]);
 				mText->stopEditing();
 			}));
 		}
 
 		// Bottom row - Add in the last three manualy because they're special chara [< , > , /]
-		for (int k = 8; k < 12; k++) {
-			bButtons.push_back(std::make_shared<ButtonComponent>(mWindow, bottomRow[k], bottomRow[k], [this, k] {
+		for (int k = 8; k < 12; k++)
+		{
+			bButtons.push_back(std::make_shared<ButtonComponent>(mWindow, bottomRow[ k ], bottomRow[ k ], [ this, k ]
+			{
 				mText->startEditing();
-				if (mShift) mText->textInput(bottomRowUp[k]);
-				else mText->textInput(bottomRow[k]);
+				if (mShift) mText->textInput(bottomRowUp[ k ]);
+				else mText->textInput(bottomRow[ k ]);
 				mText->stopEditing();
 			}));
 		}
 
 		// Do a sererate for loop because shift key makes it weird
-		for (int k = 0; k < 12; k++) {
-			bButtons[k]->setSize((Renderer::getScreenWidth() * 0.95f) / 12, (mText->getFont()->getHeight() + 6));
-			mKeyboardGrid->setEntry(bButtons[k], Vector2i(k, 4), true, false);
+		for (int k = 0; k < 12; k++)
+		{
+			bButtons[ k ]->setSize(keyboardKeySize);
+			mKeyboardGrid->setEntry(bButtons[ k ], Vector2i(k, 5), true, false);
 		}
-
 		// END KEYBOARD IF
 	}
 
-	// Add keyboard keys
-	mGrid.setEntry(mKeyboardGrid, Vector2i(0, 2), true, true, Vector2i(2, 4));
+	{
+		const Eigen::Vector2i pos(0, 2);
+		const bool canFocus = true;
+		const bool resize = true;
+		mKeyboardGrid->setSize(keyboardKeySize);
+		mGrid.setEntry(mKeyboardGrid, pos, canFocus, resize);
+	}
 
 	// Accept/Cancel/Delete/Space buttons
 	std::vector<std::shared_ptr<ButtonComponent> > buttons;
@@ -226,14 +250,31 @@ void GuiTextEditPopupKeyboard::onSizeChanged()
 {
 	mBackground.fitTo(mSize, Eigen::Vector3f::Zero(), Eigen::Vector2f(-32, -32));
 
-	mText->setSize(mSize.x() - 40, mText->getSize().y());
+	mText->setSize(mSize.x() - 40, mText->getSize().y()); //fixed height
 
+	const float keyboardHeight =
+		mSize.y() - ( 
+			mText->getSize().y() + 
+			mTitle->getFont()->getHeight() + 
+			mButtons->getSize().y() 
+		);
+	const Vector2i& keyboardGridSize = mKeyboardGrid->GetGridSize();
 	// update grid
-	mGrid.setRowHeightPerc(0, mTitle->getFont()->getHeight() / mSize.y());
-	mGrid.setRowHeightPerc(2, mKeyboardGrid->getSize().y() / mSize.y());
-	mGrid.setRowHeightPerc(6, mButtons->getSize().y() / mSize.y());
+	const float textScaleRation = mText->getSize().y() / mSize.y();
+	const float titleScaleRatio = mTitle->getFont()->getHeight() / mSize.y();
+	const float buttonsScaleRation = mButtons->getSize().y() / mSize.y();
+	mGrid.setRowHeightPerc(0, titleScaleRatio);
+	mGrid.setRowHeightPerc(6, buttonsScaleRation);
 
-	mGrid.setSize(mSize);
+	Vector2f gridSize(mSize.x(), mSize.y());
+	mGrid.setSize(gridSize);
+
+	const float keysScaleRatio = 0.8f;
+	mKeyboardGrid->setRowHeightPerc(0, 0.15, true); //top vertical padding
+	for (uint32_t i = 1; i < keyboardGridSize.y(); ++i)
+	{
+		mKeyboardGrid->setRowHeightPerc(i, std::min(keysScaleRatio, 1.0f), true);
+	}
 }
 
 bool GuiTextEditPopupKeyboard::input(InputConfig* config, Input input)
@@ -329,6 +370,24 @@ void GuiTextEditPopupKeyboard::shiftKeys() {
 		bButtons[11]->setSize((Renderer::getScreenWidth() * 0.95f) / 12, (mText->getFont()->getHeight() + 6));
 	}
 
+}
+
+Eigen::Vector2f GuiTextEditPopupKeyboard::GetKeyboardSize() const
+{
+	const Vector2f singleKeySize = GetKeyboardKeySize();
+	const Vector2i gridSize = GetKeyboardGridSize();
+	return Vector2f(
+		singleKeySize.x() * gridSize.x(), 
+		singleKeySize.y() * gridSize.y());
+}
+
+Eigen::Vector2f GuiTextEditPopupKeyboard::GetKeyboardKeySize() const
+{
+	const float height = mText->getFont()->getHeight() + 6;
+	const float width = 
+		(Renderer::getScreenWidth() * 0.95f ) / 
+		GetKeyboardGridSize().x();
+	return Vector2f(width, height);
 }
 
 std::vector<HelpPrompt> GuiTextEditPopupKeyboard::getHelpPrompts()

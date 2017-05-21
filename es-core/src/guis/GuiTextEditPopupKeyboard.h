@@ -20,6 +20,15 @@ public:
 private:
 	void shiftKeys();
 
+	Eigen::Vector2f GetKeyboardSize() const;
+	Eigen::Vector2f GetKeyboardKeySize() const;
+	Eigen::Vector2i GetKeyboardGridSize() const
+	{
+		return Eigen::Vector2i(
+			static_cast< int >( KeyboardGrid::width ),
+			static_cast< int >( KeyboardGrid::height ));
+	}
+
 	NinePatchComponent mBackground;
 	ComponentGrid mGrid;
 
@@ -37,6 +46,8 @@ private:
 	std::shared_ptr<ComponentGrid> mButtonGrid;
 	std::shared_ptr<ComponentGrid> mNewGrid;
 	std::shared_ptr<ComponentGrid> mButtons;
+
+	enum class KeyboardGrid { width = 12, height = 6};
 
 	// Define keyboard key rows.
 	const char* numRow[12] = { "1","2","3","4","5","6","7","8","9","0","_","+" };
