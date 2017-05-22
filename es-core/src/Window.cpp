@@ -129,11 +129,13 @@ void Window::input(InputConfig* config, Input input)
 		// toggle TextComponent debug view with Ctrl-T
 		Settings::getInstance()->setBool("DebugText", !Settings::getInstance()->getBool("DebugText"));
 	}
+#if _DEBUG
 	else if (config->getDeviceId() == DEVICE_KEYBOARD && input.value && input.id == SDLK_ESCAPE)
 	{
 		GuiComponent* guiComponent = peekGui();
 		removeGui(guiComponent);
 	}
+#endif
 	else
 	{
 		GuiComponent* guiComponent = peekGui();
