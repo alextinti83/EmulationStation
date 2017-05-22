@@ -1,8 +1,7 @@
 #include "guis/GuiTextEditPopupKeyboard.h"
 #include "components/MenuComponent.h"
 #include "Log.h"
-
-const char* _(const char* str) { return str; }
+#include "Localization.h"
 
 using namespace Eigen;
 
@@ -392,10 +391,10 @@ Eigen::Vector2f GuiTextEditPopupKeyboard::GetKeyboardKeySize() const
 std::vector<HelpPrompt> GuiTextEditPopupKeyboard::getHelpPrompts()
 {
 	std::vector<HelpPrompt> prompts = mGrid.getHelpPrompts();
-	prompts.push_back(HelpPrompt("y", _("SHIFT")));
-	prompts.push_back(HelpPrompt("a", _("BACK")));
-	prompts.push_back(HelpPrompt("r", _("SPACE")));
-	prompts.push_back(HelpPrompt("l", _("DELETE")));
+	prompts.push_back(HelpPrompt("y", _("SHIFT").c_str()));
+	prompts.push_back(HelpPrompt("a", _("BACK").c_str()));
+	prompts.push_back(HelpPrompt("r", _("SPACE").c_str()));
+	prompts.push_back(HelpPrompt("l", _("DELETE").c_str()));
 	return prompts;
 }
 

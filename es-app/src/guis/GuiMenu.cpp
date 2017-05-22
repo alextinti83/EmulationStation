@@ -17,6 +17,7 @@
 #include "components/OptionListComponent.h"
 #include "components/MenuComponent.h"
 #include "VolumeControl.h"
+#include "Localization.h"
 
 GuiMenu::GuiMenu(Window* window) : GuiComponent(window), mMenu(window, "MAIN MENU"), mVersion(window)
 {
@@ -368,7 +369,6 @@ public:
 };
 
 
-const std::string _(const char* str) { return str; }
 void GuiMenu::createConfigInput()
 {
 
