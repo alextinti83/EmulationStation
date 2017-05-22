@@ -84,6 +84,8 @@ GuiMenu::GuiMenu(Window* window) : GuiComponent(window), mMenu(window, "MAIN MEN
 			mWindow->pushGui(s);
 	});
 
+
+
 	addEntry("UI SETTINGS", 0x777777FF, true,
 		[this] {
 			auto s = new GuiSettings(mWindow, "UI SETTINGS");
@@ -204,7 +206,7 @@ GuiMenu::GuiMenu(Window* window) : GuiComponent(window), mMenu(window, "MAIN MEN
 
 			mWindow->pushGui(s);
 	});
-
+#if 0
 	addEntry("CONFIGURE INPUT", 0x777777FF, true, 
 		[this] {
 			Window* window = mWindow;
@@ -214,6 +216,9 @@ GuiMenu::GuiMenu(Window* window) : GuiComponent(window), mMenu(window, "MAIN MEN
 				}, "NO", nullptr)
 			);
 	});
+#else
+	addEntry("CONTROLLERS SETTINGS", 0x777777FF, true, [ this ] { this->createConfigInput(); });
+#endif
 
 	addEntry("QUIT", 0x777777FF, true, 
 		[this] {
@@ -341,6 +346,22 @@ std::vector<HelpPrompt> GuiMenu::getHelpPrompts()
 }
 
 
+
+class StrInputConfig
+{
+public:
+	StrInputConfig(std::string ideviceName, std::string ideviceGUIDString)
+	{
+		deviceName = ideviceName;
+		deviceGUIDString = ideviceGUIDString;
+	}
+
+	std::string deviceName;
+	std::string deviceGUIDString;
+};
+
+
+const std::string _(const char* str) { return str; }
 void GuiMenu::createConfigInput()
 {
 
@@ -361,7 +382,7 @@ void GuiMenu::createConfigInput()
 		{
 			window->pushGui(new GuiDetectDevice(window, false, [ this, s ]
 			{
-				s->setSave(false);
+			//	s->setSave(false);
 				delete s;
 				this->createConfigInput();
 			}));
@@ -374,6 +395,7 @@ void GuiMenu::createConfigInput()
 		true);
 	s->addRow(row);
 
+#if 0 //bluetooth pairing stuff disabled
 	row.elements.clear();
 
 	std::function<void(void *)> showControllerList = [ window, this, s ] (void *controllers)
@@ -457,7 +479,7 @@ void GuiMenu::createConfigInput()
 		true);
 	s->addRow(row);
 	row.elements.clear();
-
+#endif
 
 
 	row.elements.clear();
@@ -591,4 +613,13 @@ void GuiMenu::createConfigInput()
 	row.elements.clear();
 	window->pushGui(s);
 
+}
+
+void GuiMenu::clearLoadedInput()
+{
+	for (int i = 0; i < mLoadedInput.size(); i++)
+	{
+		delete mLoadedInput[ i ];
+	}
+	mLoadedInput.clear();
 }
