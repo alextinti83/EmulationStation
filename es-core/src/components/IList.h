@@ -95,7 +95,7 @@ public:
 		mTitleOverlayFont = Font::get(FONT_SIZE_LARGE);
 	}
 
-	void SetLoopType(const ListLoopType mLoopType)
+	void SetLoopType(const ListLoopType loopType)
 	{
 		mLoopType = loopType;
 	}
