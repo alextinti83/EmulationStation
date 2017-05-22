@@ -240,6 +240,18 @@ public:
 		return selected.at(0);
 	}
 
+
+	std::string getSelectedName()
+	{
+		assert(mMultiSelect == false);
+		for (unsigned int i = 0; i < mEntries.size(); i++)
+		{
+			if (mEntries.at(i).selected)
+				return mEntries.at(i).name;
+		}
+		return "";
+	}
+
 	void add(const std::string& name, const T& obj, bool selected)
 	{
 		OptionListData e;

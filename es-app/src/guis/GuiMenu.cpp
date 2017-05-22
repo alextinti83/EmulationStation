@@ -84,6 +84,8 @@ GuiMenu::GuiMenu(Window* window) : GuiComponent(window), mMenu(window, "MAIN MEN
 			mWindow->pushGui(s);
 	});
 
+
+
 	addEntry("UI SETTINGS", 0x777777FF, true,
 		[this] {
 			auto s = new GuiSettings(mWindow, "UI SETTINGS");
@@ -204,7 +206,7 @@ GuiMenu::GuiMenu(Window* window) : GuiComponent(window), mMenu(window, "MAIN MEN
 
 			mWindow->pushGui(s);
 	});
-
+#if 0
 	addEntry("CONFIGURE INPUT", 0x777777FF, true, 
 		[this] {
 			Window* window = mWindow;
@@ -214,6 +216,9 @@ GuiMenu::GuiMenu(Window* window) : GuiComponent(window), mMenu(window, "MAIN MEN
 				}, "NO", nullptr)
 			);
 	});
+#else
+	addEntry("CONTROLLERS SETTINGS", 0x777777FF, true, [ this ] { this->createConfigInput(); });
+#endif
 
 	addEntry("QUIT", 0x777777FF, true, 
 		[this] {
@@ -338,4 +343,283 @@ std::vector<HelpPrompt> GuiMenu::getHelpPrompts()
 	prompts.push_back(HelpPrompt("a", "select"));
 	prompts.push_back(HelpPrompt("start", "close"));
 	return prompts;
+}
+
+
+
+class StrInputConfig
+{
+public:
+	StrInputConfig(std::string ideviceName, std::string ideviceGUIDString)
+	{
+		deviceName = ideviceName;
+		deviceGUIDString = ideviceGUIDString;
+	}
+
+	std::string deviceName;
+	std::string deviceGUIDString;
+};
+
+
+const std::string _(const char* str) { return str; }
+void GuiMenu::createConfigInput()
+{
+
+	GuiSettings *s = new GuiSettings(mWindow, _("CONTROLLERS SETTINGS").c_str());
+
+	Window *window = mWindow;
+
+	ComponentListRow row;
+	row.makeAcceptInputHandler([ window, this, s ]
+	{
+		window->pushGui(new GuiMsgBox(window,
+			_("YOU ARE GOING TO CONFIGURE A CONTROLLER. IF YOU HAVE ONLY ONE JOYSTICK, "
+				"CONFIGURE THE DIRECTIONS KEYS AND SKIP JOYSTICK CONFIG BY HOLDING A BUTTON. "
+				"IF YOU DO NOT HAVE A SPECIAL KEY FOR HOTKEY, CHOOSE THE SELECT BUTTON. SKIP "
+				"ALL BUTTONS YOU DO NOT HAVE BY HOLDING A KEY. BUTTONS NAMES ARE BASED ON THE "
+				"SNES CONTROLLER."), _("OK"),
+			[ window, this, s ]
+		{
+			window->pushGui(new GuiDetectDevice(window, false, [ this, s ]
+			{
+			//	s->setSave(false);
+				delete s;
+				this->createConfigInput();
+			}));
+		}));
+	});
+
+
+	row.addElement(
+		std::make_shared<TextComponent>(window, _("CONFIGURE A CONTROLLER"), Font::get(FONT_SIZE_MEDIUM), 0x777777FF),
+		true);
+	s->addRow(row);
+
+#if 0 //bluetooth pairing stuff disabled
+	row.elements.clear();
+
+	std::function<void(void *)> showControllerList = [ window, this, s ] (void *controllers)
+	{
+		std::function<void(void *)> deletePairGui = [ window ] (void *pairedPointer)
+		{
+			bool paired = *( ( bool * ) pairedPointer );
+			window->pushGui(new GuiMsgBox(window, paired ? _("CONTROLLER PAIRED") : _("UNABLE TO PAIR CONTROLLER"), _("OK")));
+		};
+		if (controllers == NULL)
+		{
+			window->pushGui(new GuiMsgBox(window, _("AN ERROR OCCURED"), _("OK")));
+		}
+		else
+		{
+			std::vector<std::string> *resolvedControllers = ( ( std::vector<std::string> * ) controllers );
+			if (resolvedControllers->size() == 0)
+			{
+				window->pushGui(new GuiMsgBox(window, _("NO CONTROLLERS FOUND"), _("OK")));
+			}
+			else
+			{
+				GuiSettings *pairGui = new GuiSettings(window, _("PAIR A BLUETOOTH CONTROLLER").c_str());
+				for (std::vector<std::string>::iterator controllerString = ( ( std::vector<std::string> * ) controllers )->begin();
+					controllerString != ( ( std::vector<std::string> * ) controllers )->end(); ++controllerString)
+				{
+
+					ComponentListRow controllerRow;
+					std::function<void()> pairController = [ this, window, pairGui, controllerString, deletePairGui ]
+					{
+						window->pushGui(new GuiLoading(window, [ controllerString ]
+						{
+							bool paired = RecalboxSystem::getInstance()->pairBluetooth(*controllerString);
+
+							return ( void * ) new bool(true);
+						}, deletePairGui));
+
+					};
+					controllerRow.makeAcceptInputHandler(pairController);
+					auto update = std::make_shared<TextComponent>(window, *controllerString,
+						Font::get(FONT_SIZE_MEDIUM),
+						0x777777FF);
+					auto bracket = makeArrow(window);
+					controllerRow.addElement(update, true);
+					controllerRow.addElement(bracket, false);
+					pairGui->addRow(controllerRow);
+				}
+				window->pushGui(pairGui);
+			}
+		}
+
+	};
+
+	row.makeAcceptInputHandler([ window, this, s, showControllerList ]
+	{
+
+		window->pushGui(new GuiLoading(window, []
+		{
+			auto s = RecalboxSystem::getInstance()->scanBluetooth();
+			return ( void * ) s;
+		}, showControllerList));
+	});
+
+
+	row.addElement(
+		std::make_shared<TextComponent>(window, _("PAIR A BLUETOOTH CONTROLLER"), Font::get(FONT_SIZE_MEDIUM),
+			0x777777FF),
+		true);
+	s->addRow(row);
+	row.elements.clear();
+
+	row.makeAcceptInputHandler([ window, this, s ]
+	{
+		RecalboxSystem::getInstance()->forgetBluetoothControllers();
+		window->pushGui(new GuiMsgBox(window,
+			_("CONTROLLERS LINKS HAVE BEEN DELETED."), _("OK")));
+	});
+	row.addElement(
+		std::make_shared<TextComponent>(window, _("FORGET BLUETOOTH CONTROLLERS"), Font::get(FONT_SIZE_MEDIUM),
+			0x777777FF),
+		true);
+	s->addRow(row);
+	row.elements.clear();
+#endif
+
+
+	row.elements.clear();
+
+	// Here we go; for each player
+	std::list<int> alreadyTaken = std::list<int>();
+
+	// clear the current loaded inputs
+	clearLoadedInput();
+
+	std::vector<std::shared_ptr<OptionListComponent<StrInputConfig *>>> options;
+	char strbuf[ 256 ];
+
+	for (int player = 0; player < MAX_PLAYERS; player++)
+	{
+		std::stringstream sstm;
+		sstm << "INPUT P" << player + 1;
+		std::string confName = sstm.str() + "NAME";
+		std::string confGuid = sstm.str() + "GUID";
+		snprintf(strbuf, 256, _("INPUT P%i").c_str(), player + 1);
+
+		LOG(LogInfo) << player + 1 << " " << confName << " " << confGuid;
+		auto inputOptionList = std::make_shared<OptionListComponent<StrInputConfig *> >(mWindow, strbuf, false);
+		options.push_back(inputOptionList);
+
+		// Checking if a setting has been saved, else setting to default
+		std::string configuratedName = Settings::getInstance()->getString(confName);
+		std::string configuratedGuid = Settings::getInstance()->getString(confGuid);
+		bool found = false;
+		// For each available and configured input
+		for (auto it = 0; it < InputManager::getInstance()->getNumJoysticks(); it++)
+		{
+			InputConfig *config = InputManager::getInstance()->getInputConfigByDevice(it);
+			if (config->isConfigured())
+			{
+				// create name
+				std::stringstream dispNameSS;
+				dispNameSS << "#" << config->getDeviceId() << " ";
+				std::string deviceName = config->getDeviceName();
+				if (deviceName.size() > 25)
+				{
+					dispNameSS << deviceName.substr(0, 16) << "..." <<
+						deviceName.substr(deviceName.size() - 5, deviceName.size() - 1);
+				}
+				else
+				{
+					dispNameSS << deviceName;
+				}
+
+				std::string displayName = dispNameSS.str();
+
+
+				bool foundFromConfig = configuratedName == config->getDeviceName() &&
+					configuratedGuid == config->getDeviceGUIDString();
+				int deviceID = config->getDeviceId();
+				// Si la manette est configurée, qu'elle correspond a la configuration, et qu'elle n'est pas
+				// deja selectionnée on l'ajoute en séléctionnée
+				StrInputConfig* newInputConfig = new StrInputConfig(config->getDeviceName(), config->getDeviceGUIDString());
+				mLoadedInput.push_back(newInputConfig);
+
+				if (foundFromConfig
+					&& std::find(alreadyTaken.begin(), alreadyTaken.end(), deviceID) == alreadyTaken.end()
+					&& !found)
+				{
+					found = true;
+					alreadyTaken.push_back(deviceID);
+					LOG(LogWarning) << "adding entry for player" << player << " (selected): " <<
+						config->getDeviceName() << "  " << config->getDeviceGUIDString();
+					inputOptionList->add(displayName, newInputConfig, true);
+				}
+				else
+				{
+					LOG(LogWarning) << "adding entry for player" << player << " (not selected): " <<
+						config->getDeviceName() << "  " << config->getDeviceGUIDString();
+					inputOptionList->add(displayName, newInputConfig, false);
+				}
+			}
+		}
+		if (configuratedName.compare("") == 0 || !found)
+		{
+			LOG(LogWarning) << "adding default entry for player " << player << "(selected : true)";
+			inputOptionList->add("default", NULL, true);
+		}
+		else
+		{
+			LOG(LogWarning) << "adding default entry for player" << player << "(selected : false)";
+			inputOptionList->add("default", NULL, false);
+		}
+
+		// ADD default config
+
+		// Populate controllers list
+		s->addWithLabel(strbuf, inputOptionList);
+	}
+	s->addSaveFunc([ this, options, window ]
+	{
+		for (int player = 0; player < MAX_PLAYERS; player++)
+		{
+			std::stringstream sstm;
+			sstm << "INPUT P" << player + 1;
+			std::string confName = sstm.str() + "NAME";
+			std::string confGuid = sstm.str() + "GUID";
+
+			auto input_p1 = options.at(player);
+			std::string name;
+			std::string selectedName = input_p1->getSelectedName();
+
+			if (selectedName.compare(strToUpper("default")) == 0)
+			{
+				name = "DEFAULT";
+				Settings::getInstance()->setString(confName, name);
+				Settings::getInstance()->setString(confGuid, "");
+			}
+			else
+			{
+				if (input_p1->getSelected() != NULL)
+				{
+					LOG(LogWarning) << "Found the selected controller ! : name in list  = " << selectedName;
+					LOG(LogWarning) << "Found the selected controller ! : guid  = " << input_p1->getSelected()->deviceGUIDString;
+
+					Settings::getInstance()->setString(confName, input_p1->getSelected()->deviceName);
+					Settings::getInstance()->setString(confGuid, input_p1->getSelected()->deviceGUIDString);
+				}
+			}
+		}
+
+		Settings::getInstance()->saveFile();
+
+	});
+
+	row.elements.clear();
+	window->pushGui(s);
+
+}
+
+void GuiMenu::clearLoadedInput()
+{
+	for (int i = 0; i < mLoadedInput.size(); i++)
+	{
+		delete mLoadedInput[ i ];
+	}
+	mLoadedInput.clear();
 }
