@@ -95,6 +95,16 @@ public:
 		mTitleOverlayFont = Font::get(FONT_SIZE_LARGE);
 	}
 
+	void SetLoopType(const ListLoopType mLoopType)
+	{
+		mLoopType = loopType;
+	}
+
+	ListLoopType GetLoopType() const
+	{
+		return mLoopType;
+	}
+
 	bool isScrolling() const
 	{
 		return (mScrollVelocity != 0 && mScrollTier > 0);
