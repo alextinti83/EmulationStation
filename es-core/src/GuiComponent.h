@@ -24,6 +24,9 @@ public:
 	//Called when input is received.
 	//Return true if the input is consumed, false if it should continue to be passed to other children.
 	virtual bool input(InputConfig* config, Input input);
+	
+	enum class Loop { Yes, No };
+	virtual bool moveCursor(Eigen::Vector2i dir, Loop loop);
 
 	//Called when time passes.  Default implementation calls updateSelf(deltaTime) and updateChildren(deltaTime) - so you should probably call GuiComponent::update(deltaTime) at some point (or at least updateSelf so animations work).
 	virtual void update(int deltaTime);

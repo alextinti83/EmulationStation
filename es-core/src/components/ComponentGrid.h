@@ -49,7 +49,11 @@ public:
 	void setColWidthPerc(int col, float width, bool update = true); // if update is false, will not call an onSizeChanged() which triggers a (potentially costly) repositioning + resizing of every element
 	void setRowHeightPerc(int row, float height, bool update = true); // if update is false, will not call an onSizeChanged() which triggers a (potentially costly) repositioning + resizing of every element
 
-	bool moveCursor(Eigen::Vector2i dir);
+	bool moveCursorSelf(Eigen::Vector2i dir, Loop loop = Loop::No);
+	bool moveCursor(Eigen::Vector2i dir, Loop loop = Loop::No) override;
+
+	bool _2moveCursor(Eigen::Vector2i dir);
+	bool _moveCursor(Eigen::Vector2i dir);
 	void setCursorTo(const std::shared_ptr<GuiComponent>& comp);
 
 	const Eigen::Vector2i& GetGridSize() const { return mGridSize; }
@@ -69,6 +73,8 @@ public:
 	virtual std::vector<HelpPrompt> getHelpPrompts() override;
 
 private:
+	Eigen::Vector2i nextCursorPos(Eigen::Vector2i currentPos, Eigen::Vector2i dir, Loop loop);
+
 	class GridEntry
 	{
 	public:

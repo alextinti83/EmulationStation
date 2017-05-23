@@ -38,6 +38,18 @@ bool GuiComponent::input(InputConfig* config, Input input)
 	return false;
 }
 
+bool GuiComponent::moveCursor(Eigen::Vector2i dir, Loop loop)
+{
+	for (GuiComponent* child : mChildren)
+	{
+		if (child->moveCursor(dir, loop))
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 void GuiComponent::updateSelf(int deltaTime)
 {
 	for(unsigned char i = 0; i < MAX_ANIMATIONS; i++)

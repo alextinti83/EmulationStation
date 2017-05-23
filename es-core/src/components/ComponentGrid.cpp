@@ -224,6 +224,24 @@ ComponentGrid::GridEntry* ComponentGrid::getCellAt(int x, int y)
 	return NULL;
 }
 
+void ComponentGrid::resetCursor()
+{
+	if (!mCells.size())
+		return;
+
+	for (auto it = mCells.begin(); it != mCells.end(); it++)
+	{
+		if (it->canFocus)
+		{
+			Eigen::Vector2i origCursor = mCursor;
+			mCursor = it->pos;
+			onCursorMoved(origCursor, mCursor);
+			break;
+		}
+	}
+}
+
+
 bool ComponentGrid::input(InputConfig* config, Input input)
 {
 	GridEntry* cursorEntry = getCellAt(mCursor);
@@ -235,11 +253,13 @@ bool ComponentGrid::input(InputConfig* config, Input input)
 
 	if(config->isMappedTo("down", input))
 	{
-		return moveCursor(Eigen::Vector2i(0, 1));
+		if (_moveCursor(Eigen::Vector2i(0, 1))) { return true; }
+		return _2moveCursor(Eigen::Vector2i(0, 1));
 	}
 	if(config->isMappedTo("up", input))
 	{
-		return moveCursor(Eigen::Vector2i(0, -1));
+		if (_moveCursor(Eigen::Vector2i(0, -1))) { return true; }
+		return _2moveCursor(Eigen::Vector2i(0, -1));
 	}
 	if(config->isMappedTo("left", input))
 	{
@@ -253,24 +273,124 @@ bool ComponentGrid::input(InputConfig* config, Input input)
 	return false;
 }
 
-void ComponentGrid::resetCursor()
-{
-	if(!mCells.size())
-		return;
 
-	for(auto it = mCells.begin(); it != mCells.end(); it++)
+
+Eigen::Vector2i ComponentGrid::nextCursorPos(
+	Eigen::Vector2i currentPos, 
+	Eigen::Vector2i dir, 
+	Loop loop)
+{
+	static const std::size_t x = 0, y = 1;
+	Eigen::Vector2i nextPos(currentPos);
+
+	nextPos += dir;
+	if (loop == Loop::Yes)
 	{
-		if(it->canFocus)
-		{
-			Eigen::Vector2i origCursor = mCursor;
-			mCursor = it->pos;
-			onCursorMoved(origCursor, mCursor);
-			break;
-		}
+		nextPos[ x ] = nextPos[ x ] % mGridSize[ x ];
+		nextPos[ y ] = nextPos[ y ] % mGridSize[ y ];
 	}
+	assert(nextPos[ x ] >= 0);
+	assert(nextPos[ y ] >= 0);
+	assert(nextPos[ x ] < mGridSize[ x ]);
+	assert(nextPos[ y ] < mGridSize[ y ]);
+
+	return nextPos;
 }
 
-bool ComponentGrid::moveCursor(Eigen::Vector2i dir)
+bool ComponentGrid::moveCursorSelf(Eigen::Vector2i dir, Loop loop)
+{
+	assert(dir.x() || dir.y());
+
+	static const std::size_t x = 0, y = 1;
+
+	const GridEntry* const currentCell	= getCellAt(mCursor);
+
+	const Eigen::Vector2i& gridSize		= mGridSize;
+	const Eigen::Vector2i& originalPos	= mCursor;
+
+	Eigen::Vector2i newPosition = nextCursorPos(originalPos, dir, loop);
+	const GridEntry* newCell = nullptr;
+
+	while (
+		loop == Loop::No && 
+		( 
+			newPosition[ x ] >= 0 &&
+			newPosition[ y ] >= 0 &&
+			newPosition[ x ] < gridSize[ x ] &&
+			newPosition[ y ] < gridSize[ y ]
+		) ||
+		loop == Loop::Yes && ( newPosition != originalPos )
+		)
+	{
+		newCell = getCellAt(newPosition);
+		if (newCell &&
+			newCell->canFocus &&
+			newCell != currentCell)
+		{	//		from:	             to:
+			onCursorMoved(originalPos, newPosition);
+			return true;
+		}
+		newPosition = nextCursorPos(newPosition, dir, loop);
+	}
+	return false;
+}
+
+bool ComponentGrid::moveCursor(Eigen::Vector2i dir, Loop loop)
+{
+	if (GuiComponent::moveCursor(dir, loop)) { return true; }
+	return moveCursorSelf(dir, loop);
+}
+
+bool ComponentGrid::_2moveCursor(Eigen::Vector2i dir)
+{
+	assert(dir.x() || dir.y());
+
+	static const std::size_t x = 0, y = 1;
+
+	const GridEntry* const currentCell	= getCellAt(mCursor);
+	const GridEntry*       newCell		= currentCell;
+	
+	const Eigen::Vector2i& gridSize			= mGridSize;
+	const Eigen::Vector2i& originalPosition = mCursor;
+
+	Eigen::Vector2i newPosition(originalPosition);
+	do
+	{
+		newPosition += dir;
+		if (newPosition[ x ] < 0)
+		{
+			newPosition[ x ] = gridSize[ x ] - 1;
+		}
+		if (newPosition[ y ] < 0)
+		{
+			newPosition[ y ] = gridSize[ y ] - 1;
+		}
+		if (newPosition[ x ] >= gridSize[x])
+		{
+			newPosition[ x ] = 0;
+		}
+		if (newPosition[ y ] >= gridSize[ y ])
+		{
+			newPosition[ y ] = 0;
+		}
+
+
+
+		newCell = getCellAt(newPosition);
+		if (newCell &&
+			newCell->canFocus && 
+			newCell != currentCell)
+		{	//		from:	             to:
+			onCursorMoved(originalPosition, newPosition); 
+			return true;
+		}
+
+	}
+	while (currentCell != newCell);
+	return false;
+}
+
+bool ComponentGrid::_moveCursor(Eigen::Vector2i dir)
 {
 	assert(dir.x() || dir.y());
 
