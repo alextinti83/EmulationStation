@@ -38,6 +38,7 @@ public:
 	~FileFilterIndex();
 	void addToIndex(FileData* game);
 	void removeFromIndex(FileData* game);
+	bool isFilteredByType(FilterIndexType type) const;
 	void setFilter(FilterIndexType type, std::vector<std::string>* values);
 	void clearAllFilters();	
 	void debugPrintIndexes();
@@ -47,6 +48,7 @@ public:
 	std::map<std::string, int>* getGenreAllIndexedKeys() { return &genreIndexAllKeys; };
 	std::vector<std::string>* getGenreFilteredKeys() { return &genreIndexFilteredKeys; };
 	std::vector<FilterDataDecl>& getFilterDataDecls();
+
 private:
 	std::vector<FilterDataDecl> filterDataDecl;
 	std::string getIndexableKey(FileData* game, FilterIndexType type, bool getSecondary);

@@ -61,10 +61,13 @@ void BasicGameListView::populateList(const std::vector<FileData*>& files)
 			}
 		}
 		mFavoritesCount = favorites.size();
-
-		for ( FileData* filedata : favorites )
+		FileFilterIndex* idx = this->mRoot->getSystem()->getIndex();
+		if (!idx->isFilteredByType(FAVORITES_FILTER))
 		{
-			mList.add("  " + filedata->getName(), filedata, 0, 2);
+			for (FileData* filedata : favorites)
+			{
+				mList.add("  " + filedata->getName(), filedata, 0, 2);
+			}
 		}
 		for ( FileData* filedata : folders )
 		{

@@ -133,6 +133,22 @@ void FileFilterIndex::removeFromIndex(FileData* game)
 	manageFavoritesEntryInIndex(game, true);
 }
 
+bool FileFilterIndex::isFilteredByType(FilterIndexType type) const
+{
+	for (std::vector<FilterDataDecl>::const_iterator it = filterDataDecl.cbegin(); it != filterDataDecl.cend(); ++it)
+	{
+		if (( *it ).type == type)
+		{
+			const bool isFiltered = *( *it ).filteredByRef;
+			if (isFiltered)
+			{ 
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
 void FileFilterIndex::setFilter(FilterIndexType type, std::vector<std::string>* values) 
 {
 	// test if it exists before setting

@@ -134,13 +134,13 @@ bool ISimpleGameListView::input(InputConfig* config, Input input)
 #else
 			if (cursor->getType() != FOLDER)
 			{
+				cursor->getSystem()->getIndex()->removeFromIndex(cursor);
+
 				const int cursorIndex = getCursorIndex();
 				const int favCount = getFavoritesCount();
 				const bool wasFavorite = cursor->isFavorite();
 				cursor->SetIsFavorite(!wasFavorite);
 				FileChangeType fileChangeType = wasFavorite ? FILE_REMOVED : FILE_ADDED;
-				onFileChanged(cursor, fileChangeType);
-
 				if (fileChangeType == FILE_ADDED)
 				{
 					setCursorIndex(cursorIndex + 1); //keep same file selected
@@ -152,6 +152,8 @@ bool ISimpleGameListView::input(InputConfig* config, Input input)
 						setCursorIndex(cursorIndex);
 					}
 				}
+				cursor->getSystem()->getIndex()->addToIndex(cursor);
+				onFileChanged(cursor, fileChangeType);
 			}
 #endif
 			return true;
