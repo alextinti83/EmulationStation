@@ -1,14 +1,13 @@
 #include "TextListComponent.h"
 
-#ifdef WIN32
-const float TextListComponent::k_favoriteImageScale = 0.7f;
-#else
-const float TextListComponent::k_favoriteImageScale = 1.0f;
-#endif
-
 TextListComponent::TextListComponent(Window* window) :
 	BaseT(window),
-	m_favoriteImage(window)
+	m_favoriteImage(window),
+#ifdef WIN32
+	mfavoriteImageScale(0.7f)
+#else
+	mfavoriteImageScale(1.0f)
+#endif
 {
 
 	m_favoriteImage.setImage(":/star_filled.svg");
@@ -98,7 +97,7 @@ void TextListComponent::render(const Eigen::Affine3f& parentTrans)
 		const bool isFavorite = IsFavorite(i);
 		if ( isFavorite )
 		{
-			const Eigen::Vector2f favImageSize = m_favoriteImage.getSize() * k_favoriteImageScale;
+			const Eigen::Vector2f favImageSize = m_favoriteImage.getSize() * mfavoriteImageScale;
 			const float favHeight = favImageSize.y();
 			verticalCenterShift = ( fontHeight - favHeight ) * 0.5f;
 			extraLeftMargin = favImageSize.x();
@@ -153,7 +152,7 @@ void TextListComponent::render(const Eigen::Affine3f& parentTrans)
 			Eigen::Vector3f favOffset(favHorizPos, y + verticalCenterShift, 0);
 			favTrans.translate(favOffset);
 			{
-				const float scale = k_favoriteImageScale;
+				const float scale = mfavoriteImageScale;
 				favTrans.scale(Eigen::Vector3f(scale, scale, scale));
 			}
 			Renderer::popClipRect(); //pop extra margin
@@ -228,7 +227,7 @@ void TextListComponent::update(int deltaTime)
 		float extraLeftMargin = 0;
 		if ( hasFavorites )
 		{
-			extraLeftMargin = m_favoriteImage.getSize().x() * k_favoriteImageScale;
+			extraLeftMargin = m_favoriteImage.getSize().x() * mfavoriteImageScale;
 		}
 
 		const std::string& text = selectedEntry.name;
@@ -322,6 +321,14 @@ void TextListComponent::applyTheme(const std::shared_ptr<ThemeData>& theme, cons
 		if ( elem->has("secondaryColor") )
 			setColor(1, elem->get<unsigned int>("secondaryColor"));
 	}
+	if (elem && properties & PATH && elem->has("favoriteIconPath"))
+	{
+		m_favoriteImage.setImage(elem->get<std::string>("favoriteIconPath"));
+	}
+	if (elem && properties && elem->has("favoriteIconScale"))
+	{
+		mfavoriteImageScale = elem->get<float>("favoriteIconScale");
+	}
 
 	setFont(Font::getFromTheme(elem, properties, mFont));
 
@@ -353,4 +360,6 @@ void TextListComponent::applyTheme(const std::shared_ptr<ThemeData>& theme, cons
 
 	if ( properties & LINE_SPACING && elem->has("lineSpacing") )
 		setLineSpacing(elem->get<float>("lineSpacing"));
+
+
 }

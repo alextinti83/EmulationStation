@@ -57,6 +57,8 @@ std::map< std::string, ElementMapType > ThemeData::sElementMap = boost::assign::
 		("fontPath", PATH)
 		("fontSize", FLOAT)
 		("scrollSound", PATH)
+		( "favoriteIconPath", PATH )
+		( "favoriteIconScale", FLOAT )
 		("alignment", STRING)
 		("horizontalMargin", FLOAT)
 		("forceUppercase", BOOLEAN)

@@ -123,6 +123,6 @@ private:
 	unsigned int mColors[COLOR_ID_COUNT];
 
 	ImageComponent m_favoriteImage;
-	static const float k_favoriteImageScale;
+	float mfavoriteImageScale;
 };
 
