@@ -91,7 +91,9 @@ void TextListComponent::render(const Eigen::Affine3f& parentTrans)
 
 #define DRAW_FAVORITE 1
 #if	DRAW_FAVORITE
+		float favHorizPos = mHorizontalMargin;
 		float horizMargin = mHorizontalMargin;
+		float extraLeftMargin = 0;
 		float verticalCenterShift;
 		const bool isFavorite = IsFavorite(i);
 		if ( isFavorite )
@@ -99,29 +101,38 @@ void TextListComponent::render(const Eigen::Affine3f& parentTrans)
 			const Eigen::Vector2f favImageSize = m_favoriteImage.getSize() * k_favoriteImageScale;
 			const float favHeight = favImageSize.y();
 			verticalCenterShift = ( fontHeight - favHeight ) * 0.5f;
-			const float extraLeftMargin = favImageSize.x();
+			extraLeftMargin = favImageSize.x();
 			PushClipRect(trans, extraLeftMargin);
 			horizMargin += extraLeftMargin;
 		}
 #else
 		const float horizMargin = mHorizontalMargin;
 #endif
-
+		const Eigen::Vector2f textSize = entry.data.textCache->metrics.size;
+		
 		switch ( mAlignment )
 		{
 		case ALIGN_LEFT:
 			offset[ 0 ] = horizMargin;
 			break;
 		case ALIGN_CENTER:
-			offset[ 0 ] = ( mSize.x() - entry.data.textCache->metrics.size.x() ) / 2;
-			if ( offset[ 0 ] < 0 )
-				offset[ 0 ] = 0;
-			break;
+		{
+			const float exceeding = textSize.x() - (mSize.x() - extraLeftMargin);
+			if (exceeding <= 0.f)
+			{
+				offset[ 0 ] = ( mSize.x() - textSize.x() ) / 2;
+				offset[ 0 ] = std::max(offset[ 0 ], 0.f);
+				favHorizPos = offset[ 0 ] - extraLeftMargin;
+			}
+			else
+			{
+				offset[ 0 ] = horizMargin;
+			}
+		} break;
 		case ALIGN_RIGHT:
-			offset[ 0 ] = ( mSize.x() - entry.data.textCache->metrics.size.x() );
+			offset[ 0 ] = ( mSize.x() - textSize.x() );
 			offset[ 0 ] -= horizMargin;
-			if ( offset[ 0 ] < 0 )
-				offset[ 0 ] = 0;
+			offset[ 0 ] = std::max(offset[ 0 ], 0.f);
 			break;
 		}
 
@@ -139,7 +150,7 @@ void TextListComponent::render(const Eigen::Affine3f& parentTrans)
 		{
 			m_favoriteImage.setColorShift(mColors[ entry.data.imageColorId]);
 			Eigen::Affine3f favTrans = trans;
-			Eigen::Vector3f favOffset(mHorizontalMargin, y + verticalCenterShift, 0);
+			Eigen::Vector3f favOffset(favHorizPos, y + verticalCenterShift, 0);
 			favTrans.translate(favOffset);
 			{
 				const float scale = k_favoriteImageScale;
