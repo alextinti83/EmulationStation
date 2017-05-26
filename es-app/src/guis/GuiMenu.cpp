@@ -74,6 +74,35 @@ GuiMenu::GuiMenu(Window* window) : GuiComponent(window), mMenu(window, "MAIN MEN
 		[this] {
 			auto s = new GuiSettings(mWindow, "UI SETTINGS");
 
+			// theme set
+			auto themeSets = ThemeData::getThemeSets();
+
+			if (!themeSets.empty())
+			{
+				auto selectedSet = themeSets.find(Settings::getInstance()->getString("ThemeSet"));
+				if (selectedSet == themeSets.end())
+					selectedSet = themeSets.begin();
+
+				auto theme_set = std::make_shared< OptionListComponent<std::string> >(mWindow, "THEME SET", false);
+				for (auto it = themeSets.begin(); it != themeSets.end(); it++)
+					theme_set->add(it->first, it->first, it == selectedSet);
+				s->addWithLabel("THEME SET", theme_set);
+
+				Window* window = mWindow;
+				s->addSaveFunc([ window, theme_set ]
+				{
+					bool needReload = false;
+					if (Settings::getInstance()->getString("ThemeSet") != theme_set->getSelected())
+						needReload = true;
+
+					Settings::getInstance()->setString("ThemeSet", theme_set->getSelected());
+
+					if (needReload)
+						ViewController::get()->reloadAll(); // TODO - replace this with some sort of signal-based implementation
+				});
+			}
+
+
 			// screensaver time
 			auto screensaver_time = std::make_shared<SliderComponent>(mWindow, 0.f, 30.f, 1.f, "m");
 			screensaver_time->setValue((float)(Settings::getInstance()->getInt("ScreenSaverTime") / (1000 * 60)));
@@ -118,33 +147,7 @@ GuiMenu::GuiMenu(Window* window) : GuiComponent(window), mMenu(window, "MAIN MEN
 			s->addWithLabel("TRANSITION STYLE", transition_style);
 			s->addSaveFunc([transition_style] { Settings::getInstance()->setString("TransitionStyle", transition_style->getSelected()); });
 
-			// theme set
-			auto themeSets = ThemeData::getThemeSets();
 
-			if(!themeSets.empty())
-			{
-				auto selectedSet = themeSets.find(Settings::getInstance()->getString("ThemeSet"));
-				if(selectedSet == themeSets.end())
-					selectedSet = themeSets.begin();
-
-				auto theme_set = std::make_shared< OptionListComponent<std::string> >(mWindow, "THEME SET", false);
-				for(auto it = themeSets.begin(); it != themeSets.end(); it++)
-					theme_set->add(it->first, it->first, it == selectedSet);
-				s->addWithLabel("THEME SET", theme_set);
-
-				Window* window = mWindow;
-				s->addSaveFunc([window, theme_set] 
-				{
-					bool needReload = false;
-					if(Settings::getInstance()->getString("ThemeSet") != theme_set->getSelected())
-						needReload = true;
-
-					Settings::getInstance()->setString("ThemeSet", theme_set->getSelected());
-
-					if(needReload)
-						ViewController::get()->reloadAll(); // TODO - replace this with some sort of signal-based implementation
-				});
-			}
 
 			// GameList view style
 			auto gamelist_style = std::make_shared< OptionListComponent<std::string> >(mWindow, "GAMELIST VIEW STYLE", false);
