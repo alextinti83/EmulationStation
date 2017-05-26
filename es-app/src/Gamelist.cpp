@@ -126,13 +126,13 @@ void parseGamelistAtPath(const std::string& xmlpath, SystemData* system)
 		for(pugi::xml_node fileNode = root.child(tag); fileNode; fileNode = fileNode.next_sibling(tag))
 		{
 			fs::path path = resolvePath(fileNode.child("path").text().get(), relativeTo, false);
-			
+#if !defined(_DEBUG)
 			if(!trustGamelist && !boost::filesystem::exists(path))
 			{
 				LOG(LogWarning) << "File \"" << path << "\" does not exist! Ignoring.";
 				continue;
 			}
-
+#endif
 			FileData* file = findOrCreateFile(system, path, type, trustGamelist);
 			if(!file)
 			{

@@ -122,6 +122,7 @@ fs::path removeCommonPathUsingStrings(const fs::path& path, const fs::path& rela
 // example: removeCommonPath("/home/pi/roms/nes/foo/bar.nes", "/home/pi/roms/nes/") returns "foo/bar.nes"
 fs::path removeCommonPath(const fs::path& path, const fs::path& relativeTo, bool& contains)
 {
+#if !defined(_DEBUG)
 	// if either of these doesn't exist, fs::canonical() is going to throw an error
 	if(!fs::exists(path) || !fs::exists(relativeTo))
 	{
@@ -132,6 +133,10 @@ fs::path removeCommonPath(const fs::path& path, const fs::path& relativeTo, bool
 	// if it's a symlink we don't want to apply fs::canonical on it, otherwise we'll lose the current parent_path
 	fs::path p = (fs::is_symlink(path) ? fs::canonical(path.parent_path()) / path.filename() : fs::canonical(path));
 	fs::path r = fs::canonical(relativeTo);
+#else
+	fs::path p = path;
+	fs::path r = relativeTo;
+#endif
 
 	if(p.root_path() != r.root_path())
 	{
