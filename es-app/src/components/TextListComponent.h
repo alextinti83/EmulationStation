@@ -110,6 +110,7 @@ private:
 
 	Alignment mAlignment;
 	float mHorizontalMargin;
+	float mFavoriteImageHorizontalMargin;
 
 	std::function<void(CursorState state)> mCursorChangedCallback;
 

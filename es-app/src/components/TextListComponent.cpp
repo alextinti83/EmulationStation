@@ -3,6 +3,7 @@
 TextListComponent::TextListComponent(Window* window) :
 	BaseT(window),
 	m_favoriteImage(window),
+	mFavoriteImageHorizontalMargin(0.0f),
 #ifdef WIN32
 	mfavoriteImageScale(0.7f)
 #else
@@ -90,8 +91,8 @@ void TextListComponent::render(const Eigen::Affine3f& parentTrans)
 
 #define DRAW_FAVORITE 1
 #if	DRAW_FAVORITE
-		float favHorizPos = mHorizontalMargin;
 		float horizMargin = mHorizontalMargin;
+		float favHorizPos = mHorizontalMargin + mFavoriteImageHorizontalMargin;
 		float extraLeftMargin = 0;
 		float verticalCenterShift;
 		const bool isFavorite = IsFavorite(i);
@@ -100,7 +101,7 @@ void TextListComponent::render(const Eigen::Affine3f& parentTrans)
 			const Eigen::Vector2f favImageSize = m_favoriteImage.getSize() * mfavoriteImageScale;
 			const float favHeight = favImageSize.y();
 			verticalCenterShift = ( fontHeight - favHeight ) * 0.5f;
-			extraLeftMargin = favImageSize.x();
+			extraLeftMargin = favHorizPos + favImageSize.x();
 			PushClipRect(trans, extraLeftMargin);
 			horizMargin += extraLeftMargin;
 		}
@@ -320,6 +321,11 @@ void TextListComponent::applyTheme(const std::shared_ptr<ThemeData>& theme, cons
 			setColor(0, elem->get<unsigned int>("primaryColor"));
 		if ( elem->has("secondaryColor") )
 			setColor(1, elem->get<unsigned int>("secondaryColor"));
+		if (elem->has("favoriteIconColor"))
+		{
+			mColors[ 2 ] = elem->get<unsigned int>("favoriteIconColor");
+		}
+		
 	}
 	if (elem && properties & PATH && elem->has("favoriteIconPath"))
 	{
@@ -348,10 +354,15 @@ void TextListComponent::applyTheme(const std::shared_ptr<ThemeData>& theme, cons
 				setAlignment(ALIGN_RIGHT);
 			else
 				LOG(LogError) << "Unknown TextListComponent alignment \"" << str << "\"!";
+		
 		}
 		if ( elem->has("horizontalMargin") )
 		{
 			mHorizontalMargin = elem->get<float>("horizontalMargin") * ( this->mParent ? this->mParent->getSize().x() : ( float ) Renderer::getScreenWidth() );
+		}
+		if (elem->has("favoriteIconhorizontalMargin"))
+		{
+			mFavoriteImageHorizontalMargin = elem->get<float>("favoriteIconhorizontalMargin")* ( this->mParent ? this->mParent->getSize().x() : ( float ) Renderer::getScreenWidth() );
 		}
 	}
 
