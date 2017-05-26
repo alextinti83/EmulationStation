@@ -508,6 +508,18 @@ Can be created as an extra.
 * `forceUppercase` - type: BOOLEAN.  Draw text in uppercase.
 * `lineSpacing` - type: FLOAT.  Controls the space between lines (as a multiple of font height).  Default is 1.5.
 
+*	`favoriteIconPath` - type: PATH. Favorite icon is not tested with a right text alignment. 
+*	`favoriteIconScale` - type: FLOAT.
+*	`favoriteIconhorizontalMargin`> - type: FLOAT.
+*	`favoriteIconColor` - type: COLOR.
+
+
+```xml
+	<favoriteIconPath>./art/favorite.svg</favoriteIconPath>
+	<favoriteIconScale>0.1</favoriteIconScale>
+	<favoriteIconhorizontalMargin>0.01</favoriteIconhorizontalMargin>
+	<favoriteIconColor>FF0000</favoriteIconColor>
+```
 #### ninepatch
 
 * `pos` - type: NORMALIZED_PAIR.
