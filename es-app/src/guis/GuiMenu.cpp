@@ -378,32 +378,9 @@ void GuiMenu::createConfigInput()
 	GuiSettings *s = new GuiSettings(mWindow, _("CONTROLLERS SETTINGS").c_str());
 
 	Window *window = mWindow;
-
 	ComponentListRow row;
-	row.makeAcceptInputHandler([ window, this, s ]
-	{
-		window->pushGui(new GuiMsgBox(window,
-			_("YOU ARE GOING TO CONFIGURE A CONTROLLER. IF YOU HAVE ONLY ONE JOYSTICK, "
-				"CONFIGURE THE DIRECTIONS KEYS AND SKIP JOYSTICK CONFIG BY HOLDING A BUTTON. "
-				"IF YOU DO NOT HAVE A SPECIAL KEY FOR HOTKEY, CHOOSE THE SELECT BUTTON. SKIP "
-				"ALL BUTTONS YOU DO NOT HAVE BY HOLDING A KEY. BUTTONS NAMES ARE BASED ON THE "
-				"SNES CONTROLLER."), _("OK"),
-			[ window, this, s ]
-		{
-			window->pushGui(new GuiDetectDevice(window, false, [ this, s ]
-			{
-			//	s->setSave(false);
-				delete s;
-				this->createConfigInput();
-			}));
-		}));
-	});
 
 
-	row.addElement(
-		std::make_shared<TextComponent>(window, _("CONFIGURE A CONTROLLER"), Font::get(FONT_SIZE_MEDIUM), 0x777777FF),
-		true);
-	s->addRow(row);
 
 #if 0 //bluetooth pairing stuff disabled
 	row.elements.clear();
@@ -621,6 +598,34 @@ void GuiMenu::createConfigInput()
 	});
 
 	row.elements.clear();
+	row.makeAcceptInputHandler([ window, this, s ]
+	{
+		window->pushGui(new GuiMsgBox(window,
+			_("YOU ARE GOING TO CONFIGURE A CONTROLLER. IF YOU HAVE ONLY ONE JOYSTICK, "
+				"CONFIGURE THE DIRECTIONS KEYS AND SKIP JOYSTICK CONFIG BY HOLDING A BUTTON. "
+				"IF YOU DO NOT HAVE A SPECIAL KEY FOR HOTKEY, CHOOSE THE SELECT BUTTON. SKIP "
+				"ALL BUTTONS YOU DO NOT HAVE BY HOLDING A KEY. BUTTONS NAMES ARE BASED ON THE "
+				"SNES CONTROLLER."), _("OK"),
+			[ window, this, s ]
+		{
+			window->pushGui(new GuiDetectDevice(window, false, [ this, s ]
+			{
+				//	s->setSave(false);
+				delete s;
+				this->createConfigInput();
+			}));
+		}, "CANCEL", nullptr)
+		);
+	});
+
+
+	row.addElement(
+		std::make_shared<TextComponent>(window, _("CONFIGURE A CONTROLLER"), Font::get(FONT_SIZE_MEDIUM), 0x777777FF),
+		true);
+	s->addRow(row);
+	row.elements.clear();
+
+
 	window->pushGui(s);
 
 }
