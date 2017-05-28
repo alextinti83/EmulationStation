@@ -46,8 +46,7 @@ SystemData::SystemData(
 
 	mFilterIndex = new FileFilterIndex();
 
-	const bool computeRelativePath = false;
-	mRootFolder = new FileData(FOLDER, mStartPath, this, computeRelativePath);
+	mRootFolder = new FileData(FOLDER, mStartPath, this);
 	mRootFolder->metadata.set("name", mFullName);
 
 	if ( !Settings::getInstance()->getBool("ParseGamelistOnly") )
