@@ -5,6 +5,7 @@
 #include <vector>
 #include <boost/filesystem.hpp>
 #include "MetaData.h"
+#include <memory>
 
 class SystemData;
 
@@ -40,6 +41,8 @@ public:
 		bool computeRelativePath = true);
 	virtual ~FileData();
 
+	std::unique_ptr<FileData> Clone() const;
+
 	inline const std::string& getName() const { return metadata.get("name"); }
 
 	inline FileType getType() const { return mType; }
@@ -63,6 +66,8 @@ public:
 	std::vector<FileData*> getFilesRecursive(unsigned int typeMask, bool displayedOnly = false) const;	
 
 	void addChild(FileData* file); // Error if mType != FOLDER
+	void addChild(std::unique_ptr<FileData> child);
+
 	void removeChild(FileData* file); //Error if mType != FOLDER
 
 	inline bool isPlaceHolder() { return mType == PLACEHOLDER; };

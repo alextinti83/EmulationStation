@@ -44,7 +44,11 @@ std::string removeParenthesis(const std::string& str)
 
 
 FileData::FileData(FileType type, const fs::path& path, SystemData* system, bool computeRelativePath)
-	: mType(type), mPath(path), mSystem(system), mParent(NULL), metadata(type == GAME ? GAME_METADATA : FOLDER_METADATA) // metadata is REALLY set in the constructor!
+	: mType(type)
+	, mPath(path)
+	, mSystem(system)
+	, mParent(NULL)
+	, metadata(type == GAME ? GAME_METADATA : FOLDER_METADATA)
 {
 	// metadata needs at least a name field (since that's what getName() will return)
 	if ( metadata.get("name").empty() )
@@ -72,6 +76,27 @@ FileData::~FileData()
 		mParent->removeChild(this);
 	}
 	mChildren.clear();
+}
+
+std::unique_ptr<FileData> FileData::Clone() const
+{
+	std::unique_ptr<FileData> clone = std::make_unique<FileData>(mType, mPath, mSystem, false);
+	clone->mRelativePath = mRelativePath;
+	clone->mParent = nullptr;
+
+	for (auto& child : mChildren)
+	{
+		clone->addChild(std::move(child->Clone()));
+	}
+	// Let's forget about filtered ones for now..
+	return std::move(clone);
+}
+
+void FileData::addChild(std::unique_ptr<FileData> child)
+{
+	std::unique_ptr<FileData> childClone = child->Clone();
+	addChild(childClone.get());
+	childClone.release();
 }
 
 std::string FileData::getDisplayName() const
