@@ -80,7 +80,7 @@ FileData::~FileData()
 
 std::unique_ptr<FileData> FileData::Clone() const
 {
-	std::unique_ptr<FileData> clone = std::make_unique<FileData>(mType, mPath, mSystem, false);
+	std::unique_ptr<FileData> clone = std::unique_ptr<FileData>(new FileData(mType, mPath, mSystem, false));
 	clone->mRelativePath = mRelativePath;
 	clone->mParent = nullptr;
 
