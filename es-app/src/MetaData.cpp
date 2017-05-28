@@ -90,6 +90,14 @@ MetaDataList MetaDataList::createFromXML(MetaDataListType type, pugi::xml_node n
 		}
 	}
 
+	const char* pathKey = "path";
+	pugi::xml_node md = node.child(pathKey);
+	if (md)
+	{
+		std::string value = md.text().get();
+		mdl.set(pathKey, value);
+	}
+
 	return mdl;
 }
 
