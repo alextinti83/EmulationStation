@@ -34,11 +34,15 @@ std::string removeParenthesis(const std::string& str);
 // A tree node that holds information for a file.
 class FileData
 {
+private:
+	FileData(const FileData& other);
+
 public:
 	FileData(FileType type, 
 		const boost::filesystem::path& path, 
 		SystemData* system, 
 		bool computeRelativePath = true);
+
 	virtual ~FileData();
 
 	std::unique_ptr<FileData> Clone() const;

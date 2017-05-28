@@ -80,16 +80,21 @@ FileData::~FileData()
 
 std::unique_ptr<FileData> FileData::Clone() const
 {
-	std::unique_ptr<FileData> clone = std::make_unique<FileData>(mType, mPath, mSystem, false);
-	clone->mRelativePath = mRelativePath;
-	clone->mParent = nullptr;
+	return std::unique_ptr<FileData>(new FileData(*this));
+}
 
+FileData::FileData(const FileData& other)
+	: metadata(other.metadata)
+	, mType(other.mType)
+	, mPath(other.mPath)
+	, mSystem(other.mSystem)
+	, mRelativePath(other.mRelativePath)
+	, mParent(nullptr)
+{
 	for (auto& child : mChildren)
 	{
-		clone->addChild(std::move(child->Clone()));
+		addChild(child->Clone());
 	}
-	// Let's forget about filtered ones for now..
-	return std::move(clone);
 }
 
 void FileData::addChild(std::unique_ptr<FileData> child)
