@@ -43,7 +43,7 @@ std::string removeParenthesis(const std::string& str)
 }
 
 
-FileData::FileData(FileType type, const fs::path& path, SystemData* system, bool computeRelativePath)
+FileData::FileData(FileType type, const fs::path& path, SystemData* system)
 	: mType(type)
 	, mPath(path)
 	, mSystem(system)
@@ -54,14 +54,6 @@ FileData::FileData(FileType type, const fs::path& path, SystemData* system, bool
 	if ( metadata.get("name").empty() )
 	{
 		metadata.set("name", getDisplayName());
-	}
-
-	if ( computeRelativePath )
-	{
-		const bool forWrite = false;
-		const std::string gamelistPath = system->getGamelistPath(forWrite);
-		bool contains = false;
-		mRelativePath = removeCommonPath(path, gamelistPath, contains).generic_string();;
 	}
 
 	importLegacyFavoriteTag();
@@ -80,7 +72,7 @@ FileData::~FileData()
 
 std::unique_ptr<FileData> FileData::Clone() const
 {
-	std::unique_ptr<FileData> clone = std::unique_ptr<FileData>(new FileData(mType, mPath, mSystem, false));
+	std::unique_ptr<FileData> clone = std::unique_ptr<FileData>(new FileData(mType, mPath, mSystem));
 	clone->mRelativePath = mRelativePath;
 	clone->mParent = nullptr;
 

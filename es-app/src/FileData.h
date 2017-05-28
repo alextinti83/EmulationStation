@@ -37,8 +37,7 @@ class FileData
 public:
 	FileData(FileType type, 
 		const boost::filesystem::path& path, 
-		SystemData* system, 
-		bool computeRelativePath = true);
+		SystemData* system);
 	virtual ~FileData();
 
 	std::unique_ptr<FileData> Clone() const;
@@ -47,7 +46,6 @@ public:
 
 	inline FileType getType() const { return mType; }
 	inline const boost::filesystem::path& getPath() const { return mPath; }
-	inline const std::string& getRelativePath() const { return mRelativePath; }
 
 	inline FileData* getParent() const { return mParent; }
 	inline const std::unordered_map<std::string, FileData*>& getChildrenByFilename() const { return mChildrenByFilename; }

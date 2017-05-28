@@ -25,8 +25,14 @@ std::string GameCollection::getFilePath(const boost::filesystem::path& folderPat
 
 std::string GameCollection::GetKey(const FileData& filedata) const
 {
-	const std::string& relativepath = filedata.getRelativePath();
-	return relativepath;
+	using MapT = std::map < std::string, std::string>;
+	const MapT& metadata = filedata.metadata.GetMetadataMap();
+	MapT::const_iterator pathIt = metadata.find("path");
+	if (pathIt != metadata.cend())
+	{
+		return pathIt->second;
+	}
+	return filedata.getName();
 }
 
 bool GameCollection::HasGame(const FileData& filedata) const
