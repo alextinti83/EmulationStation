@@ -22,4 +22,5 @@ public:
 
 	static GroupsMapT buildMetadataGroupsMap(FileData* i_folder);
 	static void generateGroupFolders(FileData* i_folder);
+	static const std::set<GroupNameT> k_groupWhitelist;
 };
