@@ -14,6 +14,8 @@
 #include "FileSorts.h"
 #include "GameCollection.h"
 
+#include "FileDataGroups.h"
+
 std::vector<SystemData*> SystemData::sSystemVector;
 
 namespace fs = boost::filesystem;
@@ -61,6 +63,12 @@ SystemData::SystemData(
 	if ( !Settings::getInstance()->getBool("IgnoreGamelist") )
 	{
 		parseGamelist(this);
+	}
+
+
+	if (!Settings::getInstance()->getBool("DisableGroupFolder"))
+	{
+		FileDataGroups::generateGroupFolders(mRootFolder);
 	}
 
 	mRootFolder->sort(FileSorts::SortTypes.at(0));
