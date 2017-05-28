@@ -68,7 +68,10 @@ SystemData::SystemData(
 
 	if (!Settings::getInstance()->getBool("DisableGroupFolder"))
 	{
-		FileDataGroups::generateGroupFolders(mRootFolder);
+		if (mRootFolder->getFilesRecursive(GAME).size() > 0)
+		{
+			FileDataGroups::generateGroupFolders(mRootFolder);
+		}
 	}
 
 	mRootFolder->sort(FileSorts::SortTypes.at(0));
