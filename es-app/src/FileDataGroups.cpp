@@ -5,9 +5,9 @@
 
 #include "FileData.h"
 
-
+const std::string FileDataGroups::k_alphabetGroupName = "alphabet";
 const std::set<FileDataGroups::GroupNameT> FileDataGroups::k_groupWhitelist = 
-{ "genre", "developer", "players", "publisher", "rating" };
+{ k_alphabetGroupName, "genre", "developer", "players", "publisher", "rating" };
 
 
 
@@ -54,6 +54,24 @@ std::string FormatName(std::string name)
 	}
 }
 
+void FileDataGroups::CheckInitGroup(const GroupNameT& groupName,const SubGroupNameT& subGroupName, GroupsMapT& metadataGroupsMap)
+{
+	auto groupIt = metadataGroupsMap.find(groupName);
+	if (groupIt == metadataGroupsMap.end())
+	{
+		metadataGroupsMap.emplace(groupName, SubGroupMapT());
+	}
+	groupIt = metadataGroupsMap.find(groupName);
+	if (groupIt != metadataGroupsMap.end())
+	{
+		SubGroupMapT& subGroupPair = groupIt->second;
+		if (subGroupPair.find(subGroupName) == subGroupPair.end())
+		{
+			subGroupPair.emplace(subGroupName, GameListT());
+		}
+	}
+}
+
 FileDataGroups::GroupsMapT FileDataGroups::buildMetadataGroupsMap(FileData* i_folder)
 {
 	GroupsMapT metadataGroupsMap;
@@ -64,22 +82,22 @@ FileDataGroups::GroupsMapT FileDataGroups::buildMetadataGroupsMap(FileData* i_fo
 		for (GroupNamesMap::value_type groupPair : groupNames)
 		{
 			const GroupNameT groupName = groupPair.first;
+			if (groupName == "name")
+			{
+				SubGroupNameT subGroupName = groupPair.second;
+				if (!subGroupName.empty())
+				{
+					const GroupNameT groupName = k_alphabetGroupName;
+					subGroupName = subGroupName.substr(0, 1) + "...";
+					CheckInitGroup(groupName, subGroupName, metadataGroupsMap);
+					GameListT& games = metadataGroupsMap[ groupName ][ subGroupName ];
+					games.push_back(game);
+				}
+			}
 			if (k_groupWhitelist.find(groupName) != k_groupWhitelist.end())
 			{
 				const SubGroupNameT subGroupName = fixPrecisionIfNumber(groupPair.second);
-				auto groupIt = metadataGroupsMap.find(groupName);
-				if (groupIt == metadataGroupsMap.end())
-				{
-					metadataGroupsMap.emplace(groupName, SubGroupMapT());
-				}
-				else
-				{
-					SubGroupMapT& subGroupPair = groupIt->second;
-					if (subGroupPair.find(subGroupName) == subGroupPair.end())
-					{
-						subGroupPair.emplace(subGroupName, GameListT());
-					}
-				}
+				CheckInitGroup(groupName, subGroupName, metadataGroupsMap);
 				GameListT& games = metadataGroupsMap[ groupName ][ subGroupName ];
 				games.push_back(game);
 			}
@@ -130,12 +148,26 @@ void FileDataGroups::generateGroupFolders(FileData* i_folder)
 				// and won't be shown.. so we add a fake extension as workaround.
 				subGroupName += ".subgroup";
 
-				FileData* subGroupFolder = new FileData(FOLDER, subGroupName, systemData);
-
-				groupFolder->addChild(subGroupFolder);
-				for (FileData* game : groupedGames)
+				const bool enabled = false; 
+				// disabled because when mixing folders and files, 
+				// files always come after all the folders
+				// due to the current sorting algorithm in populateGamelist
+				if (enabled && groupedGames.size() == 1 && groupKey == k_alphabetGroupName)
 				{
-					subGroupFolder->addChild(game->Clone());
+					for (FileData* game : groupedGames)
+					{
+						groupFolder->addChild(game->Clone());
+					}
+				}
+				else
+				{
+					FileData* subGroupFolder = new FileData(FOLDER, subGroupName, systemData);
+
+					groupFolder->addChild(subGroupFolder);
+					for (FileData* game : groupedGames)
+					{
+						subGroupFolder->addChild(game->Clone());
+					}
 				}
 			}
 		}
