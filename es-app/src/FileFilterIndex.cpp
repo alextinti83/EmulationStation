@@ -1,4 +1,5 @@
 #include "FileFilterIndex.h"
+#include "FileData.h"
 
 #define UNKNOWN_LABEL "UNKNOWN"
 #define INCLUDE_UNKNOWN false;
