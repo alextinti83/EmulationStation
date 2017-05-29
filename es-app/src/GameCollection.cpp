@@ -25,7 +25,7 @@ std::string GameCollection::getFilePath(const boost::filesystem::path& folderPat
 
 std::string GameCollection::GetKey(const FileData& filedata) const
 {
-	using MapT = std::map < std::string, std::string>;
+	using MapT = std::unordered_map< std::string, std::string>;
 	const MapT& metadata = filedata.metadata.GetMetadataMap();
 	MapT::const_iterator pathIt = metadata.find("path");
 	if (pathIt != metadata.cend())
