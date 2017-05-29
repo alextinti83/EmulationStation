@@ -59,17 +59,23 @@ const std::vector<MetaDataDecl>& getMDDByType(MetaDataListType type)
 
 
 MetaDataList::MetaDataList(MetaDataListType type)
-	: mType(type), mWasChanged(false)
+	: mType(type)
+	, mWasChanged(false)
+	, mMap()
 {
 	const std::vector<MetaDataDecl>& mdd = getMDD();
-	for(auto iter = mdd.begin(); iter != mdd.end(); iter++)
+	for (auto iter = mdd.begin(); iter != mdd.end(); iter++)
+	{
 		set(iter->key, iter->defaultValue);
+	}
+	mWasChanged = false;
 }
 
 
 MetaDataList MetaDataList::createFromXML(MetaDataListType type, pugi::xml_node node, const fs::path& relativeTo)
 {
-	MetaDataList mdl(type);
+	////////// 6% of boot loading time //////////////////////////////////////////////////////////////////
+	MetaDataList mdl(type); //because of the for loop with set default values..
 
 	const std::vector<MetaDataDecl>& mdd = mdl.getMDD();
 
@@ -82,7 +88,10 @@ MetaDataList MetaDataList::createFromXML(MetaDataListType type, pugi::xml_node n
 			std::string value = md.text().get();
 			if (iter->type == MD_PATH)
 			{
+////////// 9% of boot loading time //////////////////////////////////////////////////////////////////
 				value = resolvePath(value, relativeTo, true).generic_string();
+////////// generic_string is 1.6% more of boot loading time ///////////////////////////////////////////
+
 			}
 			mdl.set(iter->key, value);
 		}else{
@@ -98,6 +107,7 @@ MetaDataList MetaDataList::createFromXML(MetaDataListType type, pugi::xml_node n
 		mdl.set(pathKey, value);
 	}
 
+	mdl.mWasChanged = false;
 	return mdl;
 }
 

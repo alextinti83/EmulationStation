@@ -3,6 +3,7 @@
 #include "pugixml/src/pugixml.hpp"
 #include <string>
 #include <map>
+#include <unordered_map>
 #include "GuiComponent.h"
 #include <boost/date_time.hpp>
 #include <boost/filesystem.hpp>
@@ -68,9 +69,9 @@ public:
 	inline MetaDataListType getType() const { return mType; }
 	inline const std::vector<MetaDataDecl>& getMDD() const { return getMDDByType(getType()); }
 
-	const std::map<std::string, std::string>& GetMetadataMap() const { return mMap; }
+	const std::unordered_map<std::string, std::string>& GetMetadataMap() const { return mMap; }
 private:
 	MetaDataListType mType;
-	std::map<std::string, std::string> mMap;
+	std::unordered_map<std::string, std::string> mMap;
 	bool mWasChanged;
 };
