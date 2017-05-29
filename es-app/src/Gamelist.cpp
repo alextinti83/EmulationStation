@@ -8,7 +8,9 @@
 
 namespace fs = boost::filesystem;
 
-FileData* findOrCreateFile(SystemData* system, const boost::filesystem::path& path, FileType type, bool trustGamelist)
+//this takes 22% of boot time
+FileData* findOrCreateFile(SystemData* system, const boost::filesystem::path& path, FileType type, bool trustGamelist,
+	const MetaDataList& metadata)
 {
 	// first, verify that path is within the system's root folder
 	FileData* root = system->getRootFolder();
@@ -53,8 +55,8 @@ FileData* findOrCreateFile(SystemData* system, const boost::filesystem::path& pa
 				LOG(LogWarning) << "gameList: folder doesn't already exist, won't create";
 				return NULL;
 			}
-
-			FileData* file = new FileData(type, path, system);
+////////// 5% of boot loading time //////////////////////////////////////////////////////////////////
+			FileData* file = new FileData(type, path, system, metadata);
 			treeNode->addChild(file);
 			return file;
 		}
@@ -70,7 +72,7 @@ FileData* findOrCreateFile(SystemData* system, const boost::filesystem::path& pa
 			}
 			
 			// create missing folder
-			FileData* folder = new FileData(FOLDER, treeNode->getPath().stem() / *path_it, system);
+			FileData* folder = new FileData(FOLDER, treeNode->getPath().stem() / *path_it, system, metadata);
 			treeNode->addChild(folder);
 			treeNode = folder;
 		}
@@ -133,15 +135,16 @@ void parseGamelistAtPath(const std::string& xmlpath, SystemData* system)
 				continue;
 			}
 #endif
-			FileData* file = findOrCreateFile(system, path, type, trustGamelist);
+ ////////// 23% of boot loading time //////////////////////////////////////////////////////////////////
+			MetaDataList metadata = MetaDataList::createFromXML(GAME_METADATA, fileNode, relativeTo);
+			
+////////// 23% of boot loading time //////////////////////////////////////////////////////////////////
+			FileData* file = findOrCreateFile(system, path, type, trustGamelist, metadata);
 			if(!file)
 			{
 				LOG(LogError) << "Error finding/creating FileData for \"" << path << "\", skipping.";
 				continue;
 			}
-
-			MetaDataList metadata = MetaDataList::createFromXML(GAME_METADATA, fileNode, relativeTo);
-			file->SetMetadata(metadata);
 			
 			system->replaceFavoritePlacholder(*file);
 

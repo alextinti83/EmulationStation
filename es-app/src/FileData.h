@@ -35,9 +35,12 @@ std::string removeParenthesis(const std::string& str);
 class FileData
 {
 public:
+	FileData(FileType type,
+		const boost::filesystem::path& path,
+		SystemData* system);
 	FileData(FileType type, 
 		const boost::filesystem::path& path, 
-		SystemData* system);
+		SystemData* system, const MetaDataList& metadata);
 	virtual ~FileData();
 
 	std::unique_ptr<FileData> Clone() const;
