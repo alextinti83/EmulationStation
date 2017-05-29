@@ -239,7 +239,7 @@ int main(int argc, char* argv[])
 		if(Settings::getInstance()->getBool("SplashScreen"))
 			window.renderLoadingScreen();
 	}
-
+	std::clock_t c_start = std::clock();
 	const char* errorMsg = NULL;
 	if(!loadSystemConfigFile(&errorMsg))
 	{
@@ -291,6 +291,9 @@ int main(int argc, char* argv[])
 
 	int lastTime = SDL_GetTicks();
 	bool running = true;
+	std::clock_t c_end = std::clock();
+	
+	LOG(LogInfo) << "RetroStation-" << PROGRAM_VERSION_STRING << " boot time: " << ( c_end - c_start ) / CLOCKS_PER_SEC << " secs";
 
 	while(running)
 	{
