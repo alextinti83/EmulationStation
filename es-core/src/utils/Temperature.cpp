@@ -22,6 +22,11 @@ double ReadTemperature()
 	fclose(temperatureFile);
 	return T;
 #else
-	return 51;
+	static int temp = 45;
+	static bool up = true;
+	temp += up ? 1 : -1;
+	if (temp >= 55 || temp <= 45) { up = !up; }
+	
+	return temp;
 #endif
 }

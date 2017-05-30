@@ -127,7 +127,7 @@ GuiMenu::GuiMenu(Window* window) : GuiComponent(window), mMenu(window, "MAIN MEN
 
 			// temperature
 			auto temperature = std::make_shared< OptionListComponent<std::string> >(mWindow, "SHOW TEMPERATURE", false);
-			const std::vector<std::string> temperatureOptions({ "always", "Hi-Temp", "never" });
+			const std::vector<std::string> temperatureOptions({ "always", "only hi-temp", "never" });
 			for ( const std::string& option : temperatureOptions)
 			{
 				temperature->add(option, option, Settings::getInstance()->getString("ShowTemperature") == option);

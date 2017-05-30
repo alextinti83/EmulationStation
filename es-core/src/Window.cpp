@@ -160,7 +160,7 @@ void Window::update(int deltaTime)
 
 		mAverageDeltaTime = mFrameTimeElapsed / mFrameCountElapsed;
 
-
+		mTemperatureText.reset();
 		const double temp = ReadTemperature();
 		if (ShouldRenderTemperature(temp))
 		{
@@ -387,5 +387,5 @@ void Window::renderScreenSaver()
 bool Window::ShouldRenderTemperature(double temp)
 {
 	const std::string& showTemp = Settings::getInstance()->getString("ShowTemperature");
-	return ( showTemp == "always" || (showTemp == "hi-temp" && temp > 50));
+	return ( showTemp == "always" || (showTemp == "only hi-temp" && temp > 50));
 }
