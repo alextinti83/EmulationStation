@@ -1,5 +1,12 @@
-#pragma once
 #include "Temperature.h"
+
+#if defined(__linux__)
+#include <stdio.h>
+#include <dirent.h>
+#include <fcntl.h>
+#include <stdlib.h>
+#include <unistd.h>
+#endif
 
 double ReadTemperature()
 {
