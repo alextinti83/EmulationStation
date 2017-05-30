@@ -164,7 +164,7 @@ void Window::update(int deltaTime)
 		const double temp = ReadTemperature();
 		if (ShouldRenderTemperature(temp))
 		{
-			const std::string& strTemp = std::to_string(std::lroundf(temp)) + " degrees";
+			const std::string& strTemp = std::to_string(std::lroundf(temp)) + " C";
 			mTemperatureText = std::unique_ptr<TextCache>(mDefaultFonts.at(1)->buildTextCache(strTemp, 20.f, 10.f, 0xFF0000FF));
 		}
 
@@ -384,7 +384,7 @@ void Window::renderScreenSaver()
 	Renderer::drawRect(0, 0, Renderer::getScreenWidth(), Renderer::getScreenHeight(), 0x00000000 | opacity);
 }
 
-bool Window::ShouldRenderTemperature(float temp)
+bool Window::ShouldRenderTemperature(double temp)
 {
 	const std::string& showTemp = Settings::getInstance()->getString("ShowTemperature");
 	return ( showTemp == "always" || (showTemp == "hi-temp" && temp > 50));

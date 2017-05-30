@@ -11,7 +11,7 @@ double ReadTemperature()
 		; //print some message
 	fscanf(temperatureFile, "%lf", &T);
 	T /= 1000;
-	printf("The temperature is %6.3f C.\n", T);
+	//printf("The temperature is %6.3f C.\n", T);
 	fclose(temperatureFile);
 	return T;
 #else

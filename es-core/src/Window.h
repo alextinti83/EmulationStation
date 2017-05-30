@@ -44,7 +44,7 @@ private:
 	// Returns true if at least one component on the stack is processing
 	bool isProcessing();
 	void renderScreenSaver();
-	static bool ShouldRenderTemperature(float temp);
+	static bool ShouldRenderTemperature(double temp);
 
 	HelpComponent* mHelp;
 	ImageComponent* mBackgroundOverlay;
