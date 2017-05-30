@@ -387,5 +387,6 @@ void Window::renderScreenSaver()
 bool Window::ShouldRenderTemperature(double temp)
 {
 	const std::string& showTemp = Settings::getInstance()->getString("ShowTemperature");
-	return ( showTemp == "always" || (showTemp == "only hi-temp" && temp > 50));
+	const int hiTemp = Settings::getInstance()->getInt("HiTemperature");
+	return ( showTemp == "always" || (showTemp == "> hi-temp only" && temp > hiTemp ));
 }

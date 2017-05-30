@@ -70,6 +70,7 @@ void Settings::setDefaults()
 	mIntMap["ScraperResizeWidth"] = 400;
 	mIntMap["ScraperResizeHeight"] = 0;
 	mIntMap["MaxVRAM"] = 100;
+	mIntMap[ "HiTemperature" ] = 50;
 
 	mStringMap["TransitionStyle"] = "fade";
 	mStringMap["ThemeSet"] = "";

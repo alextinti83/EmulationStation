@@ -125,15 +125,8 @@ GuiMenu::GuiMenu(Window* window) : GuiComponent(window), mMenu(window, "MAIN MEN
 			s->addWithLabel("SHOW FRAMERATE", framerate);
 			s->addSaveFunc([framerate] { Settings::getInstance()->setBool("DrawFramerate", framerate->getState()); });
 
-			// temperature
-			auto temperature = std::make_shared< OptionListComponent<std::string> >(mWindow, "SHOW TEMPERATURE", false);
-			const std::vector<std::string> temperatureOptions({ "always", "only hi-temp", "never" });
-			for ( const std::string& option : temperatureOptions)
-			{
-				temperature->add(option, option, Settings::getInstance()->getString("ShowTemperature") == option);
-			}
-			s->addWithLabel("SHOW TEMPERATURE", temperature);
-			s->addSaveFunc([ temperature ] { Settings::getInstance()->setString("ShowTemperature", temperature->getSelected()); });
+			addTemperatureEntry(s);
+			
 
 			// show help
 			auto show_help = std::make_shared<SwitchComponent>(mWindow);
@@ -647,4 +640,44 @@ void GuiMenu::clearLoadedInput()
 		delete mLoadedInput[ i ];
 	}
 	mLoadedInput.clear();
+}
+
+void GuiMenu::addTemperatureEntry(GuiSettings* s)
+{
+	Window* window = mWindow;
+	auto createOptionList = [window] ()
+	{ 
+		auto temperature = std::make_shared< OptionListComponent<std::string> >(window, "SHOW TEMPERATURE", false);
+		const std::vector<std::string> temperatureOptions({ "always", "> hi-temp only", "never" });
+		for (const std::string& option : temperatureOptions)
+		{
+			temperature->add(option, option, Settings::getInstance()->getString("ShowTemperature") == option);
+		}
+		return temperature;
+	};
+	
+	ComponentListRow row;
+	row.makeAcceptInputHandler([ window, createOptionList ]
+	{
+		auto s = new GuiSettings(window, "TEMPERATURE");
+		auto temperature = createOptionList();
+		s->addWithLabel("SHOW TEMPERATURE", temperature);
+		s->addSaveFunc([ temperature ]
+		{
+			Settings::getInstance()->setString("ShowTemperature", temperature->getSelected
+			());
+		});
+
+		// volume
+		auto slider = std::make_shared<SliderComponent>(window, 0.f, 100.f, 1.f, " C");
+		slider->setValue(static_cast<float>(Settings::getInstance()->getInt("HiTemperature")));
+		s->addWithLabel("SET HI-TEMP", slider);
+		s->addSaveFunc([ slider ] { 
+			Settings::getInstance()->setInt("HiTemperature", std::lroundf(slider->getValue() ));
+		});
+		window->pushGui(s);
+	});
+	row.addElement(std::make_shared<TextComponent>(window, "TEMPERATURE", Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
+	s->addRow(row);
+	row.elements.clear();
 }
