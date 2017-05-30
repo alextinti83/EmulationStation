@@ -18,6 +18,9 @@ set(CORE_HEADERS
 	${CMAKE_CURRENT_SOURCE_DIR}/src/Util.h
 	${CMAKE_CURRENT_SOURCE_DIR}/src/Window.h
 	${CMAKE_CURRENT_SOURCE_DIR}/src/Localization.h
+	
+	# utils
+	${CMAKE_CURRENT_SOURCE_DIR}/src/utils/Temperature.h
 
 
 	# Animations
@@ -81,6 +84,9 @@ set(CORE_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/src/ThemeData.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/Util.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/Window.cpp
+
+	# utils
+	${CMAKE_CURRENT_SOURCE_DIR}/src/utils/Temperature.cpp
 
 	# Animations
 	${CMAKE_CURRENT_SOURCE_DIR}/src/animations/AnimationController.cpp

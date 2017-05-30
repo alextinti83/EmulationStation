@@ -76,6 +76,8 @@ void Settings::setDefaults()
 	mStringMap["ScreenSaverBehavior"] = "dim";
 	mStringMap["Scraper"] = "TheGamesDB";
 	mStringMap["GamelistViewStyle"] = "automatic";
+	mStringMap[ "ShowTemperature" ] = "never";
+
 }
 
 template <typename K, typename V>

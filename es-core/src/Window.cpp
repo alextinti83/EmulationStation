@@ -9,6 +9,10 @@
 #include "components/HelpComponent.h"
 #include "components/ImageComponent.h"
 
+#include "utils/Temperature.h"
+
+
+
 Window::Window() : mNormalizeNextUpdate(false), mFrameTimeElapsed(0), mFrameCountElapsed(0), mAverageDeltaTime(10), 
 	mAllowSleep(true), mSleeping(false), mTimeSinceLastInput(0)
 {
@@ -150,10 +154,22 @@ void Window::update(int deltaTime)
 
 	mFrameTimeElapsed += deltaTime;
 	mFrameCountElapsed++;
-	if(mFrameTimeElapsed > 500)
+
+	if(mFrameTimeElapsed > 1000)
 	{
+
 		mAverageDeltaTime = mFrameTimeElapsed / mFrameCountElapsed;
+
+
+		const double temp = ReadTemperature();
+		if (ShouldRenderTemperature(temp))
+		{
+			const std::string& strTemp = std::to_string(std::lroundf(temp)) + " degrees";
+			mTemperatureText = std::unique_ptr<TextCache>(mDefaultFonts.at(1)->buildTextCache(strTemp, 20.f, 10.f, 0xFF0000FF));
+		}
+
 		
+
 		if(Settings::getInstance()->getBool("DrawFramerate"))
 		{
 			std::stringstream ss;
@@ -175,12 +191,14 @@ void Window::update(int deltaTime)
 		mFrameTimeElapsed = 0;
 		mFrameCountElapsed = 0;
 	}
+	
 
 	mTimeSinceLastInput += deltaTime;
 
 	if(peekGui())
 		peekGui()->update(deltaTime);
 }
+
 
 void Window::render()
 {
@@ -209,6 +227,12 @@ void Window::render()
 	{
 		Renderer::setMatrix(Eigen::Affine3f::Identity());
 		mDefaultFonts.at(1)->renderTextCache(mFrameDataText.get());
+	}
+
+	if (mTemperatureText)
+	{
+		Renderer::setMatrix(Eigen::Affine3f::Identity());
+		mDefaultFonts.at(1)->renderTextCache(mTemperatureText.get());
 	}
 
 	unsigned int screensaverTime = (unsigned int)Settings::getInstance()->getInt("ScreenSaverTime");
@@ -358,4 +382,10 @@ void Window::renderScreenSaver()
 	Renderer::setMatrix(Eigen::Affine3f::Identity());
 	unsigned char opacity = Settings::getInstance()->getString("ScreenSaverBehavior") == "dim" ? 0xA0 : 0xFF;
 	Renderer::drawRect(0, 0, Renderer::getScreenWidth(), Renderer::getScreenHeight(), 0x00000000 | opacity);
+}
+
+bool Window::ShouldRenderTemperature(float temp)
+{
+	const std::string& showTemp = Settings::getInstance()->getString("ShowTemperature");
+	return ( showTemp == "always" || (showTemp == "hi-temp" && temp > 50));
 }
