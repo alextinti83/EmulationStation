@@ -19,6 +19,7 @@
 #include "ScraperCmdLine.h"
 #include <sstream>
 #include <boost/locale.hpp>
+#include <sol.hpp>
 
 #ifdef WIN32
 #include <Windows.h>
@@ -166,6 +167,15 @@ void onExit()
 
 int main(int argc, char* argv[])
 {
+#if 1
+	sol::state lua;
+	int x = 0;
+	lua.set_function("beep", [ &x ] { ++x; });
+	lua.script("beep()");
+	assert(x == 1);
+#endif
+
+
 	srand((unsigned int)time(NULL));
 
 	unsigned int width = 0;

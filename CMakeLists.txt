@@ -62,6 +62,8 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     find_package(ALSA REQUIRED)
 endif()
 
+find_package(Lua51 REQUIRED) 
+
 #-------------------------------------------------------------------------------
 #set up compiler flags and excutable names
 if(DEFINED BCMHOST)
@@ -113,7 +115,9 @@ set(COMMON_INCLUDE_DIRS
     ${EIGEN3_INCLUDE_DIR}
     ${CURL_INCLUDE_DIR}
     ${VLC_INCLUDE_DIR}
+    ${LUA_INCLUDE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/external
+	${CMAKE_CURRENT_SOURCE_DIR}/external/sol2
     ${CMAKE_CURRENT_SOURCE_DIR}/es-core/src
 )
 
@@ -163,6 +167,7 @@ set(COMMON_LIBRARIES
 	${SDL2_LIBRARY}
     ${CURL_LIBRARIES}
     ${VLC_LIBRARIES}
+	${LUA_LIBRARIES}
     pugixml
     nanosvg
 )
