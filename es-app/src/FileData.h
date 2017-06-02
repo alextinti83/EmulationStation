@@ -51,7 +51,7 @@ public:
 	inline const std::unordered_map<std::string, FileData*>& getChildrenByFilename() const { return mChildrenByFilename; }
 	inline const std::vector<FileData*>& getChildren() const { return mChildren; }
 	inline SystemData* getSystem() const { return mSystem; }
-	
+
 	virtual const std::string& getThumbnailPath() const;
 	virtual const std::string& getVideoPath() const;
 	virtual const std::string& getMarqueePath() const;
@@ -61,7 +61,7 @@ public:
 	void SetMetadata(const MetaDataList& i_metadata);
 
 	const std::vector<FileData*>& getChildrenListToDisplay();
-	std::vector<FileData*> getFilesRecursive(unsigned int typeMask, bool displayedOnly = false) const;	
+	std::vector<FileData*> getFilesRecursive(unsigned int typeMask, bool displayedOnly = false) const;
 
 	void addChild(FileData* file); // Error if mType != FOLDER
 	void addChild(std::unique_ptr<FileData> child);
@@ -83,7 +83,7 @@ public:
 		bool ascending;
 		std::string description;
 
-		SortType(ComparisonFunction* sortFunction, bool sortAscending, const std::string & sortDescription) 
+		SortType(ComparisonFunction* sortFunction, bool sortAscending, const std::string & sortDescription)
 			: comparisonFunction(sortFunction), ascending(sortAscending), description(sortDescription) {}
 	};
 

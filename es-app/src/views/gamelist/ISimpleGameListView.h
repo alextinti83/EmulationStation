@@ -34,8 +34,8 @@ protected:
 	TextComponent mHeaderText;
 	ImageComponent mHeaderImage;
 	ImageComponent mBackground;
-	
-	ThemeExtras mThemeExtras;
+
+	std::vector<GuiComponent*> mThemeExtras;
 
 	std::stack<FileData*> mCursorStack;
 };
