@@ -2,6 +2,7 @@
 #include "GuiMetaDataEd.h"
 #include "views/gamelist/IGameListView.h"
 #include "views/ViewController.h"
+#include "guis/GuiRetroArchOptions.h"
 
 GuiGamelistOptions::GuiGamelistOptions(Window* window, SystemData* system) : GuiComponent(window), 
 	mSystem(system), mMenu(window, "OPTIONS"), fromPlaceholder(false), mFiltersChanged(false)
@@ -34,28 +35,31 @@ GuiGamelistOptions::GuiGamelistOptions(Window* window, SystemData* system) : Gui
 	};
 	mMenu.addRow(row);
 
-	if (!fromPlaceholder) {
+	if (!fromPlaceholder)
+	{
 
-		if (!isFiltered) {
+		if (!isFiltered)
+		{
 			// jump to letter
 			row.elements.clear();
-			char curChar = toupper(getGamelist()->getCursor()->getName()[0]);
-			if(curChar < 'A' || curChar > 'Z')
+			char curChar = toupper(getGamelist()->getCursor()->getName()[ 0 ]);
+			if (curChar < 'A' || curChar > 'Z')
 				curChar = 'A';
 
 			mJumpToLetterList = std::make_shared<LetterList>(mWindow, "JUMP TO LETTER", false);
-			for(char c = 'A'; c <= 'Z'; c++)
+			for (char c = 'A'; c <= 'Z'; c++)
 				mJumpToLetterList->add(std::string(1, c), c, c == curChar);
 
 			row.addElement(std::make_shared<TextComponent>(mWindow, "JUMP TO LETTER", Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
 			row.addElement(mJumpToLetterList, false);
-			row.input_handler = [&](InputConfig* config, Input input) {
-				if(config->isMappedTo("a", input) && input.value)
+			row.input_handler = [ & ] (InputConfig* config, Input input)
+			{
+				if (config->isMappedTo("a", input) && input.value)
 				{
 					jumpToLetter();
 					return true;
 				}
-				else if(mJumpToLetterList->input(config, input))
+				else if (mJumpToLetterList->input(config, input))
 				{
 					return true;
 				}
@@ -66,7 +70,7 @@ GuiGamelistOptions::GuiGamelistOptions(Window* window, SystemData* system) : Gui
 
 		// sort list by
 		mListSort = std::make_shared<SortList>(mWindow, "SORT GAMES BY", false);
-		for(unsigned int i = 0; i < FileSorts::SortTypes.size(); i++)
+		for (unsigned int i = 0; i < FileSorts::SortTypes.size(); i++)
 		{
 			const FileData::SortType& sort = FileSorts::SortTypes.at(i);
 			mListSort->add(sort.description, &sort, i == 0); // TODO - actually make the sort type persistent
@@ -78,6 +82,21 @@ GuiGamelistOptions::GuiGamelistOptions(Window* window, SystemData* system) : Gui
 		row.addElement(std::make_shared<TextComponent>(mWindow, "EDIT THIS GAME'S METADATA", Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
 		row.addElement(makeArrow(mWindow), false);
 		row.makeAcceptInputHandler(std::bind(&GuiGamelistOptions::openMetaDataEd, this));
+		mMenu.addRow(row);
+
+
+		row.elements.clear();
+		row.addElement(std::make_shared<TextComponent>(mWindow, "RETROARCH", Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
+		row.input_handler = [ & ] (InputConfig* config, Input input)
+		{
+			if (config->isMappedTo("a", input) && input.value)
+			{
+				auto s = new GuiRetroArchOptions(mWindow);
+				mWindow->pushGui(s);
+				return true;
+			}
+			return false;
+		};
 		mMenu.addRow(row);
 	}
 
