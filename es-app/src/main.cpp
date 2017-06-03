@@ -216,7 +216,7 @@ int main(int argc, char* argv[])
 
 	//start the logger
 	Log::open();
-	LOG(LogInfo) << "EmulationStation - v" << PROGRAM_VERSION_STRING << ", built " << PROGRAM_BUILT_STRING;
+	LOG(LogInfo) << "EMULATIONSTATAION - v" << PROGRAM_VERSION_STRING << ", built " << PROGRAM_BUILT_STRING;
 
 	//always close the log on exit
 	atexit(&onExit);
@@ -293,7 +293,7 @@ int main(int argc, char* argv[])
 	bool running = true;
 	std::clock_t c_end = std::clock();
 	
-	LOG(LogInfo) << "RetroStation-" << PROGRAM_VERSION_STRING << " boot time: " << ( c_end - c_start ) / CLOCKS_PER_SEC << " secs";
+	LOG(LogInfo) << "EMULATIONSTATION-" << PROGRAM_VERSION_STRING << " boot time: " << ( c_end - c_start ) / CLOCKS_PER_SEC << " secs";
 
 	while(running)
 	{

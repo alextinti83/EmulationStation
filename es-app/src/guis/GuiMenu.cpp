@@ -301,7 +301,7 @@ GuiMenu::GuiMenu(Window* window) : GuiComponent(window), mMenu(window, "MAIN MEN
 
 	mVersion.setFont(Font::get(FONT_SIZE_SMALL));
 	mVersion.setColor(0xC6C6C6FF);
-	mVersion.setText("EMULATIONSTATION V" + strToUpper(PROGRAM_VERSION_STRING));
+	mVersion.setText("EMULATIONSTATION V" + std::string(PROGRAM_VERSION_STRING));
 	mVersion.setAlignment(ALIGN_CENTER);
 
 	addChild(&mMenu);
@@ -635,7 +635,7 @@ void GuiMenu::createConfigInput()
 
 void GuiMenu::clearLoadedInput()
 {
-	for (int i = 0; i < mLoadedInput.size(); i++)
+	for (uint32_t i = 0; i < mLoadedInput.size(); i++)
 	{
 		delete mLoadedInput[ i ];
 	}
