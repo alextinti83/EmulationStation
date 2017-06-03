@@ -86,12 +86,12 @@ GuiGamelistOptions::GuiGamelistOptions(Window* window, SystemData* system) : Gui
 
 
 		row.elements.clear();
-		row.addElement(std::make_shared<TextComponent>(mWindow, "RETROARCH", Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
+		row.addElement(std::make_shared<TextComponent>(mWindow, "RETROARCH CONFIG", Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
 		row.input_handler = [ & ] (InputConfig* config, Input input)
 		{
 			if (config->isMappedTo("a", input) && input.value)
 			{
-				auto s = new GuiRetroArchOptions(mWindow);
+				auto s = new GuiRetroArchOptions(mWindow, *mSystem);
 				mWindow->pushGui(s);
 				return true;
 			}

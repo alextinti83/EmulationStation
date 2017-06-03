@@ -164,7 +164,7 @@ void Window::update(int deltaTime)
 		const double temp = ReadTemperature();
 		if (ShouldRenderTemperature(temp))
 		{
-			const std::string& strTemp = std::to_string(std::lroundf(temp)) + " C";
+			const std::string& strTemp = std::to_string(std::lround(temp)) + " C";
 			mTemperatureText = std::unique_ptr<TextCache>(mDefaultFonts.at(1)->buildTextCache(strTemp, 20.f, 10.f, 0xFF0000FF));
 		}
 
