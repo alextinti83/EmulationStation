@@ -24,7 +24,12 @@ CfgFile::CfgFile(const std::string& path)
 	LoadConfigFile();
 }
 
-void CfgFile::LoadConfigFile(const std::string path)
+CfgFile::CfgFile()
+{
+
+}
+
+bool CfgFile::LoadConfigFile(const std::string path)
 {
 	if (boost::filesystem::exists(path))
 	{
@@ -47,18 +52,24 @@ void CfgFile::LoadConfigFile(const std::string path)
 					m_cfgEntries.emplace_back(key, value);
 
 				}
+				else
+				{
+					m_cfgEntries.emplace_back("# Error [ValueNotFoundForKey]: " + key);
+				}
 			}
 			else
 			{
 				m_cfgEntries.emplace_back(line);
 			}
 		}
+		return true;
 	}
+	return false;
 }
 
-void CfgFile::LoadConfigFile()
+bool CfgFile::LoadConfigFile()
 {
-	LoadConfigFile(m_path);
+	return LoadConfigFile(m_path);
 }
 
 bool CfgFile::ConfigFileExists() const
@@ -66,26 +77,42 @@ bool CfgFile::ConfigFileExists() const
 	return boost::filesystem::exists(m_path);
 }
 
-void CfgFile::DeleteConfigFile() const
+bool CfgFile::DeleteConfigFile() const
 {
+
 	if (ConfigFileExists())
 	{
-		boost::filesystem::remove(m_path);
+		return boost::filesystem::remove(m_path);
 	}
+	return false;
+}
+bool CfgFile::SaveConfigFile()
+{
+	return SaveConfigFile(m_path);
 }
 
-void CfgFile::SaveConfigFile()
+bool CfgFile::SaveConfigFile(const std::string path)
 {
-	if (!ConfigFileExists())
+	if (!boost::filesystem::exists(path))
 	{
+		m_path = path;
 		UpdateSignature();
 		std::ofstream outfile(m_path);
-		for (const CfgEntry& entry: m_cfgEntries)
+		if (outfile)
 		{
-			outfile << entry.GetLine() << std::endl;
+			for (const CfgEntry& entry : m_cfgEntries)
+			{
+				outfile << entry.GetLine() << std::endl;
+				if (outfile.bad())
+				{
+					return false;
+				}
+			}
+			outfile.close();
+			return !outfile.bad();
 		}
-		outfile.close();
 	}
+	return false;
 }
 
 void CfgFile::UpdateSignature()
