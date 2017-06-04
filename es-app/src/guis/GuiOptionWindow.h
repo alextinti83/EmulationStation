@@ -16,7 +16,7 @@ public:
 	std::vector<HelpPrompt> getHelpPrompts() override;
 
 
-private:
+protected:
 	MenuComponent mMenu;
 	std::vector< std::function<void()> > mSaveFuncs;
 };
