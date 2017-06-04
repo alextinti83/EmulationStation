@@ -35,12 +35,23 @@ GuiImportRetroArchConfig::GuiImportRetroArchConfig(
 		}
 	}
 
+	//mMenu.addButton("+1PG", "Pages", [ this ] { LoadNextPages(1); });
+	//mMenu.addButton("-1PG", "Pages", [ this ] { LoadPrevPages(1); });
+	mMenu.addButton("+10PG", "Pages", [ this ] { LoadNextPages(10); });
+	mMenu.addButton("-10PG", "Pages", [ this ] { LoadPrevPages(10); });
+	m_pagesButton = mMenu.addButton(GetPageLabelText(), "Pages", [ this ] {  });
+	m_pagesButton->setEnabled(false);
 	LoadPage(0u);
+}
+
+std::string GuiImportRetroArchConfig::GetPageLabelText() const
+{
+	return "Page " + std::to_string(m_currentPage+1) + "/" + std::to_string(GetLastPage()+1);
 }
 
 uint32_t GuiImportRetroArchConfig::GetLastPage() const
 {
-	return std::ceil(m_configPaths.size() / k_pageEntryCount);
+	return static_cast<uint32_t>(std::ceil(m_configPaths.size() / k_pageEntryCount));
 }
 
 bool GuiImportRetroArchConfig::IsLastPage() const
@@ -79,6 +90,7 @@ void GuiImportRetroArchConfig::LoadPage(uint32_t page)
 		InsertRow(m_configPaths[ rowIndex ]);
 	}
 	m_currentPage = page;
+	m_pagesButton->setText(GetPageLabelText(), "Pages");
 }
 
 void GuiImportRetroArchConfig::InsertRow(boost::filesystem::path path)
@@ -108,7 +120,11 @@ bool GuiImportRetroArchConfig::OnRowSelected(InputConfig* config, Input input, b
 
 bool GuiImportRetroArchConfig::input(InputConfig* config, Input input)
 {
-	
+	if (GuiOptionWindow::input(config, input))
+	{
+		return true;
+	}
+
 	if (config->isMappedTo("right", input) && input.value != 0)
 	{
 		LoadNextPages();
@@ -148,4 +164,14 @@ bool GuiImportRetroArchConfig::input(InputConfig* config, Input input)
 	}
 
 	return GuiComponent::input(config, input);
+}
+
+std::vector<HelpPrompt> GuiImportRetroArchConfig::getHelpPrompts()
+{
+	std::vector<HelpPrompt> prompts = mMenu.getHelpPrompts();
+
+	prompts.push_back(HelpPrompt("b", "back"));
+	prompts.push_back(HelpPrompt("select", "close"));
+
+	return prompts;
 }

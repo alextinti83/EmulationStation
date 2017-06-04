@@ -77,11 +77,13 @@ void MenuComponent::onSizeChanged()
 	mGrid.setSize(mSize);
 }
 
-void MenuComponent::addButton(const std::string& name, const std::string& helpText, const std::function<void()>& callback)
+std::shared_ptr<ButtonComponent> MenuComponent::addButton(const std::string& name, const std::string& helpText, const std::function<void()>& callback)
 {
-	mButtons.push_back(std::make_shared<ButtonComponent>(mWindow, strToUpper(name), helpText, callback));
+	std::shared_ptr<ButtonComponent> button = std::make_shared<ButtonComponent>(mWindow, strToUpper(name), helpText, callback);
+	mButtons.push_back(button);
 	updateGrid();
 	updateSize();
+	return button;
 }
 
 void MenuComponent::updateGrid()

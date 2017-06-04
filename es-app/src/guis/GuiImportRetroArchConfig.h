@@ -1,6 +1,6 @@
 #pragma  once
 #include "guis/GuiOptionWindow.h"
-#include "components/TextListComponent.h"
+#include "components/ButtonComponent.h"
 
 class GuiImportRetroArchConfig : public GuiOptionWindow
 {
@@ -10,6 +10,7 @@ public:
 	virtual ~GuiImportRetroArchConfig();
 
 private:
+	std::string GetPageLabelText() const;
 	uint32_t GetLastPage() const;
 	bool IsLastPage() const;
 	bool IsFirstPage() const;
@@ -21,10 +22,12 @@ private:
 	
 	bool input(InputConfig* config, Input input) override;
 
+	std::vector<HelpPrompt> getHelpPrompts() override;
 	boost::filesystem::path m_configFolder;
 	CallbackT m_onConfigSelected;
 	std::vector<boost::filesystem::path> m_configPaths;
 	uint32_t m_currentPage;
 	static const uint32_t k_pageEntryCount;
+	std::shared_ptr<ButtonComponent> m_pagesButton;
 
 };

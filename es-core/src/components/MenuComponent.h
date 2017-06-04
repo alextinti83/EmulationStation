@@ -35,7 +35,7 @@ public:
 		addRow(row, setCursorHere);
 	}
 
-	void addButton(const std::string& label, const std::string& helpText, const std::function<void()>& callback);
+	std::shared_ptr<ButtonComponent> addButton(const std::string& label, const std::string& helpText, const std::function<void()>& callback);
 
 	void setTitle(const char* title, const std::shared_ptr<Font>& font);
 
