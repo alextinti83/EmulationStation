@@ -34,6 +34,7 @@ set(ES_HEADERS
 	${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiOptionWindow.h
 	${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiRetroArchOptions.h
 	${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiRetroArchConfig.h
+	${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiImportRetroArchConfig.h
 
 	
 
@@ -90,6 +91,7 @@ set(ES_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiOptionWindow.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiRetroArchOptions.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiRetroArchConfig.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiImportRetroArchConfig.cpp
 
     # Scrapers
     ${CMAKE_CURRENT_SOURCE_DIR}/src/scrapers/Scraper.cpp
