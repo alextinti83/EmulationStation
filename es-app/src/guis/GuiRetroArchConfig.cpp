@@ -4,14 +4,16 @@
 #include "views/ViewController.h"
 #include "CfgFile.h"
 #include "guis/GuiMsgBox.h"
+#include "GuiImportRetroArchConfig.h"
+#include "SystemData.h"
 
 GuiRetroArchConfig::GuiRetroArchConfig(
-	Window* window, 
-	std::string title, 
-	SystemData& system, 
+	Window* window,
+	std::string title,
+	SystemData& system,
 	std::unique_ptr<CfgFile> config)
-	: GuiOptionWindow(window, title), 
-	mSystem(system), 
+	: GuiOptionWindow(window, title),
+	mSystem(system),
 	m_config(std::move(config))
 {
 	ComponentListRow row;
@@ -25,8 +27,7 @@ GuiRetroArchConfig::GuiRetroArchConfig(
 		{
 			if (config->isMappedTo("a", input) && input.value)
 			{
-				//std::unique_ptr<CfgFile> retroArchConfig(new CfgFile(""));
-				//auto s = new GuiRetroArchConfig(mWindow, title, mSystem, std::move(retroArchConfig));
+				//auto s = new GuiImportRetroArchConfig(mWindow, title);
 				//mWindow->pushGui(s);
 				return true;
 			}
@@ -51,7 +52,7 @@ GuiRetroArchConfig::GuiRetroArchConfig(
 								[ this ]
 							{
 							}, nullptr));
-						} 
+						}
 						else
 						{
 							delete this;
@@ -74,30 +75,31 @@ GuiRetroArchConfig::GuiRetroArchConfig(
 		{
 			if (config->isMappedTo("a", input) && input.value)
 			{
-				bool writeFile = true;
-				if (m_config->ConfigFileExists())
-				{
-					mWindow->pushGui(new GuiMsgBox(mWindow, "Do you really want to Overwrite " + m_config->GetConfigFilePath() + "?", "YES",
-						[ this, &writeFile ]
+				bool writeFile = true; \
+					// THIS IS WRONG: 
+					//if (m_config->ConfigFileExists())
+					//{
+					//	mWindow->pushGui(new GuiMsgBox(mWindow, "Do you really want to Overwrite " + m_config->GetConfigFilePath() + "?", "YES",
+					//		[ this, &writeFile ]
+					//	{
+					//		writeFile = true;
+					//	}, "NO", nullptr));
+					//}
+					if (writeFile)
 					{
-						writeFile = true;
-					}, "NO", nullptr));
-				}
-				if (writeFile)
-				{
-					m_config->SaveConfigFile();
-					if (!m_config->ConfigFileExists())
-					{
-						mWindow->pushGui(new GuiMsgBox(mWindow, "Could not Save " + m_config->GetConfigFilePath() + "?", "Close",
-							[ this ]
+						m_config->SaveConfigFile();
+						if (!m_config->ConfigFileExists())
 						{
-						}, nullptr));
+							mWindow->pushGui(new GuiMsgBox(mWindow, "Could not Save " + m_config->GetConfigFilePath() + "?", "Close",
+								[ this ]
+							{
+							}, nullptr));
+						}
+						else
+						{
+							delete this;
+						}
 					}
-					else
-					{
-						delete this;
-					}
-				}
 				return true;
 			}
 			return false;
@@ -113,10 +115,22 @@ GuiRetroArchConfig::GuiRetroArchConfig(
 		{
 			if (config->isMappedTo("a", input) && input.value)
 			{
-				//std::unique_ptr<CfgFile> retroArchConfig(new CfgFile(""));
-				//auto s = new GuiRetroArchConfig(mWindow, title, mSystem, std::move(retroArchConfig));
-				//mWindow->pushGui(s);
+				boost::filesystem::path configFolder =  mSystem.getRetroArchConfigImportFolder();
+				if (boost::filesystem::exists(configFolder))
+				{
+					auto s = new GuiImportRetroArchConfig(mWindow, title, configFolder,
+						std::bind(&GuiRetroArchConfig::OnImportConfigSelected, this, std::placeholders::_1)
+					);
+					mWindow->pushGui(s);
+					return true;
+				}
+			else
+			{
+				mWindow->pushGui(new GuiMsgBox(mWindow,
+					"Configuration folder not found: " + configFolder.generic_string(),
+					"Close", [ this ] { delete this; }));
 				return true;
+				}
 			}
 			return false;
 		};
@@ -132,4 +146,69 @@ GuiRetroArchConfig::~GuiRetroArchConfig()
 IGameListView* GuiRetroArchConfig::getGamelist()
 {
 	return ViewController::get()->getGameListView(&mSystem).get();
+}
+
+void GuiRetroArchConfig::OnImportConfigSelected(boost::filesystem::path configPath)
+{
+	mWindow->pushGui(new GuiMsgBox(mWindow, "Do you really want to Overwrite " + m_config->GetConfigFilePath() + " with the content of " + configPath.generic_string() + "?", "YES",
+		[ this, configPath ]
+	{
+		std::unique_ptr<CfgFile> new_config(new CfgFile());
+		if (LoadConfigFile(new_config, configPath))
+		{
+			const std::string originalPath = m_config->GetConfigFilePath();
+			if (DeleteConfigFile(m_config))
+			{
+				if (SaveConfigFile(new_config, originalPath))
+				{
+					m_config = std::move(new_config);
+				}
+			}
+		}
+		delete this;
+	}, "NO", nullptr));
+}
+
+void GuiRetroArchConfig::ShowError(std::string mgs)
+{
+	mWindow->pushGui(new GuiMsgBox(mWindow, mgs, "Close", [] { }));
+}
+
+bool GuiRetroArchConfig::LoadConfigFile(std::unique_ptr<CfgFile>& config, boost::filesystem::path configPath)
+{
+	const bool result = config->LoadConfigFile(configPath.generic_string());
+	if (!result)
+	{
+		ShowError("Could not load " + configPath.generic_string());
+	}
+	return result;
+}
+
+
+bool GuiRetroArchConfig::SaveConfigFile(std::unique_ptr<CfgFile>& config, boost::filesystem::path configPath)
+{
+	const bool result = config->SaveConfigFile(configPath.generic_string());
+	if (!result)
+	{
+		ShowError("Could not save " + configPath.generic_string());
+	}
+	return result;
+}
+
+
+bool GuiRetroArchConfig::DeleteConfigFile(std::unique_ptr<CfgFile>& config)
+{
+	if (config->ConfigFileExists())
+	{
+		const bool result = config->DeleteConfigFile();
+		if (!result)
+		{
+			ShowError("Could not delete " + config->GetConfigFilePath());
+		}
+		return result;
+	}
+	else
+	{
+		return true;
+	}
 }

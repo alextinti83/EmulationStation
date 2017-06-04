@@ -13,6 +13,12 @@ public:
 
 private:
 	IGameListView* getGamelist();
+	void OnImportConfigSelected(boost::filesystem::path configPath);
+	bool LoadConfigFile(std::unique_ptr<CfgFile>& config, boost::filesystem::path configPath);
+	bool SaveConfigFile(std::unique_ptr<CfgFile>& config, boost::filesystem::path configPath);
+	bool DeleteConfigFile(std::unique_ptr<CfgFile>& config);
+	void ShowError(std::string mgs);
+
 	SystemData& mSystem;
 	std::unique_ptr<CfgFile> m_config;
 };
