@@ -58,19 +58,21 @@ private:
 class CfgFile
 {
 public:
+	CfgFile();
 	CfgFile(const std::string& path);
-	void LoadConfigFile();
-	void LoadConfigFile(const std::string path);
+	bool LoadConfigFile();
+	bool LoadConfigFile(const std::string path);
 
 	bool ConfigFileExists() const;
-	void DeleteConfigFile() const;
-	void SaveConfigFile();
+	bool DeleteConfigFile() const;
+	bool SaveConfigFile();
+	bool SaveConfigFile(const std::string path);
 	const std::string& GetConfigFilePath() const;
+
 private:
 	void UpdateSignature();
 	std::vector<CfgEntry> m_cfgEntries;
 	std::string m_path;
-
 	static const std::string k_signaturePrefix;
 	static const std::string k_signature;
 };
