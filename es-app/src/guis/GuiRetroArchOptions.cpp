@@ -3,8 +3,8 @@
 #include "views/gamelist/IGameListView.h"
 #include "views/ViewController.h"
 #include "GuiRetroArchConfig.h"
-#include "RetroArchConfig.h"
 #include "SystemData.h"
+#include "CfgFile.h"
 
 GuiRetroArchOptions::GuiRetroArchOptions(Window* window, SystemData& system)
 	: GuiOptionWindow(window,"RetroArch Config"), mSystem(system)
@@ -22,8 +22,7 @@ GuiRetroArchOptions::GuiRetroArchOptions(Window* window, SystemData& system)
 	{
 		if (config->isMappedTo("a", input) && input.value)
 		{
-			std::unique_ptr<RetroArchConfig> retroArchConfig;
-			retroArchConfig.reset(new RetroArchConfig(mSystem ));
+			std::unique_ptr<CfgFile> retroArchConfig(new CfgFile(""));
 			auto s = new GuiRetroArchConfig(mWindow, title, mSystem, std::move(retroArchConfig));
 			mWindow->pushGui(s);
 			return true;
@@ -40,12 +39,12 @@ GuiRetroArchOptions::GuiRetroArchOptions(Window* window, SystemData& system)
 	title += " GAME";
 	row.elements.clear();
 	row.addElement(std::make_shared<TextComponent>(mWindow, title, Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
-	row.input_handler = [ this, title, &file ] (InputConfig* config, Input input)
+	row.input_handler = [ this, title, file ] (InputConfig* config, Input input)
 	{
 		if (config->isMappedTo("a", input) && input.value)
 		{
-			std::unique_ptr<RetroArchConfig> retroArchConfig;
-			retroArchConfig.reset(new RetroArchConfig(*file));
+			const std::string cfgpath = file->getPath().generic_string() + ".cfg";
+			std::unique_ptr<CfgFile> retroArchConfig(new CfgFile(cfgpath));
 			auto s = new GuiRetroArchConfig(mWindow, title, mSystem, std::move(retroArchConfig));
 			mWindow->pushGui(s);
 			return true;
