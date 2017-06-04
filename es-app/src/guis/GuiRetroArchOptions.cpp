@@ -16,7 +16,7 @@ GuiRetroArchOptions::GuiRetroArchOptions(Window* window, SystemData& system)
 
 	// show filtered menu
 	row.elements.clear();
-	std::string title = systemName + " SYSTEM";
+	std::string title = "EDIT " + systemName + " CONFIGURATION";
 	row.addElement(std::make_shared<TextComponent>(mWindow, title , Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
 	row.input_handler = [ this, title ] (InputConfig* config, Input input)
 	{
@@ -33,10 +33,11 @@ GuiRetroArchOptions::GuiRetroArchOptions(Window* window, SystemData& system)
 
 	
 	const FileData* const file = getGamelist()->getCursor();
-	const uint32_t maxLength = 35; \
+	const uint32_t maxLength = 30; \
 	const std::string origName = file->getName();
-	title = strToUpper(origName.size() > maxLength ? origName.substr(0, maxLength) + "...": origName);
-	title += " GAME";
+	title = "EDIT ";
+	title += strToUpper(origName.size() > maxLength ? origName.substr(0, maxLength) + "...": origName);
+	title += " CONFIG";
 	row.elements.clear();
 	row.addElement(std::make_shared<TextComponent>(mWindow, title, Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
 	row.input_handler = [ this, title, file ] (InputConfig* config, Input input)
