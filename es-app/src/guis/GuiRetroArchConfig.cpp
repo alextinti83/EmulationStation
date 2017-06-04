@@ -74,9 +74,30 @@ GuiRetroArchConfig::GuiRetroArchConfig(
 		{
 			if (config->isMappedTo("a", input) && input.value)
 			{
-				//std::unique_ptr<CfgFile> retroArchConfig(new CfgFile(""));
-				//auto s = new GuiRetroArchConfig(mWindow, title, mSystem, std::move(retroArchConfig));
-				//mWindow->pushGui(s);
+				bool writeFile = true;
+				if (m_config->ConfigFileExists())
+				{
+					mWindow->pushGui(new GuiMsgBox(mWindow, "Do you really want to Overwrite " + m_config->GetConfigFilePath() + "?", "YES",
+						[ this, &writeFile ]
+					{
+						writeFile = true;
+					}, "NO", nullptr));
+				}
+				if (writeFile)
+				{
+					m_config->SaveConfigFile();
+					if (!m_config->ConfigFileExists())
+					{
+						mWindow->pushGui(new GuiMsgBox(mWindow, "Could not Save " + m_config->GetConfigFilePath() + "?", "Close",
+							[ this ]
+						{
+						}, nullptr));
+					}
+					else
+					{
+						delete this;
+					}
+				}
 				return true;
 			}
 			return false;
