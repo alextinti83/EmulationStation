@@ -12,7 +12,7 @@ set(ES_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Gamelist.h
 	${CMAKE_CURRENT_SOURCE_DIR}/src/GameCollection.h
     ${CMAKE_CURRENT_SOURCE_DIR}/src/FileFilterIndex.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/RetroArchConfig.h
+	${CMAKE_CURRENT_SOURCE_DIR}/src/CfgFile.h
 
 
     # GuiComponents
@@ -33,6 +33,8 @@ set(ES_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiGamelistFilter.h
 	${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiOptionWindow.h
 	${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiRetroArchOptions.h
+	${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiRetroArchConfig.h
+
 	
 
     # Scrapers
@@ -67,7 +69,7 @@ set(ES_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Gamelist.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/GameCollection.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/FileFilterIndex.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/RetroArchConfig.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/CfgFile.cpp
 
     # GuiComponents
     ${CMAKE_CURRENT_SOURCE_DIR}/src/components/AsyncReqComponent.cpp
@@ -87,6 +89,7 @@ set(ES_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiGamelistFilter.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiOptionWindow.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiRetroArchOptions.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiRetroArchConfig.cpp
 
     # Scrapers
     ${CMAKE_CURRENT_SOURCE_DIR}/src/scrapers/Scraper.cpp
