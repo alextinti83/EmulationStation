@@ -3,7 +3,7 @@
 #include "Window.h"
 #include "views/ViewController.h"
 
-const uint32_t GuiImportRetroArchConfig::k_pageSize(6);
+const uint32_t GuiImportRetroArchConfig::k_pageEntryCount(6);
 
 GuiImportRetroArchConfig::GuiImportRetroArchConfig(
 	Window* window,
@@ -38,31 +38,45 @@ GuiImportRetroArchConfig::GuiImportRetroArchConfig(
 	LoadPage(0u);
 }
 
-void GuiImportRetroArchConfig::LoadNextPage()
+uint32_t GuiImportRetroArchConfig::GetLastPage() const
 {
-	if (m_currentPage > 0)
-	{
-		LoadPage(m_currentPage - 1);
-	}
+	return std::ceil(m_configPaths.size() / k_pageEntryCount);
 }
 
-void GuiImportRetroArchConfig::LoadPrevPage()
+bool GuiImportRetroArchConfig::IsLastPage() const
 {
-	if (m_currentPage + k_pageSize < m_configPaths.size())
-	{
-		LoadPage(m_currentPage + 1);
-	}
+	return m_currentPage == GetLastPage();
+}
+
+bool GuiImportRetroArchConfig::IsFirstPage() const
+{
+	return m_currentPage == 0u;
+}
+
+void GuiImportRetroArchConfig::LoadPrevPages(uint32_t count)
+{
+	if (IsFirstPage()) return;
+	const uint32_t prevPage = ( count >= m_currentPage ) ? 0u : m_currentPage - count;
+	LoadPage(prevPage);
+}
+
+void GuiImportRetroArchConfig::LoadNextPages(uint32_t count)
+{
+	if (IsLastPage()) return;
+
+	const uint32_t nextPage = std::min(m_currentPage + count, GetLastPage());
+	LoadPage(nextPage);
 }
 
 void GuiImportRetroArchConfig::LoadPage(uint32_t page)
 {
 	mMenu.ClearRows();
 
-	page = std::min(page, m_configPaths.size());
-	const uint32_t rowCount = std::min(page + k_pageSize, m_configPaths.size());
-	for (uint32_t row = page; row < rowCount; ++row)
+	uint32_t rowIndex = std::min(page*k_pageEntryCount, m_configPaths.size() - k_pageEntryCount);
+	uint32_t rowCount = std::min(rowIndex + k_pageEntryCount, m_configPaths.size());
+	for (; rowIndex < rowCount; ++rowIndex)
 	{
-		InsertRow(m_configPaths[ row ]);
+		InsertRow(m_configPaths[ rowIndex ]);
 	}
 	m_currentPage = page;
 }
@@ -95,14 +109,25 @@ bool GuiImportRetroArchConfig::OnRowSelected(InputConfig* config, Input input, b
 bool GuiImportRetroArchConfig::input(InputConfig* config, Input input)
 {
 	
+	if (config->isMappedTo("right", input) && input.value != 0)
+	{
+		LoadNextPages();
+		return true;
+	}
+	if (config->isMappedTo("left", input) && input.value != 0)
+	{
+		LoadPrevPages();
+		return true;
+	}
+
 	if (config->isMappedTo("PageUp", input) && input.value != 0)
 	{
-		LoadPrevPage();
+		LoadNextPages(10);
 		return true;
 	}
 	if (config->isMappedTo("PageDown", input) && input.value != 0)
 	{
-		LoadNextPage();
+		LoadPrevPages(10);
 		return true;
 	}
 

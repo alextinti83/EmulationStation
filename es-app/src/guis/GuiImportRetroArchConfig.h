@@ -10,8 +10,11 @@ public:
 	virtual ~GuiImportRetroArchConfig();
 
 private:
-	void LoadNextPage();
-	void LoadPrevPage();
+	uint32_t GetLastPage() const;
+	bool IsLastPage() const;
+	bool IsFirstPage() const;
+	void LoadNextPages(uint32_t count = 1);
+	void LoadPrevPages(uint32_t count = 1);
 	void LoadPage(uint32_t page);
 	void InsertRow(boost::filesystem::path path);
 	bool OnRowSelected(InputConfig* config, Input input,  boost::filesystem::path);
@@ -22,6 +25,6 @@ private:
 	CallbackT m_onConfigSelected;
 	std::vector<boost::filesystem::path> m_configPaths;
 	uint32_t m_currentPage;
-	static const uint32_t k_pageSize;
+	static const uint32_t k_pageEntryCount;
 
 };
