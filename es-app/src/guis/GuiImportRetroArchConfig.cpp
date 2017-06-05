@@ -38,14 +38,16 @@ GuiImportRetroArchConfig::GuiImportRetroArchConfig(
 	mMenu.setSize(Renderer::getScreenWidth() * 0.75f, mMenu.getSize().y());
 	mMenu.setPosition(( mSize.x() - mMenu.getSize().x() ) / 2, Renderer::getScreenHeight() * 0.15f);
 
-	m_prevPageButton = mMenu.addButton("Prev Page", "Pages", [ this ] { LoadPrevPages(1); });
-	m_pageCountButton = mMenu.addButton(GetPageLabelText() + "  ", "Pages", [ this ] {  });
 	m_nextPageButton = mMenu.addButton("Next Page", "Pages", [ this ] { LoadNextPages(1); });
+	m_prevPageButton = mMenu.addButton("Prev", "Pages", [ this ] { LoadPrevPages(1); });
 	
+	mMenu.addButton("+10", "Pages", [ this ] { LoadNextPages(10); });
+	mMenu.addButton("-10", "Pages", [ this ] { LoadPrevPages(10); });
 
-	mMenu.addButton("+10PG", "Pages", [ this ] { LoadNextPages(10); });
-	mMenu.addButton("-10PG", "Pages", [ this ] { LoadPrevPages(10); });
+	m_pageCountButton = mMenu.addButton(GetPageLabelText(), "Pages", [ this ] {  });
+
 	m_pageCountButton->setEnabled(false);
+
 	LoadPage(0u);
 }
 
