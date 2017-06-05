@@ -39,7 +39,7 @@ GuiImportRetroArchConfig::GuiImportRetroArchConfig(
 	mMenu.setPosition(( mSize.x() - mMenu.getSize().x() ) / 2, Renderer::getScreenHeight() * 0.15f);
 
 	m_prevPageButton = mMenu.addButton("Prev Page", "Pages", [ this ] { LoadPrevPages(1); });
-	m_pageCountButton = mMenu.addButton(GetPageLabelText(), "Pages", [ this ] {  });
+	m_pageCountButton = mMenu.addButton(GetPageLabelText() + "  ", "Pages", [ this ] {  });
 	m_nextPageButton = mMenu.addButton("Next Page", "Pages", [ this ] { LoadNextPages(1); });
 	
 
