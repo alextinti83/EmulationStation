@@ -6,6 +6,7 @@
 #include "guis/GuiMsgBox.h"
 #include "GuiImportRetroArchConfig.h"
 #include "SystemData.h"
+#include "GuiCfgEditor.h"
 
 GuiRetroArchConfig::GuiRetroArchConfig(
 	Window* window,
@@ -27,8 +28,7 @@ GuiRetroArchConfig::GuiRetroArchConfig(
 		{
 			if (config->isMappedTo("a", input) && input.value)
 			{
-				//auto s = new GuiImportRetroArchConfig(mWindow, title);
-				//mWindow->pushGui(s);
+				mWindow->pushGui(new GuiCfgEditor(mWindow, "Config Editor", *(m_config.get())));
 				return true;
 			}
 			return false;
