@@ -113,7 +113,7 @@ std::shared_ptr<ComponentGrid> makeButtonGrid(Window* window, const std::vector<
 	float buttonGridWidth = (float)BUTTON_GRID_HORIZ_PADDING * buttons.size(); // initialize to padding
 	for(int i = 0; i < (int)buttons.size(); i++)
 	{
-		buttonGrid->setEntry(buttons.at(i), Vector2i(i, 0), true, false);
+		buttonGrid->setEntry(buttons.at(i), Vector2i(i, 0), buttons.at(i)->isEnabled(), false);
 		buttonGridWidth += buttons.at(i)->getSize().x();
 	}
 	for(unsigned int i = 0; i < buttons.size(); i++)
