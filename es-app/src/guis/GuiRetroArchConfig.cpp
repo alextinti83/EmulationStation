@@ -28,7 +28,8 @@ GuiRetroArchConfig::GuiRetroArchConfig(
 		{
 			if (config->isMappedTo("a", input) && input.value)
 			{
-				mWindow->pushGui(new GuiCfgEditor(mWindow, "Config Editor", *(m_config.get())));
+				auto title = boost::filesystem::path(m_config->GetConfigFilePath()).filename().generic_string();
+				mWindow->pushGui(new GuiCfgEditor(mWindow, title, *(m_config.get())));
 				return true;
 			}
 			return false;
@@ -91,10 +92,7 @@ GuiRetroArchConfig::GuiRetroArchConfig(
 						m_config->SaveConfigFile(overwrite);
 						if (!m_config->ConfigFileExists())
 						{
-							mWindow->pushGui(new GuiMsgBox(mWindow, "Could not Save " + m_config->GetConfigFilePath() + "?", "Close",
-								[ this ]
-							{
-							}, nullptr));
+							ShowError("Could not Save " + m_config->GetConfigFilePath());
 						}
 						else
 						{
