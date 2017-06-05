@@ -27,6 +27,7 @@ MenuComponent::MenuComponent(Window* window, const char* title, const std::share
 	mList = std::make_shared<ComponentList>(mWindow);
 	mGrid.setEntry(mList, Vector2i(0, 1), true);
 
+	mSize[ 0 ] = Renderer::getScreenWidth() * 0.5f;
 	updateGrid();
 	updateSize();
 
@@ -63,7 +64,7 @@ void MenuComponent::updateSize()
 		}
 	}
 
-	setSize(Renderer::getScreenWidth() * 0.5f, height);
+	setSize(getSize().x(), height);
 }
 
 void MenuComponent::onSizeChanged()
