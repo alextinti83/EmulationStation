@@ -28,6 +28,9 @@ private:
 	std::vector<boost::filesystem::path> m_configPaths;
 	uint32_t m_currentPage;
 	static const uint32_t k_pageEntryCount;
-	std::shared_ptr<ButtonComponent> m_pagesButton;
+
+	std::shared_ptr<ButtonComponent> m_pageCountButton;
+	std::shared_ptr<ButtonComponent> m_nextPageButton;
+	std::shared_ptr<ButtonComponent> m_prevPageButton;
 
 };
