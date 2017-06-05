@@ -87,7 +87,8 @@ GuiRetroArchConfig::GuiRetroArchConfig(
 					//}
 					if (writeFile)
 					{
-						m_config->SaveConfigFile();
+						const bool overwrite = false;
+						m_config->SaveConfigFile(overwrite);
 						if (!m_config->ConfigFileExists())
 						{
 							mWindow->pushGui(new GuiMsgBox(mWindow, "Could not Save " + m_config->GetConfigFilePath() + "?", "Close",
@@ -187,7 +188,8 @@ bool GuiRetroArchConfig::LoadConfigFile(std::unique_ptr<CfgFile>& config, boost:
 
 bool GuiRetroArchConfig::SaveConfigFile(std::unique_ptr<CfgFile>& config, boost::filesystem::path configPath)
 {
-	const bool result = config->SaveConfigFile(configPath.generic_string());
+	const bool overwrite = false;
+	const bool result = config->SaveConfigFile(configPath.generic_string(), overwrite);
 	if (!result)
 	{
 		ShowError("Could not save " + configPath.generic_string());
