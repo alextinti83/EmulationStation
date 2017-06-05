@@ -8,13 +8,14 @@ const uint32_t GuiPagedListView::k_pageEntryCount(6);
 GuiPagedListView::GuiPagedListView(
 	Window* window,
 	const std::string& title,
-	OnEntrySelectedCallback callback)
+	OnEntrySelectedCallback callback,
+	float widthSizePerc)
 	: GuiOptionWindow(window, title), 
 	m_onEntrySelected(callback),
 	m_currentPage(0)
 {
 
-	mMenu.setSize(Renderer::getScreenWidth() * 0.75f, mMenu.getSize().y());
+	mMenu.setSize(Renderer::getScreenWidth() * widthSizePerc, mMenu.getSize().y());
 	mMenu.setPosition(( mSize.x() - mMenu.getSize().x() ) / 2, Renderer::getScreenHeight() * 0.15f);
 
 	m_nextPageButton = mMenu.addButton("Next Page", "Pages", [ this ] { LoadNextPages(1); });

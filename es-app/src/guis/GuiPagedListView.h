@@ -12,7 +12,7 @@ class GuiPagedListView : public GuiOptionWindow
 {
 public:
 	using OnEntrySelectedCallback = std::function<void(GuiPagedListViewEntry*)>;
-	GuiPagedListView(Window* window, const std::string& title, OnEntrySelectedCallback);
+	GuiPagedListView(Window* window, const std::string& title, OnEntrySelectedCallback, float widthSizePerc = 0.75f);
 	virtual ~GuiPagedListView();
 
 	void AddEntry(std::unique_ptr<GuiPagedListViewEntry> entry)
