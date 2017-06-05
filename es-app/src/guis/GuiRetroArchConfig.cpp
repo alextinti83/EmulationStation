@@ -76,29 +76,32 @@ GuiRetroArchConfig::GuiRetroArchConfig(
 		{
 			if (config->isMappedTo("a", input) && input.value)
 			{
-				bool writeFile = true; \
-					// THIS IS WRONG: 
-					//if (m_config->ConfigFileExists())
-					//{
-					//	mWindow->pushGui(new GuiMsgBox(mWindow, "Do you really want to Overwrite " + m_config->GetConfigFilePath() + "?", "YES",
-					//		[ this, &writeFile ]
-					//	{
-					//		writeFile = true;
-					//	}, "NO", nullptr));
-					//}
-					if (writeFile)
+				auto save = [this] (const bool overwrite)
+				{
+					m_config->SaveConfigFile(overwrite);
+					if (!m_config->ConfigFileExists())
 					{
-						const bool overwrite = false;
-						m_config->SaveConfigFile(overwrite);
-						if (!m_config->ConfigFileExists())
-						{
-							ShowError("Could not Save " + m_config->GetConfigFilePath());
-						}
-						else
-						{
-							delete this;
-						}
+						ShowError("Could not Save " + m_config->GetConfigFilePath());
 					}
+					else
+					{
+						delete this;
+					}
+				};
+				if (m_config->ConfigFileExists())
+				{
+					mWindow->pushGui(new GuiMsgBox(mWindow, "Do you really want to Overwrite " + m_config->GetConfigFilePath() + "?", "YES",
+						[ this, save ]
+					{
+						const bool overwrite = true;
+						save(overwrite);
+					}, "NO", nullptr));
+				}
+				else
+				{
+					const bool overwrite = false;
+					save(overwrite);
+				}
 				return true;
 			}
 			return false;
