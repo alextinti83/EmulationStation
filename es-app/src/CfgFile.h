@@ -68,7 +68,7 @@ public:
 	bool SaveConfigFile();
 	bool SaveConfigFile(const std::string path);
 	const std::string& GetConfigFilePath() const;
-
+	std::string GetRawText() const;
 private:
 	void UpdateSignature();
 	std::vector<CfgEntry> m_cfgEntries;

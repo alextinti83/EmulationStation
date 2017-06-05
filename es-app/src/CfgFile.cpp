@@ -138,6 +138,16 @@ const std::string& CfgFile::GetConfigFilePath() const
 	return m_path;
 }
 
+std::string CfgFile::GetRawText() const
+{
+	std::string result;
+	for ( auto& entry : m_cfgEntries)
+	{
+		result += entry.GetLine() + "\n";
+	}
+	return result;
+}
+
 std::string CfgEntry::GetLine() const
 {
 	std::string result;
