@@ -32,5 +32,7 @@ private:
 	std::shared_ptr<ButtonComponent> m_pageCountButton;
 	std::shared_ptr<ButtonComponent> m_nextPageButton;
 	std::shared_ptr<ButtonComponent> m_prevPageButton;
+	std::shared_ptr<ButtonComponent> m_nextBulkPageButton;
+	std::shared_ptr<ButtonComponent> m_prevBulkPageButton;
 
 };

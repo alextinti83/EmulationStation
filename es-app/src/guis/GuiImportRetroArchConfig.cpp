@@ -39,10 +39,10 @@ GuiImportRetroArchConfig::GuiImportRetroArchConfig(
 	mMenu.setPosition(( mSize.x() - mMenu.getSize().x() ) / 2, Renderer::getScreenHeight() * 0.15f);
 
 	m_nextPageButton = mMenu.addButton("Next Page", "Pages", [ this ] { LoadNextPages(1); });
+	m_nextBulkPageButton = mMenu.addButton("+10", "Pages", [ this ] { LoadNextPages(10); });
+
 	m_prevPageButton = mMenu.addButton("Prev", "Pages", [ this ] { LoadPrevPages(1); });
-	
-	mMenu.addButton("+10", "Pages", [ this ] { LoadNextPages(10); });
-	mMenu.addButton("-10", "Pages", [ this ] { LoadPrevPages(10); });
+	m_prevBulkPageButton = mMenu.addButton("-10", "Pages", [ this ] { LoadPrevPages(10); });
 
 	m_pageCountButton = mMenu.addButton(GetPageLabelText(), "Pages", [ this ] {  });
 
@@ -98,8 +98,11 @@ void GuiImportRetroArchConfig::LoadPage(uint32_t page)
 	}
 	m_currentPage = page;
 	m_pageCountButton->setText(GetPageLabelText(), "Pages");
-	m_prevPageButton->setEnabled(!IsFirstPage());
-	m_nextPageButton->setEnabled(!IsLastPage());
+	m_prevPageButton->setVisible(!IsFirstPage());
+	m_nextPageButton->setVisible(!IsLastPage());
+
+	m_nextBulkPageButton->setVisible(!IsLastPage());
+	m_prevBulkPageButton->setVisible(!IsFirstPage());
 }
 
 void GuiImportRetroArchConfig::InsertRow(boost::filesystem::path path)
