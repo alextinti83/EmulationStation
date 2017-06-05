@@ -6,8 +6,6 @@
 #include <fstream>  
 #include "EmulationStation.h"
 
-const std::string CfgFile::k_signaturePrefix = "# Processed by EmulationStation v";
-const std::string CfgFile::k_signature = k_signaturePrefix + std::string(PROGRAM_VERSION_STRING) + " #";
 
 bool StartsWith(const std::string& str, const std::string& prefix)
 {
@@ -17,6 +15,39 @@ bool StartsWith(const std::string& str, const std::string& prefix)
 	}
 	return false;
 }
+
+CfgEntry::CfgEntry(const std::string line)
+{
+	SetLine(line);
+}
+
+void CfgEntry::SetLine(std::string line)
+{
+	std::istringstream is_line(line);
+	std::string key;
+	std::string comment("#");
+	if (!StartsWith(line, comment) && std::getline(is_line, key, '='))
+	{
+		std::string value;
+		if (std::getline(is_line, value))
+		{
+			_key = key;
+			_value = value;
+		}
+		else
+		{
+			_comment = "# Error [ValueNotFoundForKey]: " + key;
+		}
+	}
+	else
+	{
+		_comment = line;
+	}
+}
+
+const std::string CfgFile::k_signaturePrefix = "# Processed by EmulationStation v";
+const std::string CfgFile::k_signature = k_signaturePrefix + std::string(PROGRAM_VERSION_STRING) + " #";
+
 
 CfgFile::CfgFile(const std::string& path)
 	: m_path(path)
@@ -42,25 +73,7 @@ bool CfgFile::LoadConfigFile(const std::string path)
 		std::string line;
 		while (std::getline(is_file, line))
 		{
-			std::istringstream is_line(line);
-			std::string key;
-			if (!StartsWith(line, comment) && std::getline(is_line, key, '='))
-			{
-				std::string value;
-				if (std::getline(is_line, value))
-				{
-					m_cfgEntries.emplace_back(key, value);
-
-				}
-				else
-				{
-					m_cfgEntries.emplace_back("# Error [ValueNotFoundForKey]: " + key);
-				}
-			}
-			else
-			{
-				m_cfgEntries.emplace_back(line);
-			}
+			m_cfgEntries.emplace_back(line);
 		}
 		return true;
 	}

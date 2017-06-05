@@ -5,10 +5,11 @@
 class CfgEntry
 {
 public:
-	CfgEntry(const std::string& comment) : _comment(comment) { }
-	CfgEntry(const std::string& key, std::string value) : _key(key), _value(value) { }
+	CfgEntry(const std::string line);
 	~CfgEntry() { }
 	std::string GetLine() const;
+	void SetLine(std::string line);
+
 
 private:
 	std::string _key;
