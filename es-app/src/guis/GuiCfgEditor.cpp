@@ -6,9 +6,9 @@
 class GuiCfgEditorLine : public GuiPagedListViewEntry
 {
 public:
-	GuiCfgEditorLine(CfgEntry entry): mEntry(entry) { }
+	GuiCfgEditorLine(CfgEntry& entry): mEntry(entry) { }
 	virtual std::string GetText() const override { return mEntry.GetLine(); }
-	CfgEntry mEntry;
+	CfgEntry& mEntry;
 };
 
 
@@ -28,9 +28,10 @@ GuiCfgEditor::GuiCfgEditor(
 			if (cfgEntry)
 			{
 				const std::string line = cfgEntry->mEntry.GetLine();
-				auto updateVal = [ cfgEntry ] (const std::string& newVal) 
+				CfgEntry* entryPtr = &cfgEntry->mEntry;
+				auto updateVal = [ entryPtr ] (const std::string& newVal)
 				{ 
-					cfgEntry->mEntry.SetLine(newVal);
+					entryPtr->SetLine(newVal);
 				};
 				window->pushGui(new GuiTextEditPopupKeyboard(mWindow,
 						"EDIT LINE",
