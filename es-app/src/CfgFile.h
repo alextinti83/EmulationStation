@@ -15,7 +15,9 @@ public:
 
 	std::string GetLine() const;
 	void SetLine(const std::string& line);
-
+	const bool IsCommentOnly() const { return !_comment.empty() && _key.empty() && _value.empty(); }
+	const bool IsEmpty() const { return _comment.empty() && _key.empty() && _value.empty(); }
+	const bool IsSignature() const;
 
 private:
 	std::string _key;
@@ -40,10 +42,10 @@ public:
 	std::vector<CfgEntry>& GetEntries() { return m_cfgEntries; }
 	const std::vector<CfgEntry>& GetEntries() const { return m_cfgEntries; }
 
+	static const std::string k_signaturePrefix;
 private:
 	void UpdateSignature();
 	std::vector<CfgEntry> m_cfgEntries;
 	std::string m_path;
-	static const std::string k_signaturePrefix;
 	static const std::string k_signature;
 };

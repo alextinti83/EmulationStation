@@ -7,6 +7,7 @@
 #include "EmulationStation.h"
 
 
+
 bool StartsWith(const std::string& str, const std::string& prefix)
 {
 	if (str.substr(0, prefix.size()) == prefix)
@@ -81,6 +82,11 @@ void CfgEntry::SetLine(const std::string& line)
 	{
 		_comment = line;
 	}
+}
+
+const bool CfgEntry::IsSignature() const
+{
+	return StartsWith(_comment, CfgFile::k_signaturePrefix);
 }
 
 const std::string CfgFile::k_signaturePrefix = "# Processed by EmulationStation v";
