@@ -10,6 +10,10 @@ public:
 
 	inline void addRow(const ComponentListRow& row) { mMenu.addRow(row); };
 	inline void addWithLabel(const std::string& label, const std::shared_ptr<GuiComponent>& comp) { mMenu.addWithLabel(label, comp); };
+	std::shared_ptr<ButtonComponent> addButton(
+		const std::string& label, 
+		const std::string& helpText,
+		const std::function<void()>& callback);
 
 	bool input(InputConfig* config, Input input) override;
 
@@ -17,6 +21,7 @@ public:
 
 
 protected:
+	virtual void OnButtonAdded(std::shared_ptr<ButtonComponent> button) { }
 	MenuComponent mMenu;
 	std::vector< std::function<void()> > mSaveFuncs;
 	std::shared_ptr<ButtonComponent> m_backButton;

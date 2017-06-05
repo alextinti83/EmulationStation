@@ -15,6 +15,16 @@ GuiOptionWindow::GuiOptionWindow(Window* window, const std::string& title)
 	mMenu.setPosition(( mSize.x() - mMenu.getSize().x() ) / 2, Renderer::getScreenHeight() * 0.15f);
 }
 
+std::shared_ptr<ButtonComponent> GuiOptionWindow::addButton(
+	const std::string& label, 
+	const std::string& helpText, 
+	const std::function<void()>& callback)
+{
+	std::shared_ptr<ButtonComponent> button = mMenu.addButton(label, helpText, callback);
+	OnButtonAdded(button);
+	return button;
+}
+
 GuiOptionWindow::~GuiOptionWindow()
 {
 
