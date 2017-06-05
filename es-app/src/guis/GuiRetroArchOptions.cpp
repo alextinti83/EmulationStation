@@ -23,6 +23,7 @@ GuiRetroArchOptions::GuiRetroArchOptions(Window* window, SystemData& system)
 		if (config->isMappedTo("a", input) && input.value)
 		{
 			std::unique_ptr<CfgFile> retroArchConfig(new CfgFile(""));
+			auto title = "EDIT " + boost::filesystem::path(retroArchConfig->GetConfigFilePath()).filename().generic_string();
 			auto s = new GuiRetroArchConfig(mWindow, title, mSystem, std::move(retroArchConfig));
 			mWindow->pushGui(s);
 			return true;
@@ -46,6 +47,7 @@ GuiRetroArchOptions::GuiRetroArchOptions(Window* window, SystemData& system)
 		{
 			const std::string cfgpath = file->getPath().generic_string() + ".cfg";
 			std::unique_ptr<CfgFile> retroArchConfig(new CfgFile(cfgpath));
+			auto title = "EDIT " + boost::filesystem::path(retroArchConfig->GetConfigFilePath()).filename().generic_string();
 			auto s = new GuiRetroArchConfig(mWindow, title, mSystem, std::move(retroArchConfig));
 			mWindow->pushGui(s);
 			return true;
