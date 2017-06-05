@@ -96,7 +96,15 @@ public:
 	// Returns true if the component is busy doing background processing (e.g. HTTP downloads)
 	bool isProcessing() const;
 
+	void setEnabled(bool enabled);
+	void setVisible(bool visible);
+	bool isEnabled() const { return mEnabled; }
+	bool isVisible() const { return mVisible; }
+
 protected:
+	virtual void OnEnabledChanged(bool oldValue, bool newValue) { }
+	virtual void OnVisibleChanged(bool oldValue, bool newValue) { }
+
 	void renderChildren(const Eigen::Affine3f& transform) const;
 	void updateSelf(int deltaTime); // updates animations
 	void updateChildren(int deltaTime); // updates animations
@@ -111,6 +119,9 @@ protected:
 	Eigen::Vector2f mSize;
 
 	bool mIsProcessing;
+
+	bool mEnabled;
+	bool mVisible;
 
 public:
 	const static unsigned char MAX_ANIMATIONS = 4;

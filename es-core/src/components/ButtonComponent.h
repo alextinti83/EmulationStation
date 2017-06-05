@@ -12,8 +12,6 @@ public:
 
 	void setPressedFunc(std::function<void()> f);
 
-	void setEnabled(bool enable);
-
 	bool input(InputConfig* config, Input input) override;
 	void render(const Eigen::Affine3f& parentTrans) override;
 
@@ -30,20 +28,24 @@ public:
 	void removeColorShift() { mNewColor = false; updateImage(); }
 
 	virtual std::vector<HelpPrompt> getHelpPrompts() override;
+protected: 
+	void OnEnabledChanged(bool, bool) override;
 
 private:
 	std::shared_ptr<Font> mFont;
 	std::function<void()> mPressedFunc;
 
 	bool mFocused;
-	bool mEnabled;
 
 	unsigned int mTextColorFocused;
 	unsigned int mTextColorUnfocused;
+	unsigned int mTextColorDisabled;
+
 	
 	bool mNewColor = false;
 	unsigned int mModdedColor;
-	
+	unsigned int mBgColorDisabled;
+
 	unsigned int getCurTextColor() const;
 	void updateImage();
 
@@ -51,4 +53,5 @@ private:
 	std::string mHelpText;
 	std::unique_ptr<TextCache> mTextCache;
 	NinePatchComponent mBox;
+
 };

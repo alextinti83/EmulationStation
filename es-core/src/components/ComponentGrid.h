@@ -75,7 +75,12 @@ private:
 		Eigen::Vector2i pos;
 		Eigen::Vector2i dim;
 		std::shared_ptr<GuiComponent> component;
-		bool canFocus;
+		bool CanFocus() const 
+		{ 
+			return (component 
+				? m_canFocus && component->isEnabled() && component->isVisible()
+				: m_canFocus ); 
+		}
 		bool resize;
 		GridFlags::UpdateType updateType;
 		unsigned int border;
@@ -83,13 +88,14 @@ private:
 		GridEntry(const Eigen::Vector2i& p = Eigen::Vector2i::Zero(), const Eigen::Vector2i& d = Eigen::Vector2i::Zero(),
 			const std::shared_ptr<GuiComponent>& cmp = nullptr, bool f = false, bool r = true, 
 			GridFlags::UpdateType u = GridFlags::UPDATE_ALWAYS, unsigned int b = GridFlags::BORDER_NONE) : 
-			pos(p), dim(d), component(cmp), canFocus(f), resize(r), updateType(u), border(b)
+			pos(p), dim(d), component(cmp), m_canFocus(f), resize(r), updateType(u), border(b)
 		{};
 
 		operator bool() const
 		{
 			return component != NULL;
 		}
+		bool m_canFocus;
 	};
 
 	float* mRowHeights;

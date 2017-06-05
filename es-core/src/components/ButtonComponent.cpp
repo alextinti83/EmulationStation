@@ -8,8 +8,11 @@ ButtonComponent::ButtonComponent(Window* window, const std::string& text, const 
 	mBox(window, ":/button.png"),
 	mFont(Font::get(FONT_SIZE_MEDIUM)), 
 	mFocused(false), 
-	mEnabled(true), 
-	mTextColorFocused(0xFFFFFFFF), mTextColorUnfocused(0x777777FF)
+	mTextColorFocused(0xFFFFFFFF),
+	mTextColorUnfocused(0x777777FF), 
+	mBgColorDisabled(0x00000022),
+	mTextColorDisabled(0xFFFFFFFF)
+
 {
 	setPressedFunc(func);
 	setText(text, helpText);
@@ -63,19 +66,13 @@ void ButtonComponent::onFocusLost()
 	updateImage();
 }
 
-void ButtonComponent::setEnabled(bool enabled)
-{
-	mEnabled = enabled;
-	updateImage();
-}
-
 void ButtonComponent::updateImage()
 {
 	if(!mEnabled || !mPressedFunc)
 	{
 		mBox.setImagePath(":/button_filled.png");
-		mBox.setCenterColor(0x770000FF);
-		mBox.setEdgeColor(0x770000FF);
+		mBox.setCenterColor(mBgColorDisabled);
+		mBox.setEdgeColor(mBgColorDisabled);
 		return;
 	}
 
@@ -94,6 +91,8 @@ void ButtonComponent::updateImage()
 
 void ButtonComponent::render(const Eigen::Affine3f& parentTrans)
 {
+	if (!mVisible) { return; }
+
 	Eigen::Affine3f trans = roundMatrix(parentTrans * getTransform());
 	
 	mBox.render(trans);
@@ -115,10 +114,18 @@ void ButtonComponent::render(const Eigen::Affine3f& parentTrans)
 
 unsigned int ButtonComponent::getCurTextColor() const
 {
-	if(!mFocused)
+	if (!mEnabled)
+	{
+		return mTextColorDisabled;
+	}
+	else if (!mFocused)
+	{
 		return mTextColorUnfocused;
+	}
 	else
+	{
 		return mTextColorFocused;
+	}
 }
 
 std::vector<HelpPrompt> ButtonComponent::getHelpPrompts()
@@ -126,4 +133,9 @@ std::vector<HelpPrompt> ButtonComponent::getHelpPrompts()
 	std::vector<HelpPrompt> prompts;
 	prompts.push_back(HelpPrompt("a", mHelpText.empty() ? mText.c_str() : mHelpText.c_str()));
 	return prompts;
+}
+
+void ButtonComponent::OnEnabledChanged(bool oldValue, bool newValue)
+{
+	updateImage();
 }
