@@ -25,6 +25,7 @@ public:
 	}
 
 	void LoadPage(uint32_t page);
+	void ReloadCurrentPage() { LoadPage(m_currentPage); }
 private:
 	void InsertRow(GuiPagedListViewEntry& entry);
 	std::string GetPageLabelText() const;

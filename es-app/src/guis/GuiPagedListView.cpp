@@ -108,7 +108,6 @@ bool GuiPagedListView::OnRowSelected(InputConfig* config, Input input, GuiPagedL
 	if (config->isMappedTo("a", input) && input.value)
 	{
 		m_onEntrySelected(entry);
-		delete this;
 		return true;
 	}
 	return false;
