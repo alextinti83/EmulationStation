@@ -27,6 +27,11 @@ public:
 	void setColorShift(unsigned int color) { mModdedColor = color; mNewColor = true; updateImage(); }
 	void removeColorShift() { mNewColor = false; updateImage(); }
 
+	bool isFocused() const
+	{
+		return mFocused;
+	}
+
 	virtual std::vector<HelpPrompt> getHelpPrompts() override;
 protected: 
 	void OnEnabledChanged(bool, bool) override;
