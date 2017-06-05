@@ -22,24 +22,8 @@ GuiCfgEditor::GuiCfgEditor(
 	: GuiPagedListView(
 		window, 
 		title, 
-		[this, window ] (GuiPagedListViewEntry* entry)
-		{ 
-			auto cfgEntry = dynamic_cast< GuiCfgEditorLine*>( entry );
-			if (cfgEntry)
-			{
-				const std::string line = cfgEntry->mEntry.GetLine();
-				CfgEntry* entryPtr = &cfgEntry->mEntry;
-				auto updateVal = [ entryPtr ] (const std::string& newVal)
-				{ 
-					entryPtr->SetLine(newVal);
-				};
-				window->pushGui(new GuiTextEditPopupKeyboard(mWindow,
-						"EDIT LINE",
-						line,
-						updateVal,
-						false));
-			}
-		}, k_widthSizeScreenPercentage)
+		std::bind(&GuiCfgEditor::OnEntrySelected, this, std::placeholders::_1, window),
+		k_widthSizeScreenPercentage)
 	, m_config(configFile)
 {
 	for (CfgEntry& entry : m_config.GetEntries())
@@ -53,4 +37,23 @@ GuiCfgEditor::GuiCfgEditor(
 GuiCfgEditor::~GuiCfgEditor()
 {
 
+}
+
+void GuiCfgEditor::OnEntrySelected(GuiPagedListViewEntry* entry, Window* window)
+{
+	auto cfgEntry = dynamic_cast< GuiCfgEditorLine* >( entry );
+	if (cfgEntry)
+	{
+		const std::string line = cfgEntry->mEntry.GetLine();
+		CfgEntry* entryPtr = &cfgEntry->mEntry;
+		auto updateVal = [ entryPtr ] (const std::string& newVal)
+		{
+			entryPtr->SetLine(newVal);
+		};
+		window->pushGui(new GuiTextEditPopupKeyboard(mWindow,
+			"EDIT LINE",
+			line,
+			updateVal,
+			false));
+	}
 }
