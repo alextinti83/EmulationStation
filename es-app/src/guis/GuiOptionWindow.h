@@ -19,4 +19,6 @@ public:
 protected:
 	MenuComponent mMenu;
 	std::vector< std::function<void()> > mSaveFuncs;
+	std::shared_ptr<ButtonComponent> m_backButton;
+
 };

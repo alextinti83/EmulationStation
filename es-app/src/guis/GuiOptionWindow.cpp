@@ -9,7 +9,7 @@ GuiOptionWindow::GuiOptionWindow(Window* window, const std::string& title)
 
 	addChild(&mMenu);
 
-	mMenu.addButton("BACK", "go back", [ this ] { delete this; });
+	m_backButton = mMenu.addButton("BACK", "go back", [ this ] { delete this; });
 
 	setSize(( float ) Renderer::getScreenWidth(), ( float ) Renderer::getScreenHeight());
 	mMenu.setPosition(( mSize.x() - mMenu.getSize().x() ) / 2, Renderer::getScreenHeight() * 0.15f);
