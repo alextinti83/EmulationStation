@@ -2,6 +2,8 @@
 #include "GuiPagedListView.h"
 
 class CfgFile;
+class ButtonComponent;
+class CfgEntry;
 class GuiCfgEditor : public GuiPagedListView
 {
 public:
@@ -10,7 +12,10 @@ public:
 
 private:
 	void OnEntrySelected(GuiPagedListViewEntry* entry, Window* window);
+	void OnLineChanged(const std::string& line, CfgEntry* entry);
+	void OnSaveButtonPressed();
 
 	CfgFile& m_config;
+	std::shared_ptr<ButtonComponent> mSaveButton;
 	static float k_widthSizeScreenPercentage;
 };
