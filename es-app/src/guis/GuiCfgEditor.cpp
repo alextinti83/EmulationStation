@@ -46,14 +46,10 @@ void GuiCfgEditor::OnEntrySelected(GuiPagedListViewEntry* entry, Window* window)
 	{
 		const std::string line = cfgEntry->mEntry.GetLine();
 		CfgEntry* entryPtr = &cfgEntry->mEntry;
-		auto updateVal = [ entryPtr ] (const std::string& newVal)
-		{
-			entryPtr->SetLine(newVal);
-		};
 		window->pushGui(new GuiTextEditPopupKeyboard(mWindow,
 			"EDIT LINE",
 			line,
-			updateVal,
+			std::bind(&CfgEntry::SetLine, entryPtr, std::placeholders::_1),
 			false));
 	}
 }
