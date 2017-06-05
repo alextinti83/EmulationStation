@@ -27,6 +27,7 @@ public:
 	void LoadPage(uint32_t page);
 	void ReloadCurrentPage() { LoadPage(m_currentPage); }
 private:
+	void OnButtonAdded(std::shared_ptr<ButtonComponent> button) override;
 	void InsertRow(GuiPagedListViewEntry& entry);
 	std::string GetPageLabelText() const;
 	uint32_t GetLastPage() const;
@@ -35,6 +36,7 @@ private:
 	void LoadNextPages(uint32_t count = 1);
 	void LoadPrevPages(uint32_t count = 1);
 	bool OnRowSelected(InputConfig* config, Input input, GuiPagedListViewEntry*);
+	bool IsAnyOfMyButtonsFocused() const;
 	
 	bool input(InputConfig* config, Input input) override;
 
@@ -49,7 +51,7 @@ private:
 	std::shared_ptr<ButtonComponent> m_prevPageButton;
 	std::shared_ptr<ButtonComponent> m_nextBulkPageButton;
 	std::shared_ptr<ButtonComponent> m_prevBulkPageButton;
-
+	std::vector < std::shared_ptr<ButtonComponent>> m_pageButtons;
 	std::vector<std::unique_ptr<GuiPagedListViewEntry>> m_entries;
 
 };

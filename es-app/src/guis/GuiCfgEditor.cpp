@@ -30,7 +30,7 @@ GuiCfgEditor::GuiCfgEditor(
 {
 
 	m_config.LoadConfigFile();
-	mSaveButton = mMenu.addButton("Save", "Pages", std::bind(&GuiCfgEditor::OnSaveButtonPressed, this));
+	mSaveButton = addButton("Save", "Pages", std::bind(&GuiCfgEditor::OnSaveButtonPressed, this));
 
 	for (CfgEntry& entry : m_config.GetEntries())
 	{

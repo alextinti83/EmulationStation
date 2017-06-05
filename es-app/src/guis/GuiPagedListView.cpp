@@ -18,13 +18,13 @@ GuiPagedListView::GuiPagedListView(
 	mMenu.setSize(Renderer::getScreenWidth() * widthSizePerc, mMenu.getSize().y());
 	mMenu.setPosition(( mSize.x() - mMenu.getSize().x() ) / 2, Renderer::getScreenHeight() * 0.15f);
 
-	m_nextPageButton = mMenu.addButton("Next Page", "Pages", [ this ] { LoadNextPages(1); });
-	m_nextBulkPageButton = mMenu.addButton("+10", "Pages", [ this ] { LoadNextPages(10); });
+	m_nextPageButton = addButton("Next Page", "Pages", [ this ] { LoadNextPages(1); });
+	m_nextBulkPageButton = addButton("+10", "Pages", [ this ] { LoadNextPages(10); });
 
-	m_prevPageButton = mMenu.addButton("Prev", "Pages", [ this ] { LoadPrevPages(1); });
-	m_prevBulkPageButton = mMenu.addButton("-10", "Pages", [ this ] { LoadPrevPages(10); });
+	m_prevPageButton = addButton("Prev", "Pages", [ this ] { LoadPrevPages(1); });
+	m_prevBulkPageButton = addButton("-10", "Pages", [ this ] { LoadPrevPages(10); });
 
-	m_pageCountButton = mMenu.addButton(GetPageLabelText(), "Pages", [ this ] {  });
+	m_pageCountButton = addButton(GetPageLabelText(), "Pages", [ this ] {  });
 
 	m_pageCountButton->setEnabled(false);
 
@@ -83,6 +83,13 @@ void GuiPagedListView::LoadPage(uint32_t page)
 
 	m_nextBulkPageButton->setVisible(!IsLastPage());
 	m_prevBulkPageButton->setVisible(!IsFirstPage());
+
+	m_pageButtons.push_back(m_backButton); //it won't be added here by the base class
+}
+
+void GuiPagedListView::OnButtonAdded(std::shared_ptr<ButtonComponent> button)
+{
+	m_pageButtons.push_back(button);
 }
 
 void GuiPagedListView::InsertRow(GuiPagedListViewEntry& entry)
@@ -113,6 +120,19 @@ bool GuiPagedListView::OnRowSelected(InputConfig* config, Input input, GuiPagedL
 	return false;
 }
 
+bool GuiPagedListView::IsAnyOfMyButtonsFocused() const
+{
+	for (std::shared_ptr<ButtonComponent> button : m_pageButtons)
+	{
+		;
+		if (button->isFocused())					 
+		{											 
+			return true;							 
+		}
+	}
+	return false;
+}
+
 bool GuiPagedListView::input(InputConfig* config, Input input)
 {
 	if (GuiOptionWindow::input(config, input))
@@ -120,21 +140,24 @@ bool GuiPagedListView::input(InputConfig* config, Input input)
 		return true;
 	}
 
-	if (config->isMappedTo("right", input) && input.value != 0)
+	if (!IsAnyOfMyButtonsFocused())
 	{
-		LoadNextPages();
-		return true;
-	}
-	if (config->isMappedTo("left", input) && input.value != 0)
-	{
-		LoadPrevPages();
-		return true;
-	}
+		if (config->isMappedTo("right", input) && input.value != 0)
+		{
+			LoadNextPages();
+			return true;
+		}
+		if (config->isMappedTo("left", input) && input.value != 0)
+		{
+			LoadPrevPages();
+			return true;
+		}
 
-	if (config->isMappedTo("PageUp", input) && input.value != 0)
-	{
-		LoadNextPages(10);
-		return true;
+		if (config->isMappedTo("PageUp", input) && input.value != 0)
+		{
+			LoadNextPages(10);
+			return true;
+		}
 	}
 	if (config->isMappedTo("PageDown", input) && input.value != 0)
 	{
