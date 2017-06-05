@@ -21,7 +21,11 @@ CfgEntry::CfgEntry(const std::string line)
 	SetLine(line);
 }
 
-void CfgEntry::SetLine(std::string line)
+CfgEntry::~CfgEntry()
+{
+}
+
+void CfgEntry::SetLine(const std::string& line)
 {
 	std::istringstream is_line(line);
 	std::string key;

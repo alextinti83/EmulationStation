@@ -6,9 +6,9 @@ class CfgEntry
 {
 public:
 	CfgEntry(const std::string line);
-	~CfgEntry() { }
+	~CfgEntry();
 	std::string GetLine() const;
-	void SetLine(std::string line);
+	void SetLine(const std::string& line);
 
 
 private:
