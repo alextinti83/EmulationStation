@@ -21,8 +21,42 @@ CfgEntry::CfgEntry(const std::string line)
 	SetLine(line);
 }
 
+CfgEntry::CfgEntry(const CfgEntry&& other)
+	:
+	_key(std::move(other._key)),
+	_value(std::move(other._value)),
+	_comment(std::move(other._comment))
+{
+}
+
 CfgEntry::~CfgEntry()
 {
+}
+
+CfgEntry& CfgEntry::operator=(const CfgEntry&& rhs)
+{
+	_key = std::move(rhs._key);
+	_value = std::move(rhs._value);
+	_comment = std::move(rhs._comment);
+	return *this;
+}
+
+std::string CfgEntry::GetLine() const
+{
+	std::string result;
+	if (_key.empty() || _value.empty())
+	{
+		result = _comment;
+	}
+	else
+	{
+		result = _key + " = " + _value;
+		if (!_comment.empty())
+		{
+			result += " " + _comment;
+		}
+	}
+	return result;
 }
 
 void CfgEntry::SetLine(const std::string& line)
@@ -103,14 +137,14 @@ bool CfgFile::DeleteConfigFile() const
 	}
 	return false;
 }
-bool CfgFile::SaveConfigFile()
+bool CfgFile::SaveConfigFile(bool forceOverwrite)
 {
-	return SaveConfigFile(m_path);
+	return SaveConfigFile(m_path, forceOverwrite);
 }
 
-bool CfgFile::SaveConfigFile(const std::string path)
+bool CfgFile::SaveConfigFile(const std::string path, bool forceOverwrite)
 {
-	if (!boost::filesystem::exists(path))
+	if (!boost::filesystem::exists(path) || forceOverwrite)
 	{
 		m_path = path;
 		UpdateSignature();
@@ -165,20 +199,4 @@ std::string CfgFile::GetRawText() const
 	return result;
 }
 
-std::string CfgEntry::GetLine() const
-{
-	std::string result;
-	if (_key.empty() || _value.empty())
-	{
-		result = _comment;
-	}
-	else
-	{
-		result =  _key + " = " + _value;
-		if (!_comment.empty())
-		{
-			result += " " + _comment;
-		}
-	}
-	return result;
-}
+

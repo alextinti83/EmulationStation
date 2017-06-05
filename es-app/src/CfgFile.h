@@ -7,6 +7,12 @@ class CfgEntry
 public:
 	CfgEntry(const std::string line);
 	~CfgEntry();
+	CfgEntry(const CfgEntry&) = delete;
+	CfgEntry(const CfgEntry&& other);
+	CfgEntry& operator=(const CfgEntry&& rhs);;
+
+	CfgEntry& operator=(const CfgEntry& rhs) = delete;
+
 	std::string GetLine() const;
 	void SetLine(const std::string& line);
 
@@ -27,8 +33,8 @@ public:
 
 	bool ConfigFileExists() const;
 	bool DeleteConfigFile() const;
-	bool SaveConfigFile();
-	bool SaveConfigFile(const std::string path);
+	bool SaveConfigFile(bool forceOverwrite);
+	bool SaveConfigFile(const std::string path, bool forceOverwrite);
 	const std::string& GetConfigFilePath() const;
 	std::string GetRawText() const;
 	std::vector<CfgEntry>& GetEntries() { return m_cfgEntries; }
