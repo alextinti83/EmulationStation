@@ -26,23 +26,41 @@ GuiCfgEditor::GuiCfgEditor(
 		title, 
 		std::bind(&GuiCfgEditor::OnEntrySelected, this, std::placeholders::_1, window),
 		k_widthSizeScreenPercentage)
-	, m_config(configFile)
+	, m_config(configFile), mShowComments(false)
 {
 
 	m_config.LoadConfigFile();
-	mSaveButton = addButton("Save", "Pages", std::bind(&GuiCfgEditor::OnSaveButtonPressed, this));
-
-	for (CfgEntry& entry : m_config.GetEntries())
+	
+	auto getCommentButtonText = [ this ] { return mShowComments ? "Less" : "More"; };
+	mCommentButton = addButton(getCommentButtonText(), "Show/Hide Comments", [ this, getCommentButtonText ]
 	{
-		std::unique_ptr<GuiCfgEditorLine> lineEntry(new GuiCfgEditorLine(entry));
-		AddEntry(std::move(lineEntry));
-	}
-	LoadPage(0u);
+		mShowComments = !mShowComments; 
+		ReloadEntries();
+		mCommentButton->setText(getCommentButtonText(), "Show/Hide Comments");
+	});
+	
+	mSaveButton = addButton("Save", "Save", std::bind(&GuiCfgEditor::OnSaveButtonPressed, this));
+
+	ReloadEntries();
 }
 
 GuiCfgEditor::~GuiCfgEditor()
 {
 
+}
+
+void GuiCfgEditor::ReloadEntries()
+{
+	ClearEntries();
+	for (CfgEntry& entry : m_config.GetEntries())
+	{
+		if (mShowComments || entry.IsSignature() || (!entry.IsCommentOnly() && !entry.IsEmpty()))
+		{
+			std::unique_ptr<GuiCfgEditorLine> lineEntry(new GuiCfgEditorLine(entry));
+			AddEntry(std::move(lineEntry));
+		}
+	}
+	LoadPage(0u);
 }
 
 void GuiCfgEditor::OnEntrySelected(GuiPagedListViewEntry* entry, Window* window)
