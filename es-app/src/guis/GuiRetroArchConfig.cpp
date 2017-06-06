@@ -21,128 +21,149 @@ GuiRetroArchConfig::GuiRetroArchConfig(
 	bool configFileExists = m_config->ConfigFileExists();
 	if (configFileExists)
 	{
-		std::string title = "EDIT CONFIG";
-		row.elements.clear();
-		row.addElement(std::make_shared<TextComponent>(mWindow, title, Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
-		row.input_handler = [ this, title ] (InputConfig* config, Input input)
-		{
-			if (config->isMappedTo("a", input) && input.value)
-			{
-				auto title = boost::filesystem::path(m_config->GetConfigFilePath()).filename().generic_string();
-				mWindow->pushGui(new GuiCfgEditor(mWindow, title, *(m_config.get())));
-				return true;
-			}
-			return false;
-		};
-		addRow(row);
-		{
-			std::string title = "DELETE CONFIG";
-			row.elements.clear();
-			row.addElement(std::make_shared<TextComponent>(mWindow, title, Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
-			row.input_handler = [ this, title ] (InputConfig* config, Input input)
-			{
-				if (config->isMappedTo("a", input) && input.value)
-				{
-					mWindow->pushGui(new GuiMsgBox(mWindow, "Do you really want to Delete " + m_config->GetConfigFilePath() + "?", "YES",
-						[ this ]
-					{
-						m_config->DeleteConfigFile();
-						if (m_config->ConfigFileExists())
-						{
-							mWindow->pushGui(new GuiMsgBox(mWindow, "Could not Delete " + m_config->GetConfigFilePath() + "?", "Close",
-								[ this ]
-							{
-							}, nullptr));
-						}
-						else
-						{
-							delete this;
-						}
-
-					}, "NO", nullptr));
-					return true;
-				}
-				return false;
-			};
-			addRow(row);
-		}
+		AddEditConfigOption();
+		AddDeleteConfigOption();
 	}
 	else
 	{
-		std::string title = "CREATE CONFIG";
-		row.elements.clear();
-		row.addElement(std::make_shared<TextComponent>(mWindow, title, Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
-		row.input_handler = [ this, title ] (InputConfig* config, Input input)
+		//AddCreateConfigOption();
+	}
+	AddImportConfigOption();
+}
+
+GuiRetroArchConfig::~GuiRetroArchConfig()
+{
+	// nothing to do
+}
+
+
+void GuiRetroArchConfig::AddCreateConfigOption()
+{
+	ComponentListRow row;
+	std::string title = "CREATE CONFIG";
+	row.elements.clear();
+	row.addElement(std::make_shared<TextComponent>(mWindow, title, Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
+	row.input_handler = [ this, title ] (InputConfig* config, Input input)
+	{
+		if (config->isMappedTo("a", input) && input.value)
 		{
-			if (config->isMappedTo("a", input) && input.value)
+			auto save = [ this ] (const bool overwrite)
 			{
-				auto save = [this] (const bool overwrite)
+				m_config->SaveConfigFile(overwrite);
+				if (!m_config->ConfigFileExists())
 				{
-					m_config->SaveConfigFile(overwrite);
-					if (!m_config->ConfigFileExists())
-					{
-						ShowError("Could not Save " + m_config->GetConfigFilePath());
-					}
-					else
-					{
-						delete this;
-					}
-				};
-				if (m_config->ConfigFileExists())
-				{
-					mWindow->pushGui(new GuiMsgBox(mWindow, "Do you really want to Overwrite " + m_config->GetConfigFilePath() + "?", "YES",
-						[ this, save ]
-					{
-						const bool overwrite = true;
-						save(overwrite);
-					}, "NO", nullptr));
+					ShowError("Could not Save " + m_config->GetConfigFilePath());
 				}
 				else
 				{
-					const bool overwrite = false;
-					save(overwrite);
+					delete this;
 				}
+			};
+			if (m_config->ConfigFileExists())
+			{
+				mWindow->pushGui(new GuiMsgBox(mWindow, "Do you really want to Overwrite " + m_config->GetConfigFilePath() + "?", "YES",
+					[ this, save ]
+				{
+					const bool overwrite = true;
+					save(overwrite);
+				}, "NO", nullptr));
+			}
+			else
+			{
+				const bool overwrite = false;
+				save(overwrite);
+			}
+			return true;
+		}
+		return false;
+	};
+	addRow(row);
+}
+
+
+void GuiRetroArchConfig::AddDeleteConfigOption()
+{
+	ComponentListRow row;
+	std::string title = "DELETE CONFIG";
+	row.elements.clear();
+	row.addElement(std::make_shared<TextComponent>(mWindow, title, Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
+	row.input_handler = [ this, title ] (InputConfig* config, Input input)
+	{
+		if (config->isMappedTo("a", input) && input.value)
+		{
+			mWindow->pushGui(new GuiMsgBox(mWindow, "Do you really want to Delete " + m_config->GetConfigFilePath() + "?", "YES",
+				[ this ]
+			{
+				m_config->DeleteConfigFile();
+				if (m_config->ConfigFileExists())
+				{
+					mWindow->pushGui(new GuiMsgBox(mWindow, "Could not Delete " + m_config->GetConfigFilePath() + "?", "Close",
+						[ this ]
+					{
+					}, nullptr));
+				}
+				else
+				{
+					delete this;
+				}
+
+			}, "NO", nullptr));
+			return true;
+		}
+		return false;
+	};
+	addRow(row);
+}
+
+void GuiRetroArchConfig::AddEditConfigOption()
+{
+	ComponentListRow row;
+	std::string title = "EDIT CONFIG";
+	row.elements.clear();
+	row.addElement(std::make_shared<TextComponent>(mWindow, title, Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
+	row.input_handler = [ this, title ] (InputConfig* config, Input input)
+	{
+		if (config->isMappedTo("a", input) && input.value)
+		{
+			auto title = boost::filesystem::path(m_config->GetConfigFilePath()).filename().generic_string();
+			mWindow->pushGui(new GuiCfgEditor(mWindow, title, *( m_config.get() )));
+			return true;
+		}
+		return false;
+	};
+	addRow(row);
+}
+
+void GuiRetroArchConfig::AddImportConfigOption()
+{
+	ComponentListRow row;
+	std::string title = "IMPORT CONFIG";
+	row.elements.clear();
+	row.addElement(std::make_shared<TextComponent>(mWindow, title, Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
+	row.input_handler = [ this, title ] (InputConfig* config, Input input)
+	{
+		if (config->isMappedTo("a", input) && input.value)
+		{
+			boost::filesystem::path configFolder = mSystem.getRetroArchConfigImportFolder();
+			if (boost::filesystem::exists(configFolder))
+			{
+				auto s = new GuiImportRetroArchConfig(mWindow, title, configFolder,
+					std::bind(&GuiRetroArchConfig::OnImportConfigSelected, this, std::placeholders::_1)
+				);
+				mWindow->pushGui(s);
 				return true;
 			}
-			return false;
-		};
-		addRow(row);
-	}
-
-	{
-		std::string title = "IMPORT CONFIG";
-		row.elements.clear();
-		row.addElement(std::make_shared<TextComponent>(mWindow, title, Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
-		row.input_handler = [ this, title ] (InputConfig* config, Input input)
-		{
-			if (config->isMappedTo("a", input) && input.value)
-			{
-				boost::filesystem::path configFolder =  mSystem.getRetroArchConfigImportFolder();
-				if (boost::filesystem::exists(configFolder))
-				{
-					auto s = new GuiImportRetroArchConfig(mWindow, title, configFolder,
-						std::bind(&GuiRetroArchConfig::OnImportConfigSelected, this, std::placeholders::_1)
-					);
-					mWindow->pushGui(s);
-					return true;
-				}
 			else
 			{
 				mWindow->pushGui(new GuiMsgBox(mWindow,
 					"Configuration folder not found: " + configFolder.generic_string(),
 					"Close", [ this ] { delete this; }));
 				return true;
-				}
 			}
-			return false;
-		};
-		addRow(row);
-	}
-}
-
-GuiRetroArchConfig::~GuiRetroArchConfig()
-{
-
+		}
+		return false;
+	};
+	addRow(row);
 }
 
 IGameListView* GuiRetroArchConfig::getGamelist()
