@@ -140,35 +140,31 @@ bool GuiPagedListView::IsAnyOfMyButtonsFocused() const
 
 bool GuiPagedListView::input(InputConfig* config, Input input)
 {
-	if (GuiOptionWindow::input(config, input))
+	if (!IsAnyOfMyButtonsFocused() && input.value != 0)
 	{
-		return true;
-	}
-
-	if (!IsAnyOfMyButtonsFocused())
-	{
-		if (config->isMappedTo("right", input) && input.value != 0)
+		if (config->isMappedTo("right", input))
 		{
 			LoadNextPages();
 			return true;
 		}
-		if (config->isMappedTo("left", input) && input.value != 0)
+		if (config->isMappedTo("left", input))
 		{
 			LoadPrevPages();
 			return true;
 		}
 
-		if (config->isMappedTo("PageUp", input) && input.value != 0)
+		if (config->isMappedTo("pageup", input))
 		{
 			LoadNextPages(10);
 			return true;
 		}
+		if (config->isMappedTo("pagedown", input))
+		{
+			LoadPrevPages(10);
+			return true;
+		}
 	}
-	if (config->isMappedTo("PageDown", input) && input.value != 0)
-	{
-		LoadPrevPages(10);
-		return true;
-	}
+	
 
 	if (config->isMappedTo("b", input) && input.value != 0)
 	{
