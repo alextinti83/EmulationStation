@@ -31,10 +31,11 @@ public:
 
 	void LoadPage(uint32_t page);
 	void ReloadCurrentPage() { LoadPage(m_currentPage); }
+	void ShowLineNumbers(bool value) { mShowLineNum = value; }
 	
 private:
 	void OnButtonAdded(std::shared_ptr<ButtonComponent> button) override;
-	void InsertRow(GuiPagedListViewEntry& entry);
+	void InsertRow(GuiPagedListViewEntry& entry, uint32_t rowIndex);
 	std::string GetPageLabelText() const;
 	uint32_t GetLastPage() const;
 	bool IsLastPage() const;
@@ -59,5 +60,7 @@ private:
 	std::shared_ptr<ButtonComponent> m_prevBulkPageButton;
 	std::vector < std::shared_ptr<ButtonComponent>> m_pageButtons;
 	std::vector<std::unique_ptr<GuiPagedListViewEntry>> m_entries;
+
+	bool mShowLineNum;
 
 };

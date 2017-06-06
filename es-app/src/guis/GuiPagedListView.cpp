@@ -12,7 +12,8 @@ GuiPagedListView::GuiPagedListView(
 	float widthSizePerc)
 	: GuiOptionWindow(window, title), 
 	m_onEntrySelected(callback),
-	m_currentPage(0)
+	m_currentPage(0),
+	mShowLineNum(true)
 {
 
 	mMenu.setSize(Renderer::getScreenWidth() * widthSizePerc, mMenu.getSize().y());
@@ -74,7 +75,7 @@ void GuiPagedListView::LoadPage(uint32_t page)
 	uint32_t rowCount = std::min(rowIndex + k_pageEntryCount, m_entries.size());
 	for (; rowIndex < rowCount; ++rowIndex)
 	{
-		InsertRow(*(m_entries[ rowIndex ].get()));
+		InsertRow(*(m_entries[ rowIndex ].get()), rowIndex);
 	}
 	m_currentPage = page;
 	m_pageCountButton->setText(GetPageLabelText(), "Pages");
@@ -97,10 +98,23 @@ void GuiPagedListView::OnButtonAdded(std::shared_ptr<ButtonComponent> button)
 	m_pageButtons.push_back(button);
 }
 
-void GuiPagedListView::InsertRow(GuiPagedListViewEntry& entry)
+
+unsigned GetDigitsCount(unsigned i)
 {
+	return i > 0 ? ( int ) log10(( double ) i) + 1 : 1;
+}
+void GuiPagedListView::InsertRow(GuiPagedListViewEntry& entry, uint32_t rowIndex)
+{
+
+	std::string linePrefix("");
+	if (mShowLineNum)
+	{
+		std::stringstream ss;
+		ss  << std::setfill(' ') << std::setw(GetDigitsCount(m_entries.size())) << rowIndex+1 << "| ";
+		linePrefix = ss.str();
+	}
+	const std::string title = linePrefix + entry.GetText();
 	ComponentListRow row;
-	const std::string title = entry.GetText();
 	row.addElement(std::make_shared<TextComponent>(mWindow, title, Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
 	row.input_handler = std::bind(&GuiPagedListView::OnRowSelected, 
 		this, 
