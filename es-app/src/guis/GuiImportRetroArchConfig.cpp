@@ -46,6 +46,13 @@ GuiImportRetroArchConfig::GuiImportRetroArchConfig(
 				"Close", [ this ] { delete this; }));
 		}
 	}
+	SortEntriesFunc alphabetize = [](
+		const std::unique_ptr<GuiPagedListViewEntry>& lhs,
+		const std::unique_ptr<GuiPagedListViewEntry>& rhs)
+	{
+		return lhs->GetText() < rhs->GetText();
+	}; SortEntries(alphabetize);
+
 	LoadPage(0u);
 }
 

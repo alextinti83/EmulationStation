@@ -23,9 +23,15 @@ public:
 	{
 		m_entries.clear();
 	}
+	using SortEntriesFunc = std::function<
+		bool(
+			const std::unique_ptr<GuiPagedListViewEntry>&,
+			const std::unique_ptr<GuiPagedListViewEntry>&)>;
+	void SortEntries(SortEntriesFunc fun);
 
 	void LoadPage(uint32_t page);
 	void ReloadCurrentPage() { LoadPage(m_currentPage); }
+	
 private:
 	void OnButtonAdded(std::shared_ptr<ButtonComponent> button) override;
 	void InsertRow(GuiPagedListViewEntry& entry);

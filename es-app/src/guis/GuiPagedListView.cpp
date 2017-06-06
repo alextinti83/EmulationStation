@@ -87,6 +87,11 @@ void GuiPagedListView::LoadPage(uint32_t page)
 	m_pageButtons.push_back(m_backButton); //it won't be added here by the base class
 }
 
+void GuiPagedListView::SortEntries(SortEntriesFunc fun)
+{
+	std::sort(m_entries.begin(), m_entries.end(), fun);
+}
+
 void GuiPagedListView::OnButtonAdded(std::shared_ptr<ButtonComponent> button)
 {
 	m_pageButtons.push_back(button);
