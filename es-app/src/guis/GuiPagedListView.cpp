@@ -112,7 +112,7 @@ void GuiPagedListView::InsertRow(GuiPagedListViewEntry& entry)
 
 GuiPagedListView::~GuiPagedListView()
 {
-
+	// nothing to do
 }
 
 bool GuiPagedListView::OnRowSelected(InputConfig* config, Input input, GuiPagedListViewEntry* entry)
@@ -129,7 +129,6 @@ bool GuiPagedListView::IsAnyOfMyButtonsFocused() const
 {
 	for (std::shared_ptr<ButtonComponent> button : m_pageButtons)
 	{
-		;
 		if (button->isFocused())					 
 		{											 
 			return true;							 
