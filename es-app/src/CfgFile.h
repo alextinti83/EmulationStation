@@ -45,6 +45,7 @@ public:
 	static const std::string k_signaturePrefix;
 private:
 	void UpdateSignature();
+	bool HasSignature() const;
 	std::vector<CfgEntry> m_cfgEntries;
 	std::string m_path;
 	static const std::string k_signature;

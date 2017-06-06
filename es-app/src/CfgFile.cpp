@@ -5,8 +5,41 @@
 #include <iostream>
 #include <fstream>  
 #include "EmulationStation.h"
+#include <boost/date_time/local_time/local_time.hpp>
+#include <boost/lexical_cast.hpp>
+#include <string>
 
+const std::string k_backupFolderName = "retroarch.cfg.bck";
 
+bool CopyConfig(boost::filesystem::path filepath, boost::filesystem::path newFilepath)
+{
+	boost::system::error_code returnedError;
+	boost::filesystem::create_directories(newFilepath.parent_path(), returnedError);
+	if (returnedError)
+	{
+		return false;
+	}
+	else
+	{
+		boost::filesystem::copy(filepath, newFilepath);
+		return true;
+	}
+}
+bool BackupConfig(boost::filesystem::path filepath, const std::string signature = "")
+{
+	using namespace boost::posix_time;
+	using namespace boost::gregorian;
+	const auto date = second_clock::local_time().date();
+	const auto time = second_clock::local_time().time_of_day();
+	const std::string datePrefix = to_iso_string(date);
+	const std::string timePrefix = to_iso_string(time);
+	std::string prefix = signature;
+	prefix += datePrefix + "_" + timePrefix;
+	const auto backupDir = filepath.parent_path();
+	const auto filename = filepath.filename().generic_string();
+	const auto outputPath = backupDir / k_backupFolderName / ( filename + "." + prefix + ".cfg");
+	return CopyConfig(filepath, outputPath);
+}
 
 bool StartsWith(const std::string& str, const std::string& prefix)
 {
@@ -136,13 +169,14 @@ bool CfgFile::ConfigFileExists() const
 
 bool CfgFile::DeleteConfigFile() const
 {
-
 	if (ConfigFileExists())
 	{
+		BackupConfig(m_path, HasSignature() ? "ES" : "");
 		return boost::filesystem::remove(m_path);
 	}
 	return false;
 }
+
 bool CfgFile::SaveConfigFile(bool forceOverwrite)
 {
 	return SaveConfigFile(m_path, forceOverwrite);
@@ -188,6 +222,15 @@ void CfgFile::UpdateSignature()
 	{
 		m_cfgEntries.emplace(m_cfgEntries.begin(), k_signature);
 	}
+}
+
+bool CfgFile::HasSignature() const
+{
+	if (!m_cfgEntries.empty())
+	{
+		return  m_cfgEntries.front().IsSignature();
+	}
+	return false;
 }
 
 const std::string& CfgFile::GetConfigFilePath() const
