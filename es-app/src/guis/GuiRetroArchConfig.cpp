@@ -17,17 +17,16 @@ GuiRetroArchConfig::GuiRetroArchConfig(
 	mSystem(system),
 	m_config(std::move(config))
 {
-	ComponentListRow row;
-	bool configFileExists = m_config->ConfigFileExists();
+	const bool configFileExists = m_config->ConfigFileExists();
 	if (configFileExists)
 	{
 		AddEditConfigOption();
 		AddDeleteConfigOption();
 	}
-	else
-	{
-		//AddCreateConfigOption();
-	}
+	//else
+	//{
+	//	AddCreateConfigOption();
+	//}
 	AddImportConfigOption();
 }
 
