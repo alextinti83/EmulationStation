@@ -25,6 +25,13 @@ bool CopyConfig(boost::filesystem::path filepath, boost::filesystem::path newFil
 		return true;
 	}
 }
+
+boost::filesystem::path ComputeBackupFolderPath(boost::filesystem::path filepath)
+{
+	const auto backupDir = filepath.parent_path();
+	return backupDir / k_backupFolderName;
+}
+
 bool BackupConfig(boost::filesystem::path filepath, const std::string signature = "")
 {
 	using namespace boost::posix_time;
@@ -35,9 +42,9 @@ bool BackupConfig(boost::filesystem::path filepath, const std::string signature 
 	const std::string timePrefix = to_iso_string(time);
 	std::string prefix = signature;
 	prefix += datePrefix + "_" + timePrefix;
-	const auto backupDir = filepath.parent_path();
+	const auto backupDir = ComputeBackupFolderPath(filepath);
 	const auto filename = filepath.filename().generic_string();
-	const auto outputPath = backupDir / k_backupFolderName / ( filename + "." + prefix + ".cfg");
+	const auto outputPath = backupDir / ( filename + "." + prefix + ".cfg");
 	return CopyConfig(filepath, outputPath);
 }
 
@@ -120,6 +127,33 @@ void CfgEntry::SetLine(const std::string& line)
 const bool CfgEntry::IsSignature() const
 {
 	return StartsWith(_comment, CfgFile::k_signaturePrefix);
+}
+
+boost::filesystem::path CfgFile::GetBackupFolder() const
+{
+	return ComputeBackupFolderPath(m_path);
+}
+
+std::vector<boost::filesystem::path> CfgFile::FetchBackups() const
+{
+	std::vector<boost::filesystem::path> result;
+	const auto backupDir = ComputeBackupFolderPath(m_path);
+	if (boost::filesystem::exists(backupDir))
+	{
+		uint32_t count = 0;
+		using fsIt = boost::filesystem::recursive_directory_iterator;
+		fsIt end;
+		for (fsIt i(backupDir); i != end; ++i)
+		{
+			++count;
+			const boost::filesystem::path path = ( *i );
+			if (path.extension() == ".cfg")
+			{
+				result.push_back(path);
+			}
+		}
+	}
+	return result;
 }
 
 const std::string CfgFile::k_signaturePrefix = "# Processed by EmulationStation v";

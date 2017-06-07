@@ -2,6 +2,7 @@
 #include <vector>
 #include <string>
 #include <assert.h>
+#include "boost/filesystem/string_file.hpp"
 class CfgEntry
 {
 public:
@@ -41,6 +42,8 @@ public:
 	std::string GetRawText() const;
 	std::vector<CfgEntry>& GetEntries() { return m_cfgEntries; }
 	const std::vector<CfgEntry>& GetEntries() const { return m_cfgEntries; }
+	boost::filesystem::path GetBackupFolder() const;
+	std::vector<boost::filesystem::path> FetchBackups() const;
 
 	static const std::string k_signaturePrefix;
 private:
