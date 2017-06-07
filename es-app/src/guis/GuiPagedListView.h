@@ -33,6 +33,9 @@ public:
 	void ReloadCurrentPage() { LoadPage(m_currentPage); }
 	void ShowLineNumbers(bool value) { mShowLineNum = value; }
 	
+	void SetOnButtonPressedCallback(const std::string& button, OnEntrySelectedCallback callback);
+	void SetHelpPrompt(const HelpPrompt& prompt);
+
 private:
 	void OnButtonAdded(std::shared_ptr<ButtonComponent> button) override;
 	void InsertRow(GuiPagedListViewEntry& entry, uint32_t rowIndex);
@@ -50,6 +53,9 @@ private:
 	std::vector<HelpPrompt> getHelpPrompts() override;
 	boost::filesystem::path m_configFolder;
 	OnEntrySelectedCallback m_onEntrySelected;
+	
+	std::map<const std::string, OnEntrySelectedCallback> m_onButtonPressed;
+
 	uint32_t m_currentPage;
 	static const uint32_t k_pageEntryCount;
 
@@ -60,6 +66,7 @@ private:
 	std::shared_ptr<ButtonComponent> m_prevBulkPageButton;
 	std::vector < std::shared_ptr<ButtonComponent>> m_pageButtons;
 	std::vector<std::unique_ptr<GuiPagedListViewEntry>> m_entries;
+	std::vector<HelpPrompt> m_helpPrompts;
 
 	bool mShowLineNum;
 

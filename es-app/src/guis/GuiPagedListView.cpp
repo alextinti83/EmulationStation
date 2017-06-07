@@ -29,6 +29,9 @@ GuiPagedListView::GuiPagedListView(
 
 	m_pageCountButton->setEnabled(false);
 
+	m_helpPrompts.emplace_back("b", "back");
+	m_helpPrompts.emplace_back("select", "close");
+
 	LoadPage(0u);
 }
 
@@ -88,6 +91,11 @@ void GuiPagedListView::LoadPage(uint32_t page)
 	m_pageButtons.push_back(m_backButton); //it won't be added here by the base class
 }
 
+void GuiPagedListView::SetOnButtonPressedCallback(const std::string& button, OnEntrySelectedCallback callback)
+{
+	m_onButtonPressed.emplace(button, callback);
+}
+
 void GuiPagedListView::SortEntries(SortEntriesFunc fun)
 {
 	std::sort(m_entries.begin(), m_entries.end(), fun);
@@ -135,6 +143,14 @@ bool GuiPagedListView::OnRowSelected(InputConfig* config, Input input, GuiPagedL
 	{
 		m_onEntrySelected(entry);
 		return true;
+	}
+	for (auto& pair : m_onButtonPressed)
+	{
+		if (config->isMappedTo(pair.first, input))
+		{
+			pair.second(entry);
+			return true;
+		}
 	}
 	return false;
 }
@@ -201,9 +217,14 @@ bool GuiPagedListView::input(InputConfig* config, Input input)
 std::vector<HelpPrompt> GuiPagedListView::getHelpPrompts()
 {
 	std::vector<HelpPrompt> prompts = mMenu.getHelpPrompts();
-
-	prompts.push_back(HelpPrompt("b", "back"));
-	prompts.push_back(HelpPrompt("select", "close"));
-
+	for (HelpPrompt& hp : m_helpPrompts)
+	{
+		prompts.emplace_back(hp);
+	}
 	return prompts;
+}
+
+void GuiPagedListView::SetHelpPrompt(const HelpPrompt& prompt)
+{
+	m_helpPrompts.emplace_back(prompt);
 }
