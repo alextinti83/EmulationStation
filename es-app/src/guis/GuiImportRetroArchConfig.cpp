@@ -60,3 +60,15 @@ GuiImportRetroArchConfig::~GuiImportRetroArchConfig()
 {
 
 }
+
+void GuiImportRetroArchConfig::SetOnButtonPressedCallback(const std::string& button, CallbackT callback)
+{
+	GuiPagedListView::SetOnButtonPressedCallback(button, [callback] (GuiPagedListViewEntry* entry)
+	{
+		auto cfgEntry = dynamic_cast< GuiImportRetroArchConfigEntry* >( entry );
+		if (cfgEntry)
+		{
+			callback(cfgEntry->mPath);
+		}
+	});
+}
