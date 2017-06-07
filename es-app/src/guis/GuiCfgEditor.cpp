@@ -16,17 +16,13 @@ public:
 
 float GuiCfgEditor::k_widthSizeScreenPercentage = 0.9f;
 
-GuiCfgEditor::GuiCfgEditor(
-	Window* window,
-	const std::string& title,
-	CfgFile& configFile
-	)
-	: GuiPagedListView(
-		window, 
-		title, 
+GuiCfgEditor::GuiCfgEditor(Window* window, const std::string& title, CfgFile& configFile, UILayout layout)
+	: GuiPagedListView( window,  title, 
 		std::bind(&GuiCfgEditor::OnEntrySelected, this, std::placeholders::_1, window),
 		k_widthSizeScreenPercentage)
-	, m_config(configFile), mShowComments(false)
+	, m_config(configFile)
+	, mShowComments(false)
+	, m_layout(layout)
 {
 
 	m_config.LoadConfigFile();
@@ -38,9 +34,11 @@ GuiCfgEditor::GuiCfgEditor(
 		ReloadEntries();
 		mCommentButton->setText(getCommentButtonText(), "Show/Hide Comments");
 	});
-	
-	mSaveButton = addButton("Save", "Save", std::bind(&GuiCfgEditor::OnSaveButtonPressed, this));
 
+	if (m_layout == UILayout::Editor)
+	{
+		mSaveButton = addButton("Save", "Save", std::bind(&GuiCfgEditor::OnSaveButtonPressed, this));
+	}
 	ReloadEntries();
 }
 
@@ -65,16 +63,19 @@ void GuiCfgEditor::ReloadEntries()
 
 void GuiCfgEditor::OnEntrySelected(GuiPagedListViewEntry* entry, Window* window)
 {
-	auto cfgEntry = dynamic_cast< GuiCfgEditorLine* >( entry );
-	if (cfgEntry)
+	if (m_layout == UILayout::Editor)
 	{
-		const std::string line = cfgEntry->mEntry.GetLine();
-		CfgEntry* entryPtr = &cfgEntry->mEntry;
-		window->pushGui(new GuiTextEditPopupKeyboard(mWindow,
-			"EDIT LINE",
-			line,
-			std::bind(&GuiCfgEditor::OnLineChanged, this, std::placeholders::_1, entryPtr),
-			false));
+		auto cfgEntry = dynamic_cast< GuiCfgEditorLine* >( entry );
+		if (cfgEntry)
+		{
+			const std::string line = cfgEntry->mEntry.GetLine();
+			CfgEntry* entryPtr = &cfgEntry->mEntry;
+			window->pushGui(new GuiTextEditPopupKeyboard(mWindow,
+				"EDIT LINE",
+				line,
+				std::bind(&GuiCfgEditor::OnLineChanged, this, std::placeholders::_1, entryPtr),
+				false));
+		}
 	}
 }
 void GuiCfgEditor::OnLineChanged(const std::string& line, CfgEntry* entry)

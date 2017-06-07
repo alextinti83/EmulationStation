@@ -7,7 +7,9 @@ class CfgEntry;
 class GuiCfgEditor : public GuiPagedListView
 {
 public:
-	GuiCfgEditor(Window* window, const std::string& title, CfgFile& configFile);
+	enum class UILayout { Editor, Viewer };
+
+	GuiCfgEditor(Window* window, const std::string& title, CfgFile& configFile, UILayout layout = UILayout::Editor);
 	virtual ~GuiCfgEditor();
 
 private:
@@ -21,7 +23,7 @@ private:
 	std::shared_ptr<ButtonComponent> mCommentButton;
 
 	bool mShowComments;
-
+	UILayout m_layout;
 
 	static float k_widthSizeScreenPercentage;
 };
