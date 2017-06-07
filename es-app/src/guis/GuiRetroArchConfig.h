@@ -15,11 +15,14 @@ private:
 	void AddCreateConfigOption();
 	void AddDeleteConfigOption();
 	void AddEditConfigOption();
-	void AddImportConfigOption();
-	void AddRestoreBackupConfigOption(const boost::filesystem::path);
+	void AddImportConfigOption(
+		const boost::filesystem::path configFolder, 
+		const std::string& title, 
+		const std::string& errorMsg);
+
 	IGameListView* getGamelist();
 	void OnImportConfigSelected(boost::filesystem::path configPath);
-	void OnRestoreBackupConfigSelected(boost::filesystem::path configPath);
+	void OnImportConfigViewButtonPressed(boost::filesystem::path configPath);
 	bool LoadConfigFile(std::unique_ptr<CfgFile>& config, boost::filesystem::path configPath);
 	bool SaveConfigFile(std::unique_ptr<CfgFile>& config, boost::filesystem::path configPath);
 	bool DeleteConfigFile(std::unique_ptr<CfgFile>& config);

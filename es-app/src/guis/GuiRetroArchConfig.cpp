@@ -27,13 +27,16 @@ GuiRetroArchConfig::GuiRetroArchConfig(
 	//{
 	//	AddCreateConfigOption();
 	//}
-	AddImportConfigOption();
+	AddImportConfigOption(
+		mSystem.getRetroArchConfigImportFolder(), 
+		"IMPORT CONFIG", "Configuration folder not found: ");
 
 	std::vector<boost::filesystem::path> backups = m_config->FetchBackups();
 	if (backups.size() > 0)
 	{
 		boost::filesystem::path backupFolder = m_config->GetBackupFolder();
-		AddRestoreBackupConfigOption(backupFolder);
+		AddImportConfigOption(backupFolder,
+			"RESTORE CONFIG BACKUP", "Backup folder not found: ");
 	}
 }
 
@@ -140,61 +143,33 @@ void GuiRetroArchConfig::AddEditConfigOption()
 	addRow(row);
 }
 
-void GuiRetroArchConfig::AddImportConfigOption()
+void GuiRetroArchConfig::AddImportConfigOption(
+	boost::filesystem::path configFolder, 
+	const std::string& title, 
+	const std::string& errorMsg)
 {
 	ComponentListRow row;
-	std::string title = "IMPORT CONFIG";
 	row.elements.clear();
 	row.addElement(std::make_shared<TextComponent>(mWindow, title, Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
-	row.input_handler = [ this, title ] (InputConfig* config, Input input)
+	row.input_handler = [ this, title, errorMsg, configFolder ] (InputConfig* config, Input input)
 	{
 		if (config->isMappedTo("a", input) && input.value)
 		{
-			boost::filesystem::path configFolder = mSystem.getRetroArchConfigImportFolder();
 			if (boost::filesystem::exists(configFolder))
 			{
 				auto s = new GuiImportRetroArchConfig(mWindow, title, configFolder,
 					std::bind(&GuiRetroArchConfig::OnImportConfigSelected, this, std::placeholders::_1)
 				);
+				s->SetOnButtonPressedCallback("x", 
+					std::bind(&GuiRetroArchConfig::OnImportConfigViewButtonPressed, this, std::placeholders::_1));
+				s->SetHelpPrompt(HelpPrompt("x", "View Config"));
 				mWindow->pushGui(s);
 				return true;
 			}
 			else
 			{
 				mWindow->pushGui(new GuiMsgBox(mWindow,
-					"Configuration folder not found: " + configFolder.generic_string(),
-					"Close", [ this ] { delete this; }));
-				return true;
-			}
-		}
-		return false;
-	};
-	addRow(row);
-}
-
-void GuiRetroArchConfig::AddRestoreBackupConfigOption(const boost::filesystem::path backupFolder)
-{
-	ComponentListRow row;
-	std::string title = "RESTORE CONFIG BACKUP";
-	row.elements.clear();
-	row.addElement(std::make_shared<TextComponent>(mWindow, title, Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
-	row.input_handler = [ this, title, backupFolder ] (InputConfig* config, Input input)
-	{
-		if (config->isMappedTo("a", input) && input.value)
-		{
-			const boost::filesystem::path configFolder = backupFolder;
-			if (boost::filesystem::exists(configFolder))
-			{
-				auto s = new GuiImportRetroArchConfig(mWindow, title, configFolder,
-					std::bind(&GuiRetroArchConfig::OnRestoreBackupConfigSelected, this, std::placeholders::_1)
-				);
-				mWindow->pushGui(s);
-				return true;
-			}
-			else
-			{
-				mWindow->pushGui(new GuiMsgBox(mWindow,
-					"Backup folder not found: " + configFolder.generic_string(),
+					errorMsg + configFolder.generic_string(),
 					"Close", [ this ] { delete this; }));
 				return true;
 			}
@@ -230,27 +205,11 @@ void GuiRetroArchConfig::OnImportConfigSelected(boost::filesystem::path configPa
 	}, "NO", nullptr));
 }
 
-void GuiRetroArchConfig::OnRestoreBackupConfigSelected(boost::filesystem::path configPath)
+void GuiRetroArchConfig::OnImportConfigViewButtonPressed(boost::filesystem::path configPath)
 {
-	mWindow->pushGui(new GuiMsgBox(mWindow, "Do you really want to Overwrite " + m_config->GetConfigFilePath() + " with the content of " + configPath.generic_string() + "?", "YES",
-		[ this, configPath ]
-	{
-		std::unique_ptr<CfgFile> new_config(new CfgFile());
-		if (LoadConfigFile(new_config, configPath))
-		{
-			const std::string originalPath = m_config->GetConfigFilePath();
-			if (DeleteConfigFile(m_config))
-			{
-				if (SaveConfigFile(new_config, originalPath))
-				{
-					m_config = std::move(new_config);
-				}
-			}
-		}
-		delete this;
-	}, "NO", nullptr));
+	auto title = boost::filesystem::path(m_config->GetConfigFilePath()).filename().generic_string();
+	mWindow->pushGui(new GuiCfgEditor(mWindow, title, *( m_config.get() ), GuiCfgEditor::UILayout::Viewer));
 }
-
 
 void GuiRetroArchConfig::ShowError(std::string mgs)
 {
