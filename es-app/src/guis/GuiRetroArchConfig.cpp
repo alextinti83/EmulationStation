@@ -274,7 +274,6 @@ void GuiRetroArchConfig::OnImportConfigDeleteButtonPressed(
 		[importRetroArchConfig] 
 	{
 		delete importRetroArchConfig;
-	//	importRetroArchConfig->ReloadConfigs();
 	});
 }
 
