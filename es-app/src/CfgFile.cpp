@@ -32,7 +32,7 @@ boost::filesystem::path ComputeBackupFolderPath(boost::filesystem::path filepath
 	return backupDir / k_backupFolderName;
 }
 
-bool BackupConfig(boost::filesystem::path filepath, const std::string signature = "")
+bool _BackupConfig(boost::filesystem::path filepath, const std::string signature = "")
 {
 	using namespace boost::posix_time;
 	using namespace boost::gregorian;
@@ -191,6 +191,11 @@ bool CfgFile::LoadConfigFile(const std::string path)
 	return false;
 }
 
+bool CfgFile::BackupConfig() const
+{
+	return _BackupConfig(m_path, HasSignature() ? "ES" : "");
+}
+
 bool CfgFile::LoadConfigFile()
 {
 	return LoadConfigFile(m_path);
@@ -205,7 +210,8 @@ bool CfgFile::DeleteConfigFile() const
 {
 	if (ConfigFileExists())
 	{
-		BackupConfig(m_path, HasSignature() ? "ES" : "");
+		if (HasSignature()) { BackupConfig(); }
+
 		return boost::filesystem::remove(m_path);
 	}
 	return false;
@@ -220,6 +226,8 @@ bool CfgFile::SaveConfigFile(const std::string path, bool forceOverwrite)
 {
 	if (!boost::filesystem::exists(path) || forceOverwrite)
 	{
+		if (HasSignature())	{ BackupConfig(); }
+
 		m_path = path;
 		UpdateSignature();
 		std::ofstream outfile(m_path);

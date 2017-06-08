@@ -44,6 +44,7 @@ public:
 	const std::vector<CfgEntry>& GetEntries() const { return m_cfgEntries; }
 	boost::filesystem::path GetBackupFolder() const;
 	std::vector<boost::filesystem::path> FetchBackups() const;
+	bool BackupConfig() const;
 
 	static const std::string k_signaturePrefix;
 private:
