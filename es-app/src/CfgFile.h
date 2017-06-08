@@ -44,10 +44,12 @@ public:
 	const std::vector<CfgEntry>& GetEntries() const { return m_cfgEntries; }
 	boost::filesystem::path GetBackupFolder() const;
 	std::vector<boost::filesystem::path> FetchBackups() const;
-	bool BackupConfig() const;
+	bool BackupConfig() const { return BackupConfig(m_path); };
+
 
 	static const std::string k_signaturePrefix;
 private:
+	bool BackupConfig(boost::filesystem::path filepath) const;
 	void UpdateSignature();
 	bool HasSignature() const;
 	std::vector<CfgEntry> m_cfgEntries;

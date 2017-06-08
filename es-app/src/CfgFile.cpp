@@ -9,6 +9,10 @@
 #include <boost/lexical_cast.hpp>
 #include <string>
 
+//keeping it disabled since it also creates backups of backups now..
+static const bool automaticBackupEnabled = false;
+
+
 const std::string k_backupFolderName = "retroarch.cfg.bck";
 
 bool CopyConfig(boost::filesystem::path filepath, boost::filesystem::path newFilepath)
@@ -28,8 +32,7 @@ bool CopyConfig(boost::filesystem::path filepath, boost::filesystem::path newFil
 
 boost::filesystem::path ComputeBackupFolderPath(boost::filesystem::path filepath)
 {
-	const auto backupDir = filepath.parent_path();
-	return backupDir / k_backupFolderName;
+	return filepath.parent_path() / k_backupFolderName / filepath.filename();
 }
 
 bool _BackupConfig(boost::filesystem::path filepath, const std::string signature = "")
@@ -191,7 +194,7 @@ bool CfgFile::LoadConfigFile(const std::string path)
 	return false;
 }
 
-bool CfgFile::BackupConfig() const
+bool CfgFile::BackupConfig(boost::filesystem::path filepath) const
 {
 	return _BackupConfig(m_path, HasSignature() ? "ES" : "");
 }
@@ -206,11 +209,12 @@ bool CfgFile::ConfigFileExists() const
 	return boost::filesystem::exists(m_path);
 }
 
+
 bool CfgFile::DeleteConfigFile() const
 {
 	if (ConfigFileExists())
 	{
-		if (HasSignature()) { BackupConfig(); }
+		if (automaticBackupEnabled && HasSignature()) { BackupConfig(m_path); }
 
 		return boost::filesystem::remove(m_path);
 	}
@@ -226,7 +230,7 @@ bool CfgFile::SaveConfigFile(const std::string path, bool forceOverwrite)
 {
 	if (!boost::filesystem::exists(path) || forceOverwrite)
 	{
-		if (HasSignature())	{ BackupConfig(); }
+		if (automaticBackupEnabled && HasSignature())	{ BackupConfig(path); }
 
 		m_path = path;
 		UpdateSignature();
