@@ -8,5 +8,8 @@ public:
 	GuiImportRetroArchConfig(Window* window, const std::string& title, const boost::filesystem::path& configFolder, CallbackT);
 	virtual ~GuiImportRetroArchConfig();
 	void SetOnButtonPressedCallback(const std::string& button, CallbackT callback);
-
+	void ReloadConfigs();
+private:
+	const boost::filesystem::path& m_configFolder;
+	Window* m_window;
 };
