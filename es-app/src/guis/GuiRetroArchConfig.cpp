@@ -15,7 +15,8 @@ GuiRetroArchConfig::GuiRetroArchConfig(
 	std::unique_ptr<CfgFile> config)
 	: GuiOptionWindow(window, title),
 	mSystem(system),
-	m_config(std::move(config))
+	m_config(std::move(config)),
+	m_backupConfigOptionCreated(false)
 {
 	const bool configFileExists = m_config->ConfigFileExists();
 	if (configFileExists)
@@ -31,13 +32,12 @@ GuiRetroArchConfig::GuiRetroArchConfig(
 		mSystem.getRetroArchConfigImportFolder(), 
 		"IMPORT CONFIG", "Configuration folder not found: ");
 
-	std::vector<boost::filesystem::path> backups = m_config->FetchBackups();
-	if (backups.size() > 0)
+	if (configFileExists)
 	{
-		boost::filesystem::path backupFolder = m_config->GetBackupFolder();
-		AddImportConfigOption(backupFolder,
-			"RESTORE CONFIG BACKUP", "Backup folder not found: ");
+		AddBackupConfigOption();
 	}
+
+	RefreshRestoreBackupConfigOption();
 }
 
 GuiRetroArchConfig::~GuiRetroArchConfig()
@@ -61,7 +61,7 @@ void GuiRetroArchConfig::AddCreateConfigOption()
 				m_config->SaveConfigFile(overwrite);
 				if (!m_config->ConfigFileExists())
 				{
-					ShowError("Could not Save " + m_config->GetConfigFilePath());
+					ShowMessage("Could not Save " + m_config->GetConfigFilePath());
 				}
 				else
 				{
@@ -100,28 +100,42 @@ void GuiRetroArchConfig::AddDeleteConfigOption()
 	{
 		if (config->isMappedTo("a", input) && input.value)
 		{
-			mWindow->pushGui(new GuiMsgBox(mWindow, "Do you really want to Delete " + m_config->GetConfigFilePath() + "?", "YES",
-				[ this ]
-			{
-				m_config->DeleteConfigFile();
-				if (m_config->ConfigFileExists())
-				{
-					mWindow->pushGui(new GuiMsgBox(mWindow, "Could not Delete " + m_config->GetConfigFilePath() + "?", "Close",
-						[ this ]
-					{
-					}, nullptr));
-				}
-				else
-				{
-					delete this;
-				}
-
-			}, "NO", nullptr));
-			return true;
+			DeleteConfigWithMsg(m_config.get());
 		}
 		return false;
 	};
 	addRow(row);
+}
+
+void GuiRetroArchConfig::DeleteConfigWithMsg(CfgFile* config, const std::function<void()>& func)
+{
+	ShowQuestion("Do you really want to Delete " + config->GetConfigFilePath() + "?", 
+		[this, config, func ] { DeleteConfig(*config, func); });
+}
+
+void GuiRetroArchConfig::DeleteConfigWithMsg(const std::string filepath, const std::function<void()>& func)
+{
+	ShowQuestion("Do you really want to Delete " + filepath + "?",
+		[ this, filepath, func ]
+	{ 
+		DeleteConfig(CfgFile(filepath), func);
+	});
+}
+void GuiRetroArchConfig::DeleteConfig(CfgFile& config, const std::function<void()>& func)
+{
+	config.DeleteConfigFile();
+	if (config.ConfigFileExists())
+	{
+		mWindow->pushGui(new GuiMsgBox(mWindow, "Could not Delete " + config.GetConfigFilePath() + "?", "Close",
+			[ this ]
+		{
+		}, nullptr));
+	}
+	else
+	{
+		if (func) { func(); }
+		delete this;
+	}
 }
 
 void GuiRetroArchConfig::AddEditConfigOption()
@@ -146,12 +160,13 @@ void GuiRetroArchConfig::AddEditConfigOption()
 void GuiRetroArchConfig::AddImportConfigOption(
 	boost::filesystem::path configFolder, 
 	const std::string& title, 
-	const std::string& errorMsg)
+	const std::string& errorMsg,
+	const bool addDeleteConfigOption)
 {
 	ComponentListRow row;
 	row.elements.clear();
 	row.addElement(std::make_shared<TextComponent>(mWindow, title, Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
-	row.input_handler = [ this, title, errorMsg, configFolder ] (InputConfig* config, Input input)
+	row.input_handler = [ this, title, errorMsg, configFolder, addDeleteConfigOption ] (InputConfig* config, Input input)
 	{
 		if (config->isMappedTo("a", input) && input.value)
 		{
@@ -163,6 +178,14 @@ void GuiRetroArchConfig::AddImportConfigOption(
 				s->SetOnButtonPressedCallback("x", 
 					std::bind(&GuiRetroArchConfig::OnImportConfigViewButtonPressed, this, std::placeholders::_1));
 				s->SetHelpPrompt(HelpPrompt("x", "View Config"));
+
+				if (addDeleteConfigOption)
+				{
+					s->SetOnButtonPressedCallback("y",
+						std::bind(&GuiRetroArchConfig::OnImportConfigDeleteButtonPressed, this, std::placeholders::_1, s));
+					s->SetHelpPrompt(HelpPrompt("y", "Delete Config"));
+				}
+
 				mWindow->pushGui(s);
 				return true;
 			}
@@ -173,6 +196,38 @@ void GuiRetroArchConfig::AddImportConfigOption(
 					"Close", [ this ] { delete this; }));
 				return true;
 			}
+		}
+		return false;
+	};
+	addRow(row);
+}
+
+void GuiRetroArchConfig::RefreshRestoreBackupConfigOption()
+{
+	if (m_config->FetchBackups().size() > 0 && !m_backupConfigOptionCreated)
+	{
+		const bool addDeleteConfigOption = true;
+		AddImportConfigOption(m_config->GetBackupFolder(),
+			"RESTORE CONFIG BACKUP", "Backup folder not found: ",
+			addDeleteConfigOption);
+		m_backupConfigOptionCreated = true;
+	}
+}
+
+void GuiRetroArchConfig::AddBackupConfigOption()
+{
+	ComponentListRow row;
+	std::string title = "BACKUP CONFIG";
+	row.elements.clear();
+	row.addElement(std::make_shared<TextComponent>(mWindow, title, Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
+	row.input_handler = [ this, title ] (InputConfig* config, Input input)
+	{
+		if (config->isMappedTo("a", input) && input.value)
+		{
+			const bool result = m_config->BackupConfig();
+			ShowMessage(result ? "Backup successfully created." : "Config backup failed");
+			RefreshRestoreBackupConfigOption();
+			return true;
 		}
 		return false;
 	};
@@ -211,17 +266,35 @@ void GuiRetroArchConfig::OnImportConfigViewButtonPressed(boost::filesystem::path
 	mWindow->pushGui(new GuiCfgEditor(mWindow, title, *( m_config.get() ), GuiCfgEditor::UILayout::Viewer));
 }
 
-void GuiRetroArchConfig::ShowError(std::string mgs)
+void GuiRetroArchConfig::OnImportConfigDeleteButtonPressed(
+	boost::filesystem::path configPath, 
+	GuiImportRetroArchConfig* importRetroArchConfig)
 {
-	mWindow->pushGui(new GuiMsgBox(mWindow, mgs, "Close", [] { }));
+	DeleteConfigWithMsg(configPath.generic_string(),
+		[importRetroArchConfig] 
+	{
+		delete importRetroArchConfig;
+	//	importRetroArchConfig->ReloadConfigs();
+	});
 }
+
+void GuiRetroArchConfig::ShowMessage(const std::string& mgs, const std::function<void()>& func)
+{
+	mWindow->pushGui(new GuiMsgBox(mWindow, mgs, "Close", func));
+}
+
+void GuiRetroArchConfig::ShowQuestion(const std::string& mgs, const std::function<void()>& func)
+{
+	mWindow->pushGui(new GuiMsgBox(mWindow, mgs, "YES", func, "NO", nullptr));
+}
+
 
 bool GuiRetroArchConfig::LoadConfigFile(std::unique_ptr<CfgFile>& config, boost::filesystem::path configPath)
 {
 	const bool result = config->LoadConfigFile(configPath.generic_string());
 	if (!result)
 	{
-		ShowError("Could not load " + configPath.generic_string());
+		ShowMessage("Could not load " + configPath.generic_string());
 	}
 	return result;
 }
@@ -233,7 +306,7 @@ bool GuiRetroArchConfig::SaveConfigFile(std::unique_ptr<CfgFile>& config, boost:
 	const bool result = config->SaveConfigFile(configPath.generic_string(), overwrite);
 	if (!result)
 	{
-		ShowError("Could not save " + configPath.generic_string());
+		ShowMessage("Could not save " + configPath.generic_string());
 	}
 	return result;
 }
@@ -244,9 +317,13 @@ bool GuiRetroArchConfig::DeleteConfigFile(std::unique_ptr<CfgFile>& config)
 	if (config->ConfigFileExists())
 	{
 		const bool result = config->DeleteConfigFile();
-		if (!result)
+		if (result)
 		{
-			ShowError("Could not delete " + config->GetConfigFilePath());
+			RefreshRestoreBackupConfigOption(); //delete might trigger an automatic backup
+		}
+		else
+		{
+			ShowMessage("Could not delete " + config->GetConfigFilePath());
 		}
 		return result;
 	}
