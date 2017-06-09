@@ -7,7 +7,8 @@ import xml.etree.ElementTree as ET
 #filepath = 'C:\\Users\Alex\\.emulationstation\\themes\\oldroom 720p\\megadrive\\theme2.xml'
 
 #folderpath = 'C:\\Users\Alex\\.emulationstation\\themes\\oldroom 720p\\'
-folderpath = '~/.emulationstation/themes/oldroom 720p/'
+#folderpath = '~/.emulationstation/themes/oldroom 720p/'
+folderpath = '\\\\RETROPIE\\themes\\oldroom 720p\\'
 fixes = \
 {
 	"./view/image[@name='scanlines']" : {'zIndex' : '60'},
@@ -43,7 +44,8 @@ for folder, subs, files in os.walk(folderpath):
 		pretty_print = lambda data: '\n'.join([line for line in \
 		minidom.parseString(data).toprettyxml(indent='\t').split('\n') if line.strip()])
 
-		with open("output.xml", "w") as f:
+		print('writing ', fullname)
+		with open(fullname, "w") as f:
 			f.write(pretty_print(data))
 
 print("done")
