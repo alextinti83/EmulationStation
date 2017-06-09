@@ -44,6 +44,8 @@ public:
 	static void writeExampleConfig(const std::string& path);
 	static std::string getConfigPath(bool forWrite); // if forWrite, will only return ~/.emulationstation/es_systems.cfg, never /etc/emulationstation/es_systems.cfg
 
+	boost::filesystem::path getRetroArchConfigImportFolder() const;
+	boost::filesystem::path getRetroArchSystemConfigFilepath() const;
 	static std::vector<SystemData*> sSystemVector;
 
 	inline std::vector<SystemData*>::const_iterator getIterator() const { return std::find(sSystemVector.begin(), sSystemVector.end(), this); };

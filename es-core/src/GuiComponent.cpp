@@ -7,7 +7,7 @@
 
 GuiComponent::GuiComponent(Window* window) : mWindow(window), mParent(NULL), mOpacity(255),
 	mPosition(Eigen::Vector3f::Zero()), mSize(Eigen::Vector2f::Zero()), mTransform(Eigen::Affine3f::Identity()),
-	mIsProcessing(false)
+	mIsProcessing(false), mEnabled(true), mVisible(true)
 {
 	for(unsigned char i = 0; i < MAX_ANIMATIONS; i++)
 		mAnimationMap[i] = NULL;
@@ -54,14 +54,20 @@ void GuiComponent::updateChildren(int deltaTime)
 
 void GuiComponent::update(int deltaTime)
 {
-	updateSelf(deltaTime);
-	updateChildren(deltaTime);
+	if (mVisible)
+	{
+		updateSelf(deltaTime);
+		updateChildren(deltaTime);
+	}
 }
 
 void GuiComponent::render(const Eigen::Affine3f& parentTrans)
 {
-	Eigen::Affine3f trans = parentTrans * getTransform();
-	renderChildren(trans);
+	if (mVisible)
+	{
+		Eigen::Affine3f trans = parentTrans * getTransform();
+		renderChildren(trans);
+	}
 }
 
 void GuiComponent::renderChildren(const Eigen::Affine3f& transform) const
@@ -377,6 +383,26 @@ HelpStyle GuiComponent::getHelpStyle()
 bool GuiComponent::isProcessing() const
 {
 	return mIsProcessing;
+}
+
+void GuiComponent::setEnabled(bool enabled)
+{
+	if (mEnabled != enabled)
+	{
+		const bool oldValue = mEnabled;
+		mEnabled = enabled;
+		OnEnabledChanged(oldValue, mEnabled);
+	}
+}
+
+void GuiComponent::setVisible(bool visible)
+{
+	if (mVisible != visible)
+	{
+		const bool oldValue = mVisible;
+		mVisible = visible;
+		OnVisibleChanged(oldValue, mVisible);
+	}
 }
 
 void GuiComponent::onShow()

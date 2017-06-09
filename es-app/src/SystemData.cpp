@@ -407,6 +407,15 @@ std::string SystemData::getConfigPath(bool forWrite)
 
 	return "/etc/emulationstation/es_systems.cfg";
 }
+boost::filesystem::path SystemData::getRetroArchConfigImportFolder() const
+{
+	return mRootFolder->getPath() / "retroarch.cfg/";
+}
+
+boost::filesystem::path SystemData::getRetroArchSystemConfigFilepath() const
+{
+	return "/opt/retropie/configs/" + mName + "/retroarch.cfg";
+}
 
 std::string SystemData::getGamelistPath(bool forWrite) const
 {

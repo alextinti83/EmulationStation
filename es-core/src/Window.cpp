@@ -181,7 +181,7 @@ void Window::update(int deltaTime)
 		const double temp = ReadTemperature();
 		if (ShouldRenderTemperature(temp))
 		{
-			const std::string& strTemp = std::to_string(std::lroundf(temp)) + " C";
+			const std::string& strTemp = std::to_string(std::lround(temp)) + " C";
 			mTemperatureText = std::unique_ptr<TextCache>(mDefaultFonts.at(1)->buildTextCache(strTemp, 20.f, 10.f, 0xFF0000FF));
 		}
 
@@ -327,7 +327,8 @@ void Window::setHelpPrompts(const std::vector<HelpPrompt>& prompts, const HelpSt
 	for(auto it = prompts.begin(); it != prompts.end(); it++)
 	{
 		// only add it if the same icon hasn't already been added
-		if(inputSeenMap.insert(std::make_pair<std::string, bool>(it->first, true)).second)
+		std::string promptFirstStr = it->first;
+		if(inputSeenMap.insert(std::make_pair(promptFirstStr, true)).second)
 		{
 			// this symbol hasn't been seen yet, what about the action name?
 			auto mappedTo = mappedToSeenMap.find(it->second);

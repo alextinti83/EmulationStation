@@ -23,7 +23,7 @@ Eigen::Vector2f ImageComponent::getCenter() const
 
 ImageComponent::ImageComponent(Window* window, bool forceLoad, bool dynamic) : GuiComponent(window),
 	mTargetIsMax(false), mFlipX(false), mFlipY(false), mOrigin(0.0, 0.0), mTargetSize(0, 0), mColorShift(0xFFFFFFFF),
-	mForceLoad(forceLoad), mDynamic(dynamic), mFadeOpacity(0.0f), mFading(false)
+	mForceLoad(forceLoad), mDynamic(dynamic), mFadeOpacity(0u), mFading(false)
 {
 	updateColors();
 }

@@ -21,7 +21,7 @@ public:
 	void setStyle(const HelpStyle& style);
 
 private:
-	std::shared_ptr<TextureResource> getIconTexture(const char* name);
+	std::shared_ptr<TextureResource> getIconTexture(const std::string& name);
 	std::map< std::string, std::shared_ptr<TextureResource> > mIconCache;
 
 	std::shared_ptr<ComponentGrid> mGrid;
