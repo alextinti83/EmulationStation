@@ -2,7 +2,7 @@
 #include <vector>
 #include <string>
 #include <assert.h>
-#include "boost/filesystem/string_file.hpp"
+#include <boost/filesystem.hpp>
 class CfgEntry
 {
 public:
