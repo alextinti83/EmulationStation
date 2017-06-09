@@ -22,6 +22,10 @@ public:
 	void onSizeChanged() override;
 
 	inline void addRow(const ComponentListRow& row, bool setCursorHere = false) { mList->addRow(row, setCursorHere); updateSize(); }
+	inline void ClearRows()
+	{
+		mList->clear();
+	}
 
 	inline void addWithLabel(const std::string& label, const std::shared_ptr<GuiComponent>& comp, bool setCursorHere = false, bool invert_when_selected = true)
 	{
@@ -31,7 +35,7 @@ public:
 		addRow(row, setCursorHere);
 	}
 
-	void addButton(const std::string& label, const std::string& helpText, const std::function<void()>& callback);
+	std::shared_ptr<ButtonComponent> addButton(const std::string& label, const std::string& helpText, const std::function<void()>& callback);
 
 	void setTitle(const char* title, const std::shared_ptr<Font>& font);
 

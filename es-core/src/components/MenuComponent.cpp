@@ -27,6 +27,7 @@ MenuComponent::MenuComponent(Window* window, const char* title, const std::share
 	mList = std::make_shared<ComponentList>(mWindow);
 	mGrid.setEntry(mList, Vector2i(0, 1), true);
 
+	mSize[ 0 ] = Renderer::getScreenWidth() * 0.5f;
 	updateGrid();
 	updateSize();
 
@@ -63,7 +64,7 @@ void MenuComponent::updateSize()
 		}
 	}
 
-	setSize(Renderer::getScreenWidth() * 0.5f, height);
+	setSize(getSize().x(), height);
 }
 
 void MenuComponent::onSizeChanged()
@@ -77,11 +78,13 @@ void MenuComponent::onSizeChanged()
 	mGrid.setSize(mSize);
 }
 
-void MenuComponent::addButton(const std::string& name, const std::string& helpText, const std::function<void()>& callback)
+std::shared_ptr<ButtonComponent> MenuComponent::addButton(const std::string& name, const std::string& helpText, const std::function<void()>& callback)
 {
-	mButtons.push_back(std::make_shared<ButtonComponent>(mWindow, strToUpper(name), helpText, callback));
+	std::shared_ptr<ButtonComponent> button = std::make_shared<ButtonComponent>(mWindow, strToUpper(name), helpText, callback);
+	mButtons.push_back(button);
 	updateGrid();
 	updateSize();
+	return button;
 }
 
 void MenuComponent::updateGrid()
@@ -110,7 +113,7 @@ std::shared_ptr<ComponentGrid> makeButtonGrid(Window* window, const std::vector<
 	float buttonGridWidth = (float)BUTTON_GRID_HORIZ_PADDING * buttons.size(); // initialize to padding
 	for(int i = 0; i < (int)buttons.size(); i++)
 	{
-		buttonGrid->setEntry(buttons.at(i), Vector2i(i, 0), true, false);
+		buttonGrid->setEntry(buttons.at(i), Vector2i(i, 0), buttons.at(i)->isEnabled(), false);
 		buttonGridWidth += buttons.at(i)->getSize().x();
 	}
 	for(unsigned int i = 0; i < buttons.size(); i++)
