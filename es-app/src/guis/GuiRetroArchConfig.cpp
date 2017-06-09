@@ -118,7 +118,8 @@ void GuiRetroArchConfig::DeleteConfigWithMsg(const std::string filepath, const s
 	ShowQuestion("Do you really want to Delete " + filepath + "?",
 		[ this, filepath, func ]
 	{ 
-		DeleteConfig(CfgFile(filepath), func);
+		CfgFile cfgFile(filepath);
+		DeleteConfig(cfgFile, func);
 	});
 }
 void GuiRetroArchConfig::DeleteConfig(CfgFile& config, const std::function<void()>& func)
