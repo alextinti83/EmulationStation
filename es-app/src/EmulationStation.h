@@ -2,10 +2,13 @@
 
 // These numbers and strings need to be manually updated for a new version.
 // Do this version number update as the very last commit for the new release version.
+
 #define PROGRAM_VERSION_MAJOR       2
 #define PROGRAM_VERSION_MINOR        1
 #define PROGRAM_VERSION_MAINTENANCE  8
-#define PROGRAM_VERSION_STRING "2.1.8-talex-v0.0.1-dev"
+#define PROGRAM_VERSION_SHORT_STR "2.1.8"
+#define PROGRAM_SUBVER_STR "talex-v0.0.1"
+#define PROGRAM_VERSION_STRING PROGRAM_VERSION_SHORT_STR " [" PROGRAM_SUBVER_STR "/" GIT_BRANCH "] #" GIT_COMMIT_HASH ""
 
 #define PROGRAM_BUILT_STRING __DATE__ " - " __TIME__
 

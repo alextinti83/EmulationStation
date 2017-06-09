@@ -292,12 +292,14 @@ bool GuiTextEditPopupKeyboard::input(InputConfig* config, Input input)
 		mText->startEditing();
 		mText->textInput("\b");
 		mText->stopEditing();
+		return true;
 	}
 
 	// For Adding a space (Right Top Button)
 	if (config->isMappedTo("PageDown", input) && input.value) {
 		mText->startEditing();
 		mText->textInput(" ");
+		return true;
 	}
 
 	// For Shifting (Y)
@@ -305,10 +307,8 @@ bool GuiTextEditPopupKeyboard::input(InputConfig* config, Input input)
 		if (mShift) mShift = false;
 		else mShift = true;
 		shiftKeys();
+		return true;
 	}
-
-	
-
 	return false;
 }
 

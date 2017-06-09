@@ -99,7 +99,7 @@ void HelpComponent::updateGrid()
 	//mGrid->setPosition(OFFSET_X, Renderer::getScreenHeight() - mGrid->getSize().y() - OFFSET_Y);
 }
 
-std::shared_ptr<TextureResource> HelpComponent::getIconTexture(const char* name)
+std::shared_ptr<TextureResource> HelpComponent::getIconTexture(const std::string& name)
 {
 	auto it = mIconCache.find(name);
 	if(it != mIconCache.end())

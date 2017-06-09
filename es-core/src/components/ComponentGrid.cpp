@@ -260,7 +260,7 @@ void ComponentGrid::resetCursor()
 
 	for(auto it = mCells.begin(); it != mCells.end(); it++)
 	{
-		if(it->canFocus)
+		if(it->CanFocus())
 		{
 			Eigen::Vector2i origCursor = mCursor;
 			mCursor = it->pos;
@@ -292,7 +292,7 @@ bool ComponentGrid::moveCursor(Eigen::Vector2i dir)
 			&& mCursor.x() >= 0 && mCursor.y() >= 0)
 		{
 			cursorEntry = getCellAt(mCursor);
-			if(cursorEntry && cursorEntry->canFocus && cursorEntry != currentCursorEntry)
+			if(cursorEntry && cursorEntry->CanFocus() && cursorEntry != currentCursorEntry)
 			{
 				onCursorMoved(origCursor, mCursor);
 				return true;
@@ -307,7 +307,7 @@ bool ComponentGrid::moveCursor(Eigen::Vector2i dir)
 			&& mCursor.x() < mGridSize.x() && mCursor.y() < mGridSize.y())
 		{
 			cursorEntry = getCellAt(mCursor);
-			if(cursorEntry && cursorEntry->canFocus && cursorEntry != currentCursorEntry)
+			if(cursorEntry && cursorEntry->CanFocus() && cursorEntry != currentCursorEntry)
 			{
 				onCursorMoved(origCursor, mCursor);
 				return true;
@@ -341,7 +341,7 @@ void ComponentGrid::onFocusGained()
 bool ComponentGrid::cursorValid()
 {
 	GridEntry* e = getCellAt(mCursor);
-	return (e != NULL && e->canFocus);
+	return (e != NULL && e->CanFocus());
 }
 
 void ComponentGrid::update(int deltaTime)
@@ -385,7 +385,7 @@ void ComponentGrid::render(const Eigen::Affine3f& parentTrans)
 void ComponentGrid::textInput(const char* text)
 {
 	GridEntry* selectedEntry = getCellAt(mCursor);
-	if(selectedEntry != NULL && selectedEntry->canFocus)
+	if(selectedEntry != NULL && selectedEntry->CanFocus())
 		selectedEntry->component->textInput(text);
 }
 
