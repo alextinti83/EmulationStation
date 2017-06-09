@@ -5,7 +5,8 @@ from xml.etree.ElementTree import Element
 #filepath = 'C:\\Users\Alex\\.emulationstation\\themes\\oldroom 720p\\megadrive\\theme2.xml'
 
 
-folderpath = 'C:\\Users\Alex\\.emulationstation\\themes\\oldroom 720p\\'
+#folderpath = 'C:\\Users\Alex\\.emulationstation\\themes\\oldroom 720p\\'
+folderpath = '~/.emulationstation/themes/oldroom 720p/'
 fixes = \
 {
 	"./view/image[@name='scanlines']" : {'zIndex' : '60'},
