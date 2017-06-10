@@ -145,7 +145,7 @@ bool loadSystemConfigFile(const char** errorString)
 		return false;
 	}
 
-	if(SystemData::sSystemVector.size() == 0)
+	if(SystemData::GetSystems().size() == 0)
 	{
 		LOG(LogError) << "No systems found! Does at least one system have a game present? (check that extensions match!)\n(Also, make sure you've updated your es_systems.cfg for XML!)";
 		*errorString = "WE CAN'T FIND ANY SYSTEMS!\n"

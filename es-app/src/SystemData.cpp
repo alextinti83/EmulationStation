@@ -19,14 +19,14 @@ std::vector<SystemData*> SystemData::sSystemVector;
 namespace fs = boost::filesystem;
 
 SystemData::SystemData(
-	const std::string& name, 
-	const std::string& fullName, 
-	const std::string& startPath, 
-	const std::vector<std::string>& extensions, 
-	const std::string& command, 
-	const std::vector<PlatformIds::PlatformId>& platformIds, 
+	const std::string& name,
+	const std::string& fullName,
+	const std::string& startPath,
+	const std::vector<std::string>& extensions,
+	const std::string& command,
+	const std::vector<PlatformIds::PlatformId>& platformIds,
 	const std::string& themeFolder)
-	: mFavorites()
+	: mFavorites(), m_enabled(true)
 {
 	mName = name;
 	mFullName = fullName;
@@ -250,7 +250,6 @@ bool SystemData::loadConfig()
 	deleteSystems();
 
 	std::string path = getConfigPath(false);
-
 	LOG(LogInfo) << "Loading system config file " << path << "...";
 
 	if(!fs::exists(path))
@@ -287,6 +286,13 @@ bool SystemData::loadConfig()
 		name = system.child("name").text().get();
 		fullname = system.child("fullname").text().get();
 		path = system.child("path").text().get();
+		bool enabled = true;
+		if (system.child("enabled"))
+		{
+			const auto hiddenText = system.child("enabled").text().get();
+			enabled = std::string(hiddenText) == std::string("true");
+		}
+
 
 		// convert extensions list from a string into a vector of strings
 		std::vector<std::string> extensions = readList(system.child("extension").text().get());
@@ -337,6 +343,7 @@ bool SystemData::loadConfig()
 			LOG(LogWarning) << "System \"" << name << "\" has no games! Ignoring it.";
 			delete newSys;
 		}else{
+			newSys->SetEnabled(enabled);
 			sSystemVector.push_back(newSys);
 		}
 	}
@@ -504,4 +511,18 @@ void SystemData::addFavorite(const FileData& filedata)
 void SystemData::replaceFavoritePlacholder(const FileData& filedata)
 {
 	mFavorites->ReplacePlaceholder(filedata);
+}
+
+std::vector<SystemData*> SystemData::GetSystems()
+{
+	std::vector<SystemData*> systems;
+
+	for ( auto& system: sSystemVector)
+	{
+		if (system->IsEnabled())
+		{
+			systems.push_back(system);
+		}
+	}
+	return systems;
 }

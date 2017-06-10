@@ -46,7 +46,7 @@ public:
 
 	boost::filesystem::path getRetroArchConfigImportFolder() const;
 	boost::filesystem::path getRetroArchSystemConfigFilepath() const;
-	static std::vector<SystemData*> sSystemVector;
+	
 
 	inline std::vector<SystemData*>::const_iterator getIterator() const { return std::find(sSystemVector.begin(), sSystemVector.end(), this); };
 	inline std::vector<SystemData*>::const_reverse_iterator getRevIterator() const { return std::find(sSystemVector.rbegin(), sSystemVector.rend(), this); };
@@ -78,6 +78,10 @@ public:
 
 	FileFilterIndex* getIndex() { return mFilterIndex; };
 
+	void SetEnabled(const bool enabled) { m_enabled = enabled; }
+	bool IsEnabled() const { return m_enabled; }
+
+	static std::vector<SystemData*> GetSystems();
 private:
 	std::string mName;
 	std::string mFullName;
@@ -95,4 +99,7 @@ private:
 	FileData* mRootFolder;
 
 	std::unique_ptr<GameCollection> mFavorites;
+	bool m_enabled;
+
+	static std::vector<SystemData*> sSystemVector;
 };
