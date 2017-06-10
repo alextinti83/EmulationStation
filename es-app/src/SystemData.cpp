@@ -281,7 +281,8 @@ bool SystemData::SaveConfig()
 	}
 	for (pugi::xml_node system = systemList.child("system"); system; system = system.next_sibling("system"))
 	{
-		bool enabled = true; //temporary flag
+		const std::string path = system.child("path").text().get();
+		const bool enabled = IsSystemAtPathEnabled(path);
 		bool needsUpdated = false;
 		pugi::xml_node enabledNode = system.child(k_enabledNodeName.c_str());
 		if (enabledNode)
@@ -425,6 +426,19 @@ bool SystemData::loadConfig()
 	return true;
 }
 
+bool SystemData::IsSystemAtPathEnabled(const std::string& path)
+{
+	for (SystemData* system : SystemData::GetSystems())
+	{
+		boost::filesystem::path genericPath(path);
+		const std::string path = genericPath.generic_string();
+		if (path == system->getStartPath())
+		{
+			return system->IsEnabled();
+		}
+	}
+	return true; // this should not happen
+}
 void SystemData::writeExampleConfig(const std::string& path)
 {
 	std::ofstream file(path.c_str());
