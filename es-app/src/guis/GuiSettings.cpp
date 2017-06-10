@@ -27,6 +27,10 @@ void GuiSettings::save()
 		(*it)();
 
 	Settings::getInstance()->saveFile();
+	if (mCloseFuncs)
+	{
+		mCloseFuncs();
+	}
 }
 
 bool GuiSettings::input(InputConfig* config, Input input)
