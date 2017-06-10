@@ -206,9 +206,12 @@ GuiMenu::GuiMenu(Window* window) : GuiComponent(window), mMenu(window, "MAIN MEN
 			mWindow->pushGui(s);
 	});
 
+
+
 	addEntry("OTHER SETTINGS", 0x777777FF, true,
 		[this] {
 			auto s = new GuiSettings(mWindow, "OTHER SETTINGS");
+			addSystemsEntry(s);
 
 			// gamelists
 			auto save_gamelists = std::make_shared<SwitchComponent>(mWindow);
@@ -714,6 +717,51 @@ void GuiMenu::addTemperatureEntry(GuiSettings* s)
 		window->pushGui(s);
 	});
 	row.addElement(std::make_shared<TextComponent>(window, "TEMPERATURE", Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
+	s->addRow(row);
+	row.elements.clear();
+}
+
+
+void GuiMenu::addSystemsEntry(GuiSettings* s)
+{
+	Window* window = mWindow;
+	auto createOptionList = [ window ] ()
+	{
+		auto temperature = std::make_shared< OptionListComponent<std::string> >(window, "SYSTEMS", false);
+		const std::vector<std::string> temperatureOptions({ "always", "> hi-temp only", "never" });
+		for (const std::string& option : temperatureOptions)
+		{
+			temperature->add(option, option, Settings::getInstance()->getString("ShowTemperature") == option);
+		}
+		return temperature;
+	};
+
+	ComponentListRow row;
+	row.makeAcceptInputHandler([ window, createOptionList ]
+	{
+		auto s = new GuiSettings(window, "ENABLE SYSTEMS");
+		for(SystemData* system : SystemData::GetAllSystems())
+		{
+			auto enabled = std::make_shared<SwitchComponent>(window);
+			enabled->setState(system->IsEnabled());
+			s->addWithLabel(system->getName(), enabled);
+			s->addSaveFunc([ system, enabled ]
+			{
+				system->SetEnabled(enabled->getState());
+			});
+		}
+		s->setCloseFunc([ window ]
+		{
+			window->pushGui(new GuiMsgBox(window, "RESTART TO APPLY CHANGES?", "YES",
+				[]
+			{
+				if (quitES("/tmp/es-sysrestart") != 0)
+					LOG(LogWarning) << "Restart terminated with non-zero result!";
+			}, "NO", nullptr));
+		});
+		window->pushGui(s);
+	});
+	row.addElement(std::make_shared<TextComponent>(window, "SYSTEMS", Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
 	s->addRow(row);
 	row.elements.clear();
 }
