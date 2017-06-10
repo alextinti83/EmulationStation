@@ -244,6 +244,79 @@ std::vector<std::string> readList(const std::string& str, const char* delims = "
 	return ret;
 }
 
+static std::string k_enabledNodeName = "enabled";
+
+
+bool SystemData::SaveConfig()
+{
+	deleteSystems();
+
+	std::string path = getConfigPath(false);
+	LOG(LogInfo) << "Loading system config file " << path << "...";
+
+	if (!fs::exists(path))
+	{
+		LOG(LogError) << "es_systems.cfg file does not exist!";
+		writeExampleConfig(getConfigPath(true));
+		return false;
+	}
+
+	pugi::xml_document doc;
+	pugi::xml_parse_result res = doc.load_file(path.c_str(), pugi::parse_default | pugi::parse_comments);
+
+	if (!res)
+	{
+		LOG(LogError) << "Could not parse es_systems.cfg file!";
+		LOG(LogError) << res.description();
+		return false;
+	}
+
+	//actually read the file
+	pugi::xml_node systemList = doc.child("systemList");
+
+	if (!systemList)
+	{
+		LOG(LogError) << "es_systems.cfg is missing the <systemList> tag!";
+		return false;
+	}
+	for (pugi::xml_node system = systemList.child("system"); system; system = system.next_sibling("system"))
+	{
+		bool enabled = true; //temporary flag
+		bool needsUpdated = false;
+		pugi::xml_node enabledNode = system.child(k_enabledNodeName.c_str());
+		if (enabledNode)
+		{
+			if (enabled)
+			{
+				system.remove_child(k_enabledNodeName.c_str());
+				needsUpdated = true;
+			}
+			else
+			{
+				enabledNode.set_value("false");
+				needsUpdated = true;
+			}
+		}
+		else if (enabled == false)
+		{
+			pugi::xml_node descr = system.append_child(k_enabledNodeName.c_str());
+			descr.append_child(pugi::node_pcdata).set_value("false");
+			needsUpdated = true;
+		}
+		if (needsUpdated)
+		{
+			LOG(LogInfo) << "Updating " << path << std::endl;
+			if (doc.save_file(path.c_str()))
+			{
+				LOG(LogError) << "Error saving" << path << std::endl;
+				return false;
+			}
+		}
+	}
+	return true;
+}
+
+
 //creates systems from information located in a config file
 bool SystemData::loadConfig()
 {
@@ -287,9 +360,10 @@ bool SystemData::loadConfig()
 		fullname = system.child("fullname").text().get();
 		path = system.child("path").text().get();
 		bool enabled = true;
-		if (system.child("enabled"))
+		pugi::xml_node enabledNode = system.child(k_enabledNodeName.c_str());
+		if (enabledNode)
 		{
-			const auto hiddenText = system.child("enabled").text().get();
+			const auto hiddenText = enabledNode.text().get();
 			enabled = std::string(hiddenText) == std::string("true");
 		}
 
