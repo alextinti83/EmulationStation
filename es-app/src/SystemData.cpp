@@ -251,7 +251,6 @@ static std::string k_enabledNodeName = "enabled";
 
 bool SystemData::SaveConfig()
 {
-	deleteSystems();
 
 	std::string path = getConfigPath(false);
 	LOG(LogInfo) << "Loading system config file " << path << "...";
@@ -285,8 +284,8 @@ bool SystemData::SaveConfig()
 
 	for (pugi::xml_node system = systemList.child("system"); system; system = system.next_sibling("system"))
 	{
-		const std::string path = system.child("path").text().get();
-		const bool enabled = IsSystemAtPathEnabled(path);
+		const std::string name = system.child("name").text().get();
+		const bool enabled = IsSystemEnabled(name);
 		pugi::xml_node enabledNode = system.child(k_enabledNodeName.c_str());
 		if (enabledNode)
 		{
@@ -433,13 +432,11 @@ bool SystemData::loadConfig()
 	return true;
 }
 
-bool SystemData::IsSystemAtPathEnabled(const std::string& path)
+bool SystemData::IsSystemEnabled(const std::string& name)
 {
-	for (SystemData* system : SystemData::GetSystems())
+	for (SystemData* system : SystemData::GetAllSystems())
 	{
-		boost::filesystem::path genericPath(path);
-		const std::string path = genericPath.generic_string();
-		if (path == system->getStartPath())
+		if (name == system->getName())
 		{
 			return system->IsEnabled();
 		}
