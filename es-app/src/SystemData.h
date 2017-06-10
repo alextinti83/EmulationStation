@@ -81,10 +81,11 @@ public:
 
 	FileFilterIndex* getIndex() { return mFilterIndex; };
 
-	void SetEnabled(const bool enabled) { m_enabled = enabled; }
-	bool IsEnabled() const { return m_enabled; }
+	void SetEnabled(const bool enabled);
+	bool IsEnabled() const;
 
 	static std::vector<SystemData*> GetSystems();
+	static std::vector<SystemData*> GetAllSystems(); //disable ones too
 private:
 	std::string mName;
 	std::string mFullName;
