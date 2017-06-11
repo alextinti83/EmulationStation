@@ -143,7 +143,7 @@ void parseGamelistAtPath(const std::string& xmlpath, SystemData* system)
 			MetaDataList metadata = MetaDataList::createFromXML(GAME_METADATA, fileNode, relativeTo);
 			file->SetMetadata(metadata);
 			
-			system->replaceFavoritePlacholder(*file);
+			system->replaceGameCollectionPlacholder(*file);
 
 			// index if it's a game!
 			if(type == GAME)

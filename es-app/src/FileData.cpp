@@ -119,11 +119,11 @@ void FileData::SetIsFavorite(bool isFavorite)
 	{
 		if (isFavorite)
 		{
-			mSystem->addFavorite(*this);
+			mSystem->addToCurrentGameCollection(*this);
 		}
 		else
 		{
-			mSystem->removeFavorite(*this);
+			mSystem->removeFromCurrentGameCollection(*this);
 		}
 	}
 }
@@ -175,7 +175,7 @@ const std::string& FileData::getMarqueePath() const
 bool FileData::isFavorite() const
 {
 	//return metadata.get("favorite").compare("true") == 0;
-	return mSystem->isFavorite(*this);
+	return mSystem->isInCurrentGameCollection(*this);
 }
 
 std::vector<FileData*> FileData::getFilesRecursive(unsigned int typeMask, bool displayedOnly) const

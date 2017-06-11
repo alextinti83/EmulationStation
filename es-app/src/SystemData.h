@@ -94,16 +94,16 @@ public:
 	void loadTheme();
 
 	// favorites
-	bool isFavorite(const FileData& filedata) const;
-	void removeFavorite(const FileData& filedata);
-	void addFavorite(const FileData& filedata);
-	void replaceFavoritePlacholder(const FileData& filedata);
+	bool isInCurrentGameCollection(const FileData& filedata) const;
+	void removeFromCurrentGameCollection(const FileData& filedata);
+	void addToCurrentGameCollection(const FileData& filedata);
+	void replaceGameCollectionPlacholder(const FileData& filedata);
 	
 	const GameCollection* GetGameCollection(const std::string& key) const;
-	const GameCollection* GetHighlightedGameCollection() const;
+	const GameCollection* GetCurrentGameCollection() const;
 
 	GameCollection* GetGameCollection(const std::string& key);
-	GameCollection* GetHighlightedGameCollection();
+	GameCollection* GetCurrentGameCollection();
 
 	FileFilterIndex* getIndex() { return mFilterIndex; };
 
@@ -136,7 +136,7 @@ private:
 
 	std::map<std::string, GameCollection> mGameCollections;
 	std::string mGameCollectionsPath;
-	std::string mHighlightedCollectionName;
+	std::string mCurrentCollectionName;
 
 
 	bool m_enabled;

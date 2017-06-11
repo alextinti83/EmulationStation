@@ -31,7 +31,7 @@ SystemData::SystemData(
 	//: mFavorites()
 	: m_enabled(enabled)
 	, mGameCollectionsPath(".emulationstation/game_collections")
-	, mHighlightedCollectionName("favorites")
+	, mCurrentCollectionName("favorites")
 {
 	mName = name;
 	mFullName = fullName;
@@ -169,15 +169,15 @@ bool SystemData::SaveGameCollections()
 	return true;
 }
 
-const GameCollection* SystemData::GetHighlightedGameCollection() const
+const GameCollection* SystemData::GetCurrentGameCollection() const
 {
-	return GetGameCollection(mHighlightedCollectionName);
+	return GetGameCollection(mCurrentCollectionName);
 }
 
-GameCollection* SystemData::GetHighlightedGameCollection()
+GameCollection* SystemData::GetCurrentGameCollection()
 {
 	const SystemData& const_this = static_cast< const SystemData& >( *this );
-	return const_cast< GameCollection* >( const_this.GetHighlightedGameCollection());
+	return const_cast< GameCollection* >( const_this.GetCurrentGameCollection());
 }
 
 GameCollection* SystemData::GetGameCollection(const std::string& key)
@@ -740,29 +740,29 @@ void SystemData::loadTheme()
 
 
 
-bool SystemData::isFavorite(const FileData& filedata) const
+bool SystemData::isInCurrentGameCollection(const FileData& filedata) const
 {
-	const auto collection = GetHighlightedGameCollection();
+	const auto collection = GetCurrentGameCollection();
 	return collection && collection->HasGame(filedata);
 	//return mFavorites->HasGame(filedata);
 }
 
-void SystemData::removeFavorite(const FileData& filedata)
+void SystemData::removeFromCurrentGameCollection(const FileData& filedata)
 {
-	auto collection = GetHighlightedGameCollection();
+	auto collection = GetCurrentGameCollection();
 	if (collection) { collection->RemoveGame(filedata); }
 	//mFavorites->RemoveGame(filedata);
 }
 
-void SystemData::addFavorite(const FileData& filedata)
+void SystemData::addToCurrentGameCollection(const FileData& filedata)
 {
-	auto collection = GetHighlightedGameCollection();
+	auto collection = GetCurrentGameCollection();
 	if (collection) { collection->AddGame(filedata); }
 	//mFavorites->AddGame(filedata);
 }
 
 
-void SystemData::replaceFavoritePlacholder(const FileData& filedata)
+void SystemData::replaceGameCollectionPlacholder(const FileData& filedata)
 {
 	using GameCollectionMapValueType = std::map<std::string, GameCollection>::value_type;
 	for (GameCollectionMapValueType& pair : mGameCollections)
