@@ -6,6 +6,7 @@
 #include <boost/date_time.hpp>
 
 
+bool CheckWritePermission(const std::string& path);
 bool StartsWith(const std::string& str, const std::string& prefix);
 std::string strToUpper(const char* from);
 std::string& strToUpper(std::string& str);

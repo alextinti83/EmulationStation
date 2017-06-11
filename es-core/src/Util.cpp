@@ -1,8 +1,28 @@
 #include "Util.h"
 #include "resources/ResourceManager.h"
 #include "platform.h"
+#include "Log.h"
 
 namespace fs = boost::filesystem;
+
+bool CheckWritePermission(const std::string& path)
+{
+	FILE *fp = fopen(path.c_str(), "w");
+	if (fp == NULL)
+	{
+		if (errno == EACCES)
+		{
+			LOG(LogInfo) << "Cannot write config file " << path << std::endl;
+			return false;
+		}
+		else
+		{
+			LOG(LogError) << "Something went wrong: " << strerror(errno) << std::endl;
+			return false;
+		}
+	}
+	return true;
+}
 
 bool StartsWith(const std::string& str, const std::string& prefix)
 {
