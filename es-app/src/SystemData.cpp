@@ -28,7 +28,10 @@ SystemData::SystemData(
 	const std::vector<PlatformIds::PlatformId>& platformIds,
 	const std::string& themeFolder,
 	const bool enabled)
-	: mFavorites(), m_enabled(enabled)
+	//: mFavorites()
+	: m_enabled(enabled)
+	, mGameCollectionsPath(".emulationstation/game_collections")
+	, mHighlightedCollectionName("favorites")
 {
 	mName = name;
 	mFullName = fullName;
@@ -58,8 +61,8 @@ SystemData::SystemData(
 			populateFolder(mRootFolder);
 		}
 
-		mFavorites.reset(new GameCollection("favorites"));
-		mFavorites->Deserialize(mRootFolder->getPath());
+	
+		LoadGameCollections();
 
 		if (!Settings::getInstance()->getBool("IgnoreGamelist"))
 		{
@@ -74,9 +77,9 @@ SystemData::SystemData(
 
 SystemData::~SystemData()
 {
-	if (m_enabled && mFavorites)
+	if (m_enabled)
 	{
-		mFavorites->Serialize(mRootFolder->getPath());
+		SaveGameCollections();
 
 		//save changed game data back to xml
 		if (!Settings::getInstance()->getBool("IgnoreGamelist") && Settings::getInstance()->getBool("SaveGamelistsOnExit"))
@@ -89,6 +92,96 @@ SystemData::~SystemData()
 	delete mFilterIndex;
 }
 
+
+void SystemData::LoadGameCollections()
+{
+	//mFavorites.reset(new GameCollection("favorites"));
+	//mFavorites->Deserialize(mRootFolder->getPath());
+
+
+	using GameCollectionIt = std::map<std::string, GameCollection>::iterator;
+
+	boost::filesystem::path absCollectionsPath(mRootFolder->getPath() / mGameCollectionsPath);
+	if (boost::filesystem::exists(absCollectionsPath))
+	{
+		using fsIt = boost::filesystem::recursive_directory_iterator;
+		fsIt end;
+		for (fsIt i(absCollectionsPath); i != end; ++i)
+		{
+			const boost::filesystem::path cp = ( *i );
+			if (!boost::filesystem::is_directory(cp))
+			{
+				const std::string filename = cp.filename().generic_string();
+				const std::string key = cp.stem().generic_string();
+				LOG(LogInfo) << "Loading GameCollection: " << filename;
+
+				mGameCollections.emplace(key, key);
+				GameCollectionIt collectionIt = mGameCollections.find(key);
+				if (collectionIt != mGameCollections.end())
+				{
+					if (!collectionIt->second.Deserialize(absCollectionsPath.generic_string()))
+					{
+						mGameCollections.erase(collectionIt);
+					}
+				}
+			}
+		}
+	}
+}
+
+bool SystemData::SaveGameCollections()
+{
+	//if (mFavorites)
+	//{
+	//	mFavorites->Serialize(mRootFolder->getPath());
+	//}
+
+	boost::filesystem::path absCollectionsPath(mRootFolder->getPath() / mGameCollectionsPath);
+	if (!boost::filesystem::exists(absCollectionsPath))
+	{
+		boost::system::error_code returnedError;
+		boost::filesystem::create_directories(absCollectionsPath, returnedError);
+		if (returnedError)
+		{
+			return false;
+		}
+	}
+
+	using GameCollectionMapValueType = std::map<std::string, GameCollection>::value_type;
+	for (GameCollectionMapValueType& pair : mGameCollections)
+	{
+		pair.second.Serialize(absCollectionsPath.generic_string());	
+	}
+	return true;
+}
+
+const GameCollection* SystemData::GetHighlightedGameCollection() const
+{
+	return GetGameCollection(mHighlightedCollectionName);
+}
+
+GameCollection* SystemData::GetHighlightedGameCollection()
+{
+	const SystemData& const_this = static_cast< const SystemData& >( *this );
+	return const_cast< GameCollection* >( const_this.GetHighlightedGameCollection());
+}
+
+GameCollection* SystemData::GetGameCollection(const std::string& key)
+{
+	const SystemData& const_this = static_cast< const SystemData& >( *this );
+	return const_cast< GameCollection* >( const_this.GetGameCollection(key) );
+}
+
+const GameCollection* SystemData::GetGameCollection(const std::string& key) const
+{
+	using GameCollectionIt = std::map<std::string, GameCollection>::const_iterator;
+	GameCollectionIt collectionIt = mGameCollections.find(key);
+	if (collectionIt != mGameCollections.end())
+	{
+		return &collectionIt->second;
+	}
+	return nullptr;
+}
 
 std::string strreplace(std::string str, const std::string& replace, const std::string& with)
 {
@@ -635,23 +728,34 @@ void SystemData::loadTheme()
 
 bool SystemData::isFavorite(const FileData& filedata) const
 {
-	return mFavorites->HasGame(filedata);
+	const auto collection = GetHighlightedGameCollection();
+	return collection && collection->HasGame(filedata);
+	//return mFavorites->HasGame(filedata);
 }
 
 void SystemData::removeFavorite(const FileData& filedata)
 {
-	mFavorites->RemoveGame(filedata);
+	auto collection = GetHighlightedGameCollection();
+	if (collection) { collection->RemoveGame(filedata); }
+	//mFavorites->RemoveGame(filedata);
 }
 
 void SystemData::addFavorite(const FileData& filedata)
 {
-	mFavorites->AddGame(filedata);
+	auto collection = GetHighlightedGameCollection();
+	if (collection) { collection->AddGame(filedata); }
+	//mFavorites->AddGame(filedata);
 }
 
 
 void SystemData::replaceFavoritePlacholder(const FileData& filedata)
 {
-	mFavorites->ReplacePlaceholder(filedata);
+	using GameCollectionMapValueType = std::map<std::string, GameCollection>::value_type;
+	for (GameCollectionMapValueType& pair : mGameCollections)
+	{
+		pair.second.ReplacePlaceholder(filedata);
+	}
+	//mFavorites->ReplacePlaceholder(filedata);
 }
 
 void SystemData::SetEnabled(const bool enabled)

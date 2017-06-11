@@ -98,6 +98,12 @@ public:
 	void removeFavorite(const FileData& filedata);
 	void addFavorite(const FileData& filedata);
 	void replaceFavoritePlacholder(const FileData& filedata);
+	
+	const GameCollection* GetGameCollection(const std::string& key) const;
+	const GameCollection* GetHighlightedGameCollection() const;
+
+	GameCollection* GetGameCollection(const std::string& key);
+	GameCollection* GetHighlightedGameCollection();
 
 	FileFilterIndex* getIndex() { return mFilterIndex; };
 
@@ -107,6 +113,9 @@ public:
 	static std::vector<SystemData*> GetSystems();
 	static std::vector<SystemData*> GetAllSystems(); //disable ones too
 private:
+	void LoadGameCollections();
+	bool SaveGameCollections();
+
 	std::string mName;
 	std::string mFullName;
 	std::string mStartPath;
@@ -122,7 +131,13 @@ private:
 
 	FileData* mRootFolder;
 
-	std::unique_ptr<GameCollection> mFavorites;
+	//std::unique_ptr<GameCollection> mFavorites;
+
+	std::map<std::string, GameCollection> mGameCollections;
+	std::string mGameCollectionsPath;
+	std::string mHighlightedCollectionName;
+
+
 	bool m_enabled;
 
 	static std::vector<SystemData*> sSystemVector;
