@@ -5,6 +5,8 @@
 #include <boost/filesystem.hpp>
 #include <boost/date_time.hpp>
 
+
+bool StartsWith(const std::string& str, const std::string& prefix);
 std::string strToUpper(const char* from);
 std::string& strToUpper(std::string& str);
 std::string strToUpper(const std::string& str);

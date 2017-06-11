@@ -4,6 +4,15 @@
 
 namespace fs = boost::filesystem;
 
+bool StartsWith(const std::string& str, const std::string& prefix)
+{
+	if (str.substr(0, prefix.size()) == prefix)
+	{
+		return true;
+	}
+	return false;
+}
+
 std::string strToUpper(const char* from)
 {
 	std::string str(from);

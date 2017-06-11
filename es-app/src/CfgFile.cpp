@@ -8,6 +8,7 @@
 #include <boost/date_time/local_time/local_time.hpp>
 #include <boost/lexical_cast.hpp>
 #include <string>
+#include "Util.h"
 
 //keeping it disabled since it also creates backups of backups now..
 static const bool automaticBackupEnabled = false;
@@ -49,15 +50,6 @@ bool _BackupConfig(boost::filesystem::path filepath, const std::string signature
 	const auto filename = filepath.filename().generic_string();
 	const auto outputPath = backupDir / ( filename + "." + prefix + ".cfg");
 	return CopyConfig(filepath, outputPath);
-}
-
-bool StartsWith(const std::string& str, const std::string& prefix)
-{
-	if (str.substr(0, prefix.size()) == prefix)
-	{
-		return true;
-	}
-	return false;
 }
 
 CfgEntry::CfgEntry(const std::string line)
