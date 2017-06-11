@@ -13,6 +13,7 @@
 #include "Settings.h"
 #include "FileSorts.h"
 #include "GameCollection.h"
+#include "EmulationStation.h"
 
 std::vector<SystemData*> SystemData::sSystemVector;
 
@@ -25,8 +26,9 @@ SystemData::SystemData(
 	const std::vector<std::string>& extensions,
 	const std::string& command,
 	const std::vector<PlatformIds::PlatformId>& platformIds,
-	const std::string& themeFolder)
-	: mFavorites(), m_enabled(true)
+	const std::string& themeFolder,
+	const bool enabled)
+	: mFavorites(), m_enabled(enabled)
 {
 	mName = name;
 	mFullName = fullName;
@@ -49,33 +51,38 @@ SystemData::SystemData(
 	mRootFolder = new FileData(FOLDER, mStartPath, this);
 	mRootFolder->metadata.set("name", mFullName);
 
-	if (!Settings::getInstance()->getBool("ParseGamelistOnly"))
+	if (m_enabled)
 	{
-		populateFolder(mRootFolder);
+		if (!Settings::getInstance()->getBool("ParseGamelistOnly"))
+		{
+			populateFolder(mRootFolder);
+		}
+
+		mFavorites.reset(new GameCollection("favorites"));
+		mFavorites->Deserialize(mRootFolder->getPath());
+
+		if (!Settings::getInstance()->getBool("IgnoreGamelist"))
+		{
+			parseGamelist(this);
+		}
+
+		mRootFolder->sort(FileSorts::SortTypes.at(0));
+
+		loadTheme();
 	}
-
-	mFavorites.reset(new GameCollection("favorites"));
-	mFavorites->Deserialize(mRootFolder->getPath());
-
-	if (!Settings::getInstance()->getBool("IgnoreGamelist"))
-	{
-		parseGamelist(this);
-	}
-
-	mRootFolder->sort(FileSorts::SortTypes.at(0));
-
-	loadTheme();
 }
 
 SystemData::~SystemData()
 {
-
-	mFavorites->Serialize(mRootFolder->getPath());
-
-	//save changed game data back to xml
-	if (!Settings::getInstance()->getBool("IgnoreGamelist") && Settings::getInstance()->getBool("SaveGamelistsOnExit"))
+	if (m_enabled && mFavorites)
 	{
-		writeGamelistToFile(this);
+		mFavorites->Serialize(mRootFolder->getPath());
+
+		//save changed game data back to xml
+		if (!Settings::getInstance()->getBool("IgnoreGamelist") && Settings::getInstance()->getBool("SaveGamelistsOnExit"))
+		{
+			writeGamelistToFile(this);
+		}
 	}
 
 	delete mRootFolder;
@@ -272,7 +279,6 @@ bool SystemData::SaveConfig()
 		return false;
 	}
 
-	//actually read the file
 	pugi::xml_node systemList = doc.child("systemList");
 
 	if (!systemList)
@@ -302,7 +308,7 @@ bool SystemData::SaveConfig()
 		}
 		else if (enabled == false)
 		{
-			pugi::xml_node descr = system.append_child(k_enabledNodeName.c_str());
+			pugi::xml_node descr = system.prepend_child(k_enabledNodeName.c_str());
 			descr.append_child(pugi::node_pcdata).set_value("false");
 			needsUpdated = true;
 		}
@@ -311,6 +317,24 @@ bool SystemData::SaveConfig()
 
 	if (needsUpdated)
 	{
+		static const std::string k_signaturePrefix = "Processed by ES ";
+		static const std::string k_signature = k_signaturePrefix + std::string(PROGRAM_VERSION_STRING);
+		pugi::xml_node firstChild = doc.first_child();
+		if (firstChild && firstChild.type() == pugi::xml_node_type::node_comment)
+		{
+			if (std::string(firstChild.value()).find(k_signaturePrefix) == std::string::npos)
+			{
+				using namespace boost::posix_time;
+				using namespace boost::gregorian;
+				const auto date = second_clock::local_time().date();
+				const auto time = second_clock::local_time().time_of_day();
+				const std::string datePrefix = to_simple_string(date);
+				const std::string timePrefix = to_simple_string(time);
+				const std::string signature = k_signature + " on " + datePrefix + " at " + timePrefix.c_str();
+				doc.prepend_child(pugi::node_comment).set_value(signature.c_str());
+			}
+		}
+
 		LOG(LogInfo) << "Updating " << path << std::endl;
 		if (doc.save_file(path.c_str()))
 		{
@@ -416,15 +440,14 @@ bool SystemData::loadConfig()
 		boost::filesystem::path genericPath(path);
 		path = genericPath.generic_string();
 
-		SystemData* newSys = new SystemData(name, fullname, path, extensions, cmd, platformIds, themeFolder);
-		if (newSys->getRootFolder()->getChildrenByFilename().size() == 0)
+		SystemData* newSys = new SystemData(name, fullname, path, extensions, cmd, platformIds, themeFolder, enabled);
+		if (enabled && newSys->getRootFolder()->getChildrenByFilename().size() == 0 )
 		{
 			LOG(LogWarning) << "System \"" << name << "\" has no games! Ignoring it.";
 			delete newSys;
 		}
 		else
 		{
-			newSys->SetEnabled(enabled);
 			sSystemVector.push_back(newSys);
 		}
 	}
