@@ -25,7 +25,7 @@ public:
 public:
 	GameCollection(const std::string& name);
 
-	void Deserialize(const boost::filesystem::path& folderPath);
+	bool Deserialize(const boost::filesystem::path& folderPath);
 	void Serialize(const boost::filesystem::path& folderPath);
 	bool HasGame(const FileData& filedata) const;
 	void AddGame(const FileData& filedata);
