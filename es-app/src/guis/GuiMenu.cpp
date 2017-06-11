@@ -725,39 +725,47 @@ void GuiMenu::addTemperatureEntry(GuiSettings* s)
 void GuiMenu::addSystemsEntry(GuiSettings* s)
 {
 	Window* window = mWindow;
-	auto createOptionList = [ window ] ()
-	{
-		auto temperature = std::make_shared< OptionListComponent<std::string> >(window, "SYSTEMS", false);
-		const std::vector<std::string> temperatureOptions({ "always", "> hi-temp only", "never" });
-		for (const std::string& option : temperatureOptions)
-		{
-			temperature->add(option, option, Settings::getInstance()->getString("ShowTemperature") == option);
-		}
-		return temperature;
-	};
 
 	ComponentListRow row;
-	row.makeAcceptInputHandler([ window, createOptionList ]
+	row.makeAcceptInputHandler([ window ]
 	{
 		auto s = new GuiSettings(window, "ENABLE SYSTEMS");
+		std::vector<std::pair<std::shared_ptr<SwitchComponent>, SystemData*>> switches;
 		for(SystemData* system : SystemData::GetAllSystems())
 		{
-			auto enabled = std::make_shared<SwitchComponent>(window);
-			enabled->setState(system->IsEnabled());
-			s->addWithLabel(system->getName(), enabled);
-			s->addSaveFunc([ system, enabled ]
+			auto onOffSwitch = std::make_shared<SwitchComponent>(window);
+			switches.push_back(std::make_pair(onOffSwitch, system));
+			onOffSwitch->setState(system->IsEnabled());
+			s->addWithLabel(system->getName(), onOffSwitch);
+			s->addSaveFunc([ system, onOffSwitch ]
 			{
-				system->SetEnabled(enabled->getState());
+				system->SetEnabled(onOffSwitch->getState());
 			});
 		}
-		s->setCloseFunc([ window ]
+		s->setCloseFunc([
+			window, 
+					 // this vector captured by copy is intended
+			switches // I'm getting weird behaviors by capturing its reference
+					 // it might be some stack memory corrupted
+		]
 		{
-			window->pushGui(new GuiMsgBox(window, "RESTART TO APPLY CHANGES?", "YES",
-				[]
+			bool needsRefresh = false;
+			for (auto& onOff: switches)
 			{
-				if (quitES("/tmp/es-sysrestart") != 0)
-					LOG(LogWarning) << "Restart terminated with non-zero result!";
-			}, "NO", nullptr));
+				if (onOff.first->getState() != onOff.second->IsEnabled())
+				{
+					needsRefresh = true;
+				}
+			}
+			if (needsRefresh)
+			{
+				window->pushGui(new GuiMsgBox(window, "RESTART TO APPLY CHANGES?", "YES",
+					[]
+				{
+					if (quitES("/tmp/es-sysrestart") != 0)
+						LOG(LogWarning) << "Restart terminated with non-zero result!";
+				}, "NO", nullptr));
+			}
 		});
 		window->pushGui(s);
 	});
