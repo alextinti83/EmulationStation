@@ -336,10 +336,12 @@ bool SystemData::SaveConfig()
 		}
 
 		const std::string writeConfigPath = getConfigPath(true);
-		LOG(LogInfo) << "Updating " << writeConfigPath << std::endl;
-		if (doc.save_file(writeConfigPath.c_str()))
+		boost::filesystem::path resolvedPath = boost::filesystem::canonical(writeConfigPath);
+
+		LOG(LogInfo) << "Updating " << resolvedPath << std::endl;
+		if (doc.save_file(resolvedPath.generic_string().c_str()))
 		{
-			LOG(LogError) << "Error saving " << writeConfigPath << std::endl;
+			LOG(LogError) << "Error saving " << resolvedPath << std::endl;
 			return false;
 		}
 	}
