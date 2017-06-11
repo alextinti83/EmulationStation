@@ -92,7 +92,7 @@ void parseGamelistAtPath(const std::string& xmlpath, SystemData* system)
 {
 	if ( !boost::filesystem::exists(xmlpath) )
 	{
-		LOG(LogError) << "Could not find XML file \"" << xmlpath << "\"...";
+		LOG(LogInfo) << "Could not find XML file \"" << xmlpath << "\"...";
 		return;
 	}
 
