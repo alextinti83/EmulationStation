@@ -105,6 +105,10 @@ public:
 	GameCollection* GetGameCollection(const std::string& key);
 	GameCollection* GetCurrentGameCollection();
 
+	bool NewGameCollection(const std::string& key);
+	bool SetCurrentGameCollection(const std::string& key);
+
+
 	FileFilterIndex* getIndex() { return mFilterIndex; };
 
 	void SetEnabled(const bool enabled);
@@ -136,7 +140,7 @@ private:
 
 	std::map<std::string, GameCollection> mGameCollections;
 	std::string mGameCollectionsPath;
-	std::string mCurrentCollectionName;
+	std::string mCurrentCollectionKey;
 
 
 	bool m_enabled;

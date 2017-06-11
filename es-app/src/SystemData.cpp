@@ -31,7 +31,7 @@ SystemData::SystemData(
 	//: mFavorites()
 	: m_enabled(enabled)
 	, mGameCollectionsPath(".emulationstation/game_collections")
-	, mCurrentCollectionName("favorites")
+	, mCurrentCollectionKey("favorites")
 {
 	mName = name;
 	mFullName = fullName;
@@ -171,13 +171,33 @@ bool SystemData::SaveGameCollections()
 
 const GameCollection* SystemData::GetCurrentGameCollection() const
 {
-	return GetGameCollection(mCurrentCollectionName);
+	return GetGameCollection(mCurrentCollectionKey);
 }
 
 GameCollection* SystemData::GetCurrentGameCollection()
 {
 	const SystemData& const_this = static_cast< const SystemData& >( *this );
 	return const_cast< GameCollection* >( const_this.GetCurrentGameCollection());
+}
+
+bool SystemData::NewGameCollection(const std::string& key)
+{
+	if (GetGameCollection(key))
+	{
+		return false;
+	}
+	mGameCollections.emplace(key, key);
+	return true;
+}
+
+bool SystemData::SetCurrentGameCollection(const std::string& key)
+{
+	if (GetGameCollection(key))
+	{
+		mCurrentCollectionKey = key;
+		return true;
+	}
+	return false;
 }
 
 GameCollection* SystemData::GetGameCollection(const std::string& key)
