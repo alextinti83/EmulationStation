@@ -46,12 +46,12 @@ void ViewController::goToStart()
 	/* mState.viewing = START_SCREEN;
 	mCurrentView.reset();
 	playViewTransition(); */
-	goToSystemView(SystemData::sSystemVector.at(0));
+	goToSystemView(SystemData::GetSystems().front());
 }
 
 int ViewController::getSystemId(SystemData* system)
 {
-	std::vector<SystemData*>& sysVec = SystemData::sSystemVector;
+	std::vector<SystemData*> sysVec = SystemData::GetSystems();
 	return std::find(sysVec.begin(), sysVec.end(), system) - sysVec.begin();
 }
 
@@ -122,28 +122,27 @@ void ViewController::goToGameList(SystemData* system)
 void ViewController::goToRandomGame()
 {
 	unsigned int total = 0;
-	for(auto it = SystemData::sSystemVector.begin(); it != SystemData::sSystemVector.end(); it++)
+	for (SystemData* system : SystemData::GetSystems())
 	{
-		if ((*it)->getName() != "retropie")
-			total += (*it)->getDisplayedGameCount();
+		if (system->getName() != "retropie")
+			total += system->getDisplayedGameCount();
 	}
 
 	// get random number in range
 	int target = std::lround(((double)std::rand() / (double)RAND_MAX) * total);
-	
-	for (auto it = SystemData::sSystemVector.begin(); it != SystemData::sSystemVector.end(); it++)
+	for (SystemData* system : SystemData::GetSystems())
 	{
-		if ((*it)->getName() != "retropie")
+		if (system->getName() != "retropie")
 		{
-			if ((target - (int)(*it)->getDisplayedGameCount()) >= 0)
+			if ((target - (int) system->getDisplayedGameCount()) >= 0)
 			{
-				target -= (int)(*it)->getDisplayedGameCount();
+				target -= (int) system->getDisplayedGameCount();
 			}
 			else
 			{
-				goToGameList(*it);
-				std::vector<FileData*> list = (*it)->getRootFolder()->getFilesRecursive(GAME, true);
-				getGameListView(*it)->setCursor(list.at(target));
+				goToGameList(system);
+				std::vector<FileData*> list = system->getRootFolder()->getFilesRecursive(GAME, true);
+				getGameListView(system)->setCursor(list.at(target));
 				return;
 			}
 		}
@@ -329,7 +328,7 @@ std::shared_ptr<IGameListView> ViewController::getGameListView(SystemData* syste
 
 	view->setTheme(system->getTheme());
 
-	std::vector<SystemData*>& sysVec = SystemData::sSystemVector;
+	std::vector<SystemData*> sysVec = SystemData::GetSystems();
 	int id = std::find(sysVec.begin(), sysVec.end(), system) - sysVec.begin();
 	view->setPosition(id * (float)Renderer::getScreenWidth(), (float)Renderer::getScreenHeight() * 2);
 
@@ -417,9 +416,9 @@ void ViewController::render(const Eigen::Affine3f& parentTrans)
 
 void ViewController::preload()
 {
-	for(auto it = SystemData::sSystemVector.begin(); it != SystemData::sSystemVector.end(); it++)
+	for (SystemData* system : SystemData::GetSystems())
 	{
-		getGameListView(*it);
+		getGameListView(system);
 	}
 }
 
@@ -481,11 +480,11 @@ void ViewController::reloadAll()
 	}else if(mState.viewing == SYSTEM_SELECT)
 	{
 		SystemData* system = mState.getSystem();
-		goToSystemView(SystemData::sSystemVector.front());
+		goToSystemView(SystemData::GetSystems().front());
 		mSystemListView->goToSystem(system, false);
 		mCurrentView = mSystemListView;
 	}else{
-		goToSystemView(SystemData::sSystemVector.front());
+		goToSystemView(SystemData::GetSystems().front());
 	}
 
 	updateHelpPrompts();

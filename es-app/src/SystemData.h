@@ -41,12 +41,15 @@ public:
 
 	static void deleteSystems();
 	static bool loadConfig(); //Load the system config file at getConfigPath(). Returns true if no errors were encountered. An example will be written if the file doesn't exist.
+	static bool IsSystemEnabled(const std::string& path);
+	static bool SaveConfig();
+
 	static void writeExampleConfig(const std::string& path);
 	static std::string getConfigPath(bool forWrite); // if forWrite, will only return ~/.emulationstation/es_systems.cfg, never /etc/emulationstation/es_systems.cfg
 
 	boost::filesystem::path getRetroArchConfigImportFolder() const;
 	boost::filesystem::path getRetroArchSystemConfigFilepath() const;
-	static std::vector<SystemData*> sSystemVector;
+	
 
 	inline std::vector<SystemData*>::const_iterator getIterator() const { return std::find(sSystemVector.begin(), sSystemVector.end(), this); };
 	inline std::vector<SystemData*>::const_reverse_iterator getRevIterator() const { return std::find(sSystemVector.rbegin(), sSystemVector.rend(), this); };
@@ -78,6 +81,11 @@ public:
 
 	FileFilterIndex* getIndex() { return mFilterIndex; };
 
+	void SetEnabled(const bool enabled);
+	bool IsEnabled() const;
+
+	static std::vector<SystemData*> GetSystems();
+	static std::vector<SystemData*> GetAllSystems(); //disable ones too
 private:
 	std::string mName;
 	std::string mFullName;
@@ -95,4 +103,7 @@ private:
 	FileData* mRootFolder;
 
 	std::unique_ptr<GameCollection> mFavorites;
+	bool m_enabled;
+
+	static std::vector<SystemData*> sSystemVector;
 };

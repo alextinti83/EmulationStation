@@ -22,10 +22,10 @@ GuiScraperStart::GuiScraperStart(Window* window) : GuiComponent(window),
 
 	//add systems (all with a platformid specified selected)
 	mSystems = std::make_shared< OptionListComponent<SystemData*> >(mWindow, "SCRAPE THESE SYSTEMS", true);
-	for(auto it = SystemData::sSystemVector.begin(); it != SystemData::sSystemVector.end(); it++)
+	for (SystemData* system : SystemData::GetSystems())
 	{
-		if(!(*it)->hasPlatformId(PlatformIds::PLATFORM_IGNORE))
-			mSystems->add((*it)->getFullName(), *it, !(*it)->getPlatformIds().empty());
+		if(!system->hasPlatformId(PlatformIds::PLATFORM_IGNORE))
+			mSystems->add(system->getFullName(), system, !system->getPlatformIds().empty());
 	}
 	mMenu.addWithLabel("Systems", mSystems);
 
