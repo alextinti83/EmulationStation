@@ -80,7 +80,7 @@ void ViewController::goToNextGameList()
 	assert(mState.viewing == GAME_LIST);
 	SystemData* system = getState().getSystem();
 	assert(system);
-	goToGameList(system->getNext());
+	goToGameList(system->getNextEnabled());
 }
 
 void ViewController::goToPrevGameList()
@@ -88,7 +88,7 @@ void ViewController::goToPrevGameList()
 	assert(mState.viewing == GAME_LIST);
 	SystemData* system = getState().getSystem();
 	assert(system);
-	goToGameList(system->getPrev());
+	goToGameList(system->getPrevEnabled());
 }
 
 void ViewController::goToGameList(SystemData* system)
