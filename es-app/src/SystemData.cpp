@@ -342,6 +342,10 @@ bool SystemData::SaveConfig()
 			return false;
 		}
 	}
+	else
+	{
+		LOG(LogInfo) << "Not need to update " << path << std::endl;
+	}
 	return true;
 }
 
