@@ -759,10 +759,11 @@ void GuiMenu::addSystemsEntry(GuiSettings* s)
 			}
 			if (needsRefresh)
 			{
-				window->pushGui(new GuiMsgBox(window, "RESTART TO APPLY CHANGES?", "YES",
+
+				window->pushGui(new GuiMsgBox(window, "RESTART EMULATION STATION TO APPLY CHANGES?", "YES",
 					[]
 				{
-					if (quitES("/tmp/es-sysrestart") != 0)
+					if (quitES("/tmp/es-restart") != 0)
 						LOG(LogWarning) << "Restart terminated with non-zero result!";
 				}, "NO", nullptr));
 			}

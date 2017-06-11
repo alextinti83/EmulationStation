@@ -15,7 +15,7 @@ class SystemData
 {
 public:
 	SystemData(const std::string& name, const std::string& fullName, const std::string& startPath, const std::vector<std::string>& extensions,
-		const std::string& command, const std::vector<PlatformIds::PlatformId>& platformIds, const std::string& themeFolder);
+		const std::string& command, const std::vector<PlatformIds::PlatformId>& platformIds, const std::string& themeFolder, const bool enabled = true);
 	~SystemData();
 
 	inline FileData* getRootFolder() const { return mRootFolder; };
