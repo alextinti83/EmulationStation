@@ -61,6 +61,26 @@ public:
 		if(it == sSystemVector.end()) it = sSystemVector.begin();
 		return *it;
 	}
+	SystemData* getNextEnabled() const;
+	SystemData* getPrevEnabled() const;
+
+	template<typename IteratorType>
+	SystemData* findNextIfEnabled(IteratorType begin, IteratorType end) const
+	{
+		auto start = std::find(begin, end, this);
+		auto isEnabled = [ start ] (SystemData*s) { return *start != s && s->IsEnabled(); };
+		auto it = std::find_if(start, end, isEnabled);
+		if (it == end)
+		{
+			it = std::find_if(begin, start, isEnabled);
+			if (it == end)
+			{
+				return *( getIterator() );
+			}
+		}
+		return *it;
+	}
+
 
 	inline SystemData* getPrev() const
 	{
