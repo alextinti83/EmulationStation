@@ -338,7 +338,7 @@ bool SystemData::SaveConfig()
 		LOG(LogInfo) << "Updating " << path << std::endl;
 		if (doc.save_file(path.c_str()))
 		{
-			LOG(LogError) << "Error saving" << path << std::endl;
+			LOG(LogError) << "Error saving " << path << std::endl;
 			return false;
 		}
 	}
