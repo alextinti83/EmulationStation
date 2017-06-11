@@ -299,11 +299,17 @@ bool SystemData::SaveConfig()
 			{
 				system.remove_child(k_enabledNodeName.c_str());
 				needsUpdated = true;
+				LOG(LogInfo) << "System " << name << " needs update" << std::endl;
 			}
 			else
 			{
-				enabledNode.set_value("false");
-				needsUpdated = true;
+				pugi::xml_node descr = enabledNode.first_child();
+				if (descr && descr.value() == "false")
+				{
+					enabledNode.set_value("false");
+					needsUpdated = true;
+					LOG(LogInfo) << "System " << name << " needs update" << std::endl;
+				}
 			}
 		}
 		else if (enabled == false)
@@ -311,6 +317,7 @@ bool SystemData::SaveConfig()
 			pugi::xml_node descr = system.prepend_child(k_enabledNodeName.c_str());
 			descr.append_child(pugi::node_pcdata).set_value("false");
 			needsUpdated = true;
+			LOG(LogInfo) << "System " << name << " needs update" << std::endl;
 		}
 		
 	}
