@@ -335,10 +335,11 @@ bool SystemData::SaveConfig()
 			}
 		}
 
-		LOG(LogInfo) << "Updating " << path << std::endl;
-		if (doc.save_file(path.c_str()))
+		const std::string writeConfigPath = getConfigPath(true);
+		LOG(LogInfo) << "Updating " << writeConfigPath << std::endl;
+		if (doc.save_file(writeConfigPath.c_str()))
 		{
-			LOG(LogError) << "Error saving " << path << std::endl;
+			LOG(LogError) << "Error saving " << writeConfigPath << std::endl;
 			return false;
 		}
 	}
