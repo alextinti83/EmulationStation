@@ -115,6 +115,7 @@ public:
 private:
 	void LoadGameCollections();
 	bool SaveGameCollections();
+	void ImportLegacyFavoriteGameCollection();
 
 	std::string mName;
 	std::string mFullName;

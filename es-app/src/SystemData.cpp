@@ -92,12 +92,26 @@ SystemData::~SystemData()
 	delete mFilterIndex;
 }
 
+void SystemData::ImportLegacyFavoriteGameCollection()
+{
+	const std::string favname = "favorites.xml";
+	const boost::filesystem::path legacyFavPath = mRootFolder->getPath() / favname;
+	if (boost::filesystem::exists(legacyFavPath))
+	{
+		const boost::filesystem::path newPath = mRootFolder->getPath() / mGameCollectionsPath / favname;
+		if (!boost::filesystem::exists(newPath))
+		{
+			boost::filesystem::rename(legacyFavPath, newPath);
+		}
+	}
+}
 
 void SystemData::LoadGameCollections()
 {
 	//mFavorites.reset(new GameCollection("favorites"));
 	//mFavorites->Deserialize(mRootFolder->getPath());
 
+	ImportLegacyFavoriteGameCollection();
 
 	using GameCollectionIt = std::map<std::string, GameCollection>::iterator;
 
