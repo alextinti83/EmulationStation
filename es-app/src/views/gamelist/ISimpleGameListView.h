@@ -38,4 +38,5 @@ protected:
 	std::vector<GuiComponent*> mThemeExtras;
 
 	std::stack<FileData*> mCursorStack;
+	Window* m_window;
 };
