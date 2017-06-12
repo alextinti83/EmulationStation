@@ -172,7 +172,7 @@ void GuiComponent::clearChildren()
 
 void GuiComponent::sortChildren()
 {
-	std:stable_sort(mChildren.begin(), mChildren.end(),  [](GuiComponent* a, GuiComponent* b) {
+	std::stable_sort(mChildren.begin(), mChildren.end(),  [](GuiComponent* a, GuiComponent* b) {
 		return b->getZIndex() > a->getZIndex();
 	});
 }

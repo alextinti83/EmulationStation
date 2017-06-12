@@ -36,6 +36,7 @@ set(ES_HEADERS
 	${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiRetroArchConfig.h
 	${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiPagedListView.h
 	${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiImportRetroArchConfig.h
+	${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiGameCollections.h
 	${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiCfgEditor.h
 
 	
@@ -95,6 +96,7 @@ set(ES_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiRetroArchConfig.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiPagedListView.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiImportRetroArchConfig.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiGameCollections.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiCfgEditor.cpp
 
     # Scrapers
