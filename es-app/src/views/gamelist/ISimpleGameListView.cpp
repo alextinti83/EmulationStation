@@ -6,9 +6,10 @@
 #include "Settings.h"
 #include "FileData.h"
 #include "SystemData.h"
+#include "guis/GuiGameCollections.h"
 
 ISimpleGameListView::ISimpleGameListView(Window* window, FileData* root) : IGameListView(window, root),
-	mHeaderText(window), mHeaderImage(window), mBackground(window)
+	mHeaderText(window), mHeaderImage(window), mBackground(window), m_window(window)
 {
 	mHeaderText.setText("Logo Text");
 	mHeaderText.setSize(mSize.x(), 0);
@@ -133,21 +134,13 @@ bool ISimpleGameListView::input(InputConfig* config, Input input)
 		}
 		else if (config->isMappedTo("x", input))
 		{
-			ViewController::get()->goToRandomGame();
+			m_window->pushGui(new GuiGameCollections(m_window));
+
 			return true;
 		}
 		else if (config->isMappedTo("y", input))  // Toggle favorites status
 		{
-			//Alex: metadata change here
 			FileData* cursor = getCursor();
-#if 0
-			cursor->getSystem()->getIndex()->removeFromIndex(cursor);
-			std::string newval = (cursor->metadata.get("favorite").compare("true") == 0) ? "false" : "true";
-			cursor->metadata.set("favorite", newval);
-			
-			cursor->getSystem()->getIndex()->addToIndex(cursor);
-			onFileChanged(cursor, FILE_METADATA_CHANGED);
-#else
 			if (cursor->getType() != FOLDER)
 			{
 				cursor->getSystem()->getIndex()->removeFromIndex(cursor);
@@ -174,7 +167,6 @@ bool ISimpleGameListView::input(InputConfig* config, Input input)
 				}
 				
 			}
-#endif
 			return true;
 		}
 	}
