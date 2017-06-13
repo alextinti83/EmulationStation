@@ -180,6 +180,11 @@ GameCollection* SystemData::GetCurrentGameCollection()
 	return const_cast< GameCollection* >( const_this.GetCurrentGameCollection());
 }
 
+const SystemData::GameCollections& SystemData::GetGameCollections() const
+{
+	return mGameCollections;
+}
+
 bool SystemData::NewGameCollection(const std::string& key)
 {
 	if (GetGameCollection(key))

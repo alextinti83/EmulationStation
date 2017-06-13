@@ -18,6 +18,8 @@ public:
 		const std::string& command, const std::vector<PlatformIds::PlatformId>& platformIds, const std::string& themeFolder, const bool enabled = true);
 	~SystemData();
 
+	using GameCollections = std::map<std::string, GameCollection>;
+
 	inline FileData* getRootFolder() const { return mRootFolder; };
 	inline const std::string& getName() const { return mName; }
 	inline const std::string& getFullName() const { return mFullName; }
@@ -101,7 +103,7 @@ public:
 	
 	const GameCollection* GetGameCollection(const std::string& key) const;
 	const GameCollection* GetCurrentGameCollection() const;
-
+	const GameCollections& GetGameCollections() const;
 	GameCollection* GetGameCollection(const std::string& key);
 	GameCollection* GetCurrentGameCollection();
 
@@ -138,7 +140,7 @@ private:
 
 	//std::unique_ptr<GameCollection> mFavorites;
 
-	std::map<std::string, GameCollection> mGameCollections;
+	GameCollections mGameCollections;
 	std::string mGameCollectionsPath;
 	std::string mCurrentCollectionKey;
 
