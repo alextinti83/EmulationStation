@@ -1,12 +1,18 @@
 #pragma  once
 #include "GuiOptionWindow.h"
+class SystemData;
+class SwitchComponent;
 
 class GuiGameCollections : public GuiOptionWindow
 {
 public:
-	GuiGameCollections(Window* window);
+	GuiGameCollections(Window* window, SystemData& mSystemData);
 	virtual ~GuiGameCollections();
 
+	void InsertEntry(const std::string& entryName);
 private:
-	Window* m_window;
+	bool OnEntrySelected(InputConfig* config, Input input, std::string entryname, std::shared_ptr<SwitchComponent> switchComp);
+
+	Window* mWindow;
+	SystemData& mSystemData;
 };

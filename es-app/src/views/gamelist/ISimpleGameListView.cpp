@@ -134,7 +134,7 @@ bool ISimpleGameListView::input(InputConfig* config, Input input)
 		}
 		else if (config->isMappedTo("x", input))
 		{
-			m_window->pushGui(new GuiGameCollections(m_window));
+			m_window->pushGui(new GuiGameCollections(m_window, *mRoot->getSystem()));
 
 			return true;
 		}
