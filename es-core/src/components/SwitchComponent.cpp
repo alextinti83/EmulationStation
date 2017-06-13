@@ -29,11 +29,14 @@ bool SwitchComponent::input(InputConfig* config, Input input)
 
 void SwitchComponent::render(const Eigen::Affine3f& parentTrans)
 {
-	Eigen::Affine3f trans = parentTrans * getTransform();
-	
-	mImage.render(trans);
+	if (mVisible)
+	{
+		Eigen::Affine3f trans = parentTrans * getTransform();
 
-	renderChildren(trans);
+		mImage.render(trans);
+
+		renderChildren(trans);
+	}
 }
 
 bool SwitchComponent::getState() const
