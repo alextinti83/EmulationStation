@@ -11,6 +11,11 @@ ComponentList::ComponentList(Window* window) : IList<ComponentListRow, void*>(wi
 	mFocused = false;
 }
 
+int ComponentList::GetCursor() const
+{
+	return mCursor;
+}
+
 void ComponentList::addRow(const ComponentListRow& row, bool setCursorHere)
 {
 	IList<ComponentListRow, void*>::Entry e;
