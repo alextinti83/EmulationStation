@@ -78,16 +78,14 @@ bool GuiGameCollections::OnEntrySelected(InputConfig* config, Input input,
 
 std::vector<HelpPrompt> GuiGameCollections::getHelpPrompts()
 {
-	std::vector<HelpPrompt> prompts;
-	prompts.emplace_back("a", "Highlight");
-	prompts.emplace_back("b", "Back");
-	prompts.emplace_back("x", "New");
-	prompts.emplace_back("y", "Raname");
-	prompts.emplace_back("start", "Hide");
-	prompts.emplace_back("select", "Delete");
-
-
-	return prompts;
+	return {
+				{ "a", "Highlight" },
+				{ "b", "Back" },
+				{ "x", "New" },
+				{ "y", "Raname" },
+				{ "start", "Hide" },
+				{ "select", "Delete"}
+			};;
 }
 
 GameCollectionEntry* GuiGameCollections::GetEntry(const std::string key)
