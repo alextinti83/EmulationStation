@@ -128,16 +128,20 @@ void SystemData::LoadGameCollections()
 				const std::string filename = cp.filename().generic_string();
 				const std::string key = cp.stem().generic_string();
 				LOG(LogInfo) << "Loading GameCollection: " << filename;
-
-				mGameCollections.emplace(key, key);
-				GameCollectionIt collectionIt = mGameCollections.find(key);
-				if (collectionIt != mGameCollections.end())
+				GameCollection gameCollection(key, absCollectionsPath.generic_string());
+				auto result = mGameCollections.emplace(std::make_pair(key, std::move(gameCollection)));
+				GameCollectionIt collectionIt = result.first;
+				if (collectionIt != mGameCollections.end() && result.second)
 				{
-					if (!collectionIt->second.Deserialize(absCollectionsPath.generic_string()))
+					if (!collectionIt->second.Deserialize())
 					{
-						LOG(LogInfo) << "Deserialization failed for GameCollection: " << filename;
+						LOG(LogError) << "De-serialization failed for GameCollection: " << filename;
 						mGameCollections.erase(collectionIt);
 					}
+				}
+				else
+				{
+					LOG(LogError) << "Duplicated name for GameCollection: " << filename << " [Not loaded]";
 				}
 			}
 		}
@@ -165,7 +169,7 @@ bool SystemData::SaveGameCollections()
 	using GameCollectionMapValueType = std::map<std::string, GameCollection>::value_type;
 	for (GameCollectionMapValueType& pair : mGameCollections)
 	{
-		pair.second.Serialize(absCollectionsPath.generic_string());	
+		pair.second.Serialize();	
 	}
 	return true;
 }
@@ -192,8 +196,31 @@ bool SystemData::NewGameCollection(const std::string& key)
 	{
 		return false;
 	}
-	mGameCollections.emplace(key, key);
-	return true;
+	boost::filesystem::path absCollectionsPath(mRootFolder->getPath() / mGameCollectionsPath);
+	GameCollection gameCollection(key, absCollectionsPath.generic_string());
+	auto result = mGameCollections.emplace(std::make_pair(key, std::move(gameCollection)));
+	return result.second;
+}
+
+bool SystemData::DeleteGameCollection(const std::string& key)
+{
+	GameCollection* collection = GetGameCollection(key);
+	if (collection)
+	{
+		//return collection.deleteCollection( );
+	}
+	return false;
+}
+
+
+bool SystemData::RenameGameCollection(const std::string& key)
+{
+	GameCollection* collection = GetGameCollection(key);
+	if (collection)
+	{
+		collection->Rename(key);
+	}
+	return false;
 }
 
 bool SystemData::SetCurrentGameCollection(const std::string& key)
@@ -786,6 +813,8 @@ void SystemData::addToCurrentGameCollection(const FileData& filedata)
 	if (collection) { collection->AddGame(filedata); }
 	//mFavorites->AddGame(filedata);
 }
+
+
 
 
 void SystemData::replaceGameCollectionPlacholder(const FileData& filedata)

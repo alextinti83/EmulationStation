@@ -108,6 +108,9 @@ public:
 	GameCollection* GetCurrentGameCollection();
 
 	bool NewGameCollection(const std::string& key);
+	bool DeleteGameCollection(const std::string& key);
+	bool RenameGameCollection(const std::string& key);
+
 	bool SetCurrentGameCollection(const std::string& key);
 
 
