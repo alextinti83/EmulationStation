@@ -85,6 +85,10 @@ GameCollectionEntry* GuiGameCollections::GetEntry(const std::string key)
 
 void GuiGameCollections::SetCurrent(const std::string key)
 {
+	if (mSystemData.GetCurrentGameCollection()->GetName() == key)
+	{
+		return;
+	}
 	for (auto& pair : m_entries)
 	{
 		pair.second.switchComponent->setVisible(false);
