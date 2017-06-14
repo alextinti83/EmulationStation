@@ -14,14 +14,7 @@ GuiGameCollections::GuiGameCollections(
 	: GuiOptionWindow(window,  "GAME COLLECTIONS")
 	, mWindow(window), mSystemData(systemData)
 {
-
-	for (const SystemData::GameCollections::value_type& collection : systemData.GetGameCollections())
-	{
-		InsertEntry(collection.first);
-	}
-
-	const std::string currentCollectionName = mSystemData.GetCurrentGameCollection()->GetName();
-	SetCurrent(currentCollectionName);
+	LoadEntries();
 }
 
 GuiGameCollections::~GuiGameCollections()
@@ -29,49 +22,87 @@ GuiGameCollections::~GuiGameCollections()
 
 }
 
+
+void GuiGameCollections::LoadEntries()
+{
+	mMenu.ClearRows();
+	for (const SystemData::GameCollections::value_type& collection : mSystemData.GetGameCollections())
+	{
+		InsertEntry(collection.first);
+	}
+	const std::string currentCollectionName = mSystemData.GetCurrentGameCollection()->GetName();
+	SetCurrent(currentCollectionName);
+}
+
 void GuiGameCollections::InsertEntry(const std::string& key)
 {
-	GameCollectionEntry row;
-	row.key = key;
+	GameCollectionEntry entry;
+	ComponentListRow row;
+	entry.key = key;
 
-	row.textComponent = std::make_shared<TextComponent>(mWindow, strToUpper(key), Font::get(FONT_SIZE_MEDIUM), 0x777777FF);
-	row.switchComponent = std::make_shared<SwitchComponent>(mWindow);
+	entry.textComponent = std::make_shared<TextComponent>(mWindow, key, Font::get(FONT_SIZE_MEDIUM), 0x777777FF);
+	entry.switchComponent = std::make_shared<SwitchComponent>(mWindow);
 	
-	row.switchComponent->setState(false);
-	row.switchComponent->setVisible(false);
+	entry.switchComponent->setState(false);
+	entry.switchComponent->setVisible(false);
 
-	row.addElement(row.textComponent, true);
-	row.addElement(row.switchComponent, false, true);
+	row.addElement(entry.textComponent, true);
+	row.addElement(entry.switchComponent, false, true);
 
-	m_entries.emplace(key, row);
+	m_entries.emplace(key, entry);
+
 	row.input_handler = std::bind(&GuiGameCollections::OnEntrySelected,
 		this,
 		std::placeholders::_1,
 		std::placeholders::_2,
-		GetEntry(key));
+		entry);
 
 	addRow(row);
+	m_entriesIndex.emplace(key, mMenu.GetEntryCount()-1);
 }
 
-
 bool GuiGameCollections::OnEntrySelected(InputConfig* config, Input input, 
-	GameCollectionEntry* selectedEntry)
+	GameCollectionEntry selectedEntry)
 {
 	if (config->isMappedTo("a", input) && input.value)
 	{
-		SetCurrent(selectedEntry->key);
+		SetCurrent(selectedEntry.key);
 		ViewController::get()->reloadGameListView(&mSystemData);
 		return true;
 	}
-	else if (config->isMappedTo("y", input) && input.value)
+	else if (config->isMappedTo("x", input) && input.value)
 	{
 		const std::size_t count = mSystemData.GetGameCollections().size();
 		const std::string name = "New Collection " + std::to_string(count);
-		mSystemData.NewGameCollection(name);
-		InsertEntry(name);
+		if (!mSystemData.NewGameCollection(name))
+		{
+			ShowMessage("Error while creating the new collection named: " + name + ". Make sure you don't have a collection with this name already.");
+		}
+		else
+		{
+			InsertEntry(name);
+		}
 	}
-	else if (config->isMappedTo("x", input) && input.value)
+	else if (config->isMappedTo("y", input) && input.value)
 	{
+		return true;
+	}
+	else if (config->isMappedTo("select", input) && input.value)
+	{
+		const std::string key = selectedEntry.key;
+		ShowQuestion("Are you sure you want to delete " + selectedEntry.key + "?", [ this, key ] ()
+		{
+			if (!mSystemData.DeleteGameCollection(key))
+			{
+				ShowMessage("Could not delete the collection.");
+			}
+			LoadEntries();
+		});
+		return true;
+	}
+	else if (config->isMappedTo("start", input) && input.value)
+	{
+		return true;
 	}
 	return false;
 }
@@ -100,7 +131,8 @@ GameCollectionEntry* GuiGameCollections::GetEntry(const std::string key)
 
 void GuiGameCollections::SetCurrent(const std::string key)
 {
-	if (mSystemData.GetCurrentGameCollection()->GetName() == key)
+	auto& it = m_entriesIndex.find(key);
+	if (it != m_entriesIndex.end() && mMenu.GetCursor() == it->second)
 	{
 		return;
 	}
@@ -118,4 +150,13 @@ void GuiGameCollections::SetCurrent(const std::string key)
 	}
 }
 
+void GuiGameCollections::ShowMessage(const std::string& mgs, const std::function<void()>& func)
+{
+	mWindow->pushGui(new GuiMsgBox(mWindow, mgs, "Close", func));
+}
+
+void GuiGameCollections::ShowQuestion(const std::string& mgs, const std::function<void()>& func)
+{
+	mWindow->pushGui(new GuiMsgBox(mWindow, mgs, "YES", func, "NO", nullptr));
+}
 
