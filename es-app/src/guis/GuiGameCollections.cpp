@@ -70,7 +70,24 @@ bool GuiGameCollections::OnEntrySelected(InputConfig* config, Input input,
 		mSystemData.NewGameCollection(name);
 		InsertEntry(name);
 	}
+	else if (config->isMappedTo("x", input) && input.value)
+	{
+	}
 	return false;
+}
+
+std::vector<HelpPrompt> GuiGameCollections::getHelpPrompts()
+{
+	std::vector<HelpPrompt> prompts;
+	prompts.emplace_back("a", "Highlight");
+	prompts.emplace_back("b", "Back");
+	prompts.emplace_back("x", "New");
+	prompts.emplace_back("y", "Raname");
+	prompts.emplace_back("start", "Hide");
+	prompts.emplace_back("select", "Delete");
+
+
+	return prompts;
 }
 
 GameCollectionEntry* GuiGameCollections::GetEntry(const std::string key)
@@ -102,3 +119,5 @@ void GuiGameCollections::SetCurrent(const std::string key)
 		mSystemData.SetCurrentGameCollection(key);
 	}
 }
+
+

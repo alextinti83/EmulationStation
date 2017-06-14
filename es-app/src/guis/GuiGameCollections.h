@@ -20,6 +20,7 @@ public:
 	virtual ~GuiGameCollections();
 
 	void InsertEntry(const std::string& entryName);
+	std::vector<HelpPrompt> getHelpPrompts() override;
 private:
 	bool OnEntrySelected(InputConfig* config, Input input, GameCollectionEntry* selectedEntry);
 	GameCollectionEntry* GetEntry(const std::string key);
