@@ -23,10 +23,12 @@ public:
 	};
 
 public:
-	GameCollection(const std::string& name);
+	GameCollection(const std::string& name, const std::string& folderPath);
+	void Rename(const std::string& name);
 
-	bool Deserialize(const boost::filesystem::path& folderPath);
-	void Serialize(const boost::filesystem::path& folderPath);
+	bool Deserialize();
+	bool Serialize();
+	
 	bool HasGame(const FileData& filedata) const;
 	void AddGame(const FileData& filedata);
 	void RemoveGame(const FileData& filedata);
@@ -35,12 +37,14 @@ public:
 	// we need to map filedatas to their respective key
 	void ReplacePlaceholder(const FileData& filedata); 
 private:
-	std::string getFilePath(const boost::filesystem::path& folderPath) const;
-
+	std::string GetFilePath(const boost::filesystem::path& folderPath) const;
+	bool Deserialize(const boost::filesystem::path& folderPath);
+	bool Serialize(const boost::filesystem::path& folderPath);
 
 	std::string GetKey(const FileData& filedata) const;
 private:
-	const std::string m_name;
+	std::string m_name;
+	std::string m_folderPath;
 
 	using GamesMap = std::map<std::string, Game>;
 	GamesMap mGamesMap;

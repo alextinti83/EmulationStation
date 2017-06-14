@@ -8,15 +8,31 @@
 
 
 GameCollection::GameCollection(
-	const std::string& name
-)
+	const std::string& name, 
+	const std::string& folderPath)
 	: m_name(name)
+	, m_folderPath(folderPath)
 {
 	// nothing to do
 }
 
 
-std::string GameCollection::getFilePath(const boost::filesystem::path& folderPath) const
+void GameCollection::Rename(const std::string& name)
+{
+	boost::filesystem::path oldPath = GetFilePath(m_folderPath);
+	if (!m_folderPath.empty() && boost::filesystem::exists(oldPath))
+	{
+		m_name = name;
+		boost::filesystem::path newPath = GetFilePath(m_folderPath);
+		boost::filesystem::rename(oldPath, newPath);
+	}
+	else
+	{
+		m_name = name;
+	}
+}
+
+std::string GameCollection::GetFilePath(const boost::filesystem::path& folderPath) const
 {
 	return ( folderPath / (m_name + ".xml") ).generic_string();
 }
@@ -93,7 +109,7 @@ bool GameCollection::Deserialize(const boost::filesystem::path& folderPath)
 	pugi::xml_document doc;
 	pugi::xml_node root;
 	const bool forWrite = false;
-	std::string xmlPath = getFilePath(folderPath);
+	std::string xmlPath = GetFilePath(folderPath);
 
 	if ( boost::filesystem::exists(xmlPath) )
 	{
@@ -122,12 +138,14 @@ bool GameCollection::Deserialize(const boost::filesystem::path& folderPath)
 	return true;
 }
 
-void GameCollection::Serialize(const boost::filesystem::path& folderPath)
+
+
+bool GameCollection::Serialize(const boost::filesystem::path& folderPath)
 {
 	pugi::xml_document doc;
 	pugi::xml_node root;
 	const bool forWrite = false;
-	std::string xmlPath = getFilePath(folderPath);
+	std::string xmlPath = GetFilePath(folderPath);
 
 	if ( boost::filesystem::exists(xmlPath) )
 	{
@@ -153,5 +171,25 @@ void GameCollection::Serialize(const boost::filesystem::path& folderPath)
 	if ( !doc.save_file(xmlPath.c_str()) )
 	{
 		LOG(LogError) << "Error saving \"" << xmlPath << "\" (for GameCollection " << m_name << ")!";
+		return false;
 	}
+	return true;
+}
+
+bool GameCollection::Serialize()
+{
+	if (m_folderPath.empty() || !boost::filesystem::exists(m_folderPath))
+	{
+		return false;
+	}
+	return Serialize(m_folderPath);
+}
+
+bool GameCollection::Deserialize()
+{
+	if (m_folderPath.empty() || !boost::filesystem::exists(m_folderPath))
+	{
+		return false;
+	}
+	return Deserialize(m_folderPath);
 }
