@@ -20,7 +20,7 @@ public:
 	MenuComponent(Window* window, const char* title, const std::shared_ptr<Font>& titleFont = Font::get(FONT_SIZE_LARGE));
 
 	void onSizeChanged() override;
-
+	int GetCursor() const { return mList->GetCursor(); }
 	inline void addRow(const ComponentListRow& row, bool setCursorHere = false) { mList->addRow(row, setCursorHere); updateSize(); }
 	inline void ClearRows()
 	{
