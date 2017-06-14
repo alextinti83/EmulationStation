@@ -5,7 +5,7 @@
 class SystemData;
 class SwitchComponent;
 
-class GameCollectionEntry : public ComponentListRow
+class GameCollectionEntry
 {
 public:
 	std::string key;
@@ -19,14 +19,19 @@ public:
 	GuiGameCollections(Window* window, SystemData& mSystemData);
 	virtual ~GuiGameCollections();
 
+	void LoadEntries();
 	void InsertEntry(const std::string& entryName);
 	std::vector<HelpPrompt> getHelpPrompts() override;
 private:
-	bool OnEntrySelected(InputConfig* config, Input input, GameCollectionEntry* selectedEntry);
+	bool OnEntrySelected(InputConfig* config, Input input, GameCollectionEntry selectedEntry);
 	GameCollectionEntry* GetEntry(const std::string key);
 	void SetCurrent(const std::string key);
+	void ShowMessage(const std::string& mgs, const std::function<void()>& func1 = nullptr);
+	void ShowQuestion(const std::string& mgs, const std::function<void()>& func);
 
 	Window* mWindow;
 	SystemData& mSystemData;
 	std::map<const std::string, GameCollectionEntry> m_entries;
+	std::map<const std::string, int> m_entriesIndex;
+
 };
