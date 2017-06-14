@@ -204,12 +204,17 @@ bool SystemData::NewGameCollection(const std::string& key)
 
 bool SystemData::DeleteGameCollection(const std::string& key)
 {
+	if (mCurrentCollectionKey.size() <= 1)
+	{
+		return false;
+	}
 	GameCollection* collection = GetGameCollection(key);
 	if (collection)
 	{
 		collection->EraseFile();
 		using GameCollectionIt = std::map<std::string, GameCollection>::const_iterator;
 		mGameCollections.erase(key);
+		mCurrentCollectionKey = mGameCollections.begin()->first;
 		return true;
 	}
 	return false;
