@@ -54,6 +54,11 @@ void GameCollection::RemoveGame(const FileData& filedata)
 	}
 }
 
+const std::string& GameCollection::GetName() const
+{
+	return m_name;
+}
+
 void GameCollection::AddGame(const FileData& filedata)
 {
 	const std::string& key = GetKey(filedata);

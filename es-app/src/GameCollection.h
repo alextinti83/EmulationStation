@@ -30,7 +30,7 @@ public:
 	bool HasGame(const FileData& filedata) const;
 	void AddGame(const FileData& filedata);
 	void RemoveGame(const FileData& filedata);
-
+	const std::string& GetName() const;
 	// since we serialize/deserialize only key
 	// we need to map filedatas to their respective key
 	void ReplacePlaceholder(const FileData& filedata); 
