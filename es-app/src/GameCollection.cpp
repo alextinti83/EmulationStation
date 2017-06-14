@@ -83,6 +83,11 @@ void GameCollection::ReplacePlaceholder(const FileData& filedata)
 	}
 }
 
+static const std::string k_gamecollectionTag = "game_collection";
+static const std::string k_gamecollectionTagLegacyTag = "favorites";
+
+
+
 bool GameCollection::Deserialize(const boost::filesystem::path& folderPath)
 {
 	pugi::xml_document doc;
@@ -93,10 +98,15 @@ bool GameCollection::Deserialize(const boost::filesystem::path& folderPath)
 	if ( boost::filesystem::exists(xmlPath) )
 	{
 		pugi::xml_parse_result result = doc.load_file(xmlPath.c_str());
-		pugi::xml_node root = doc.child(m_name.c_str());
+		pugi::xml_node root = doc.child(k_gamecollectionTag.c_str());
+
+		if (!root) //legacy tag fallback
+		{
+			root = doc.child(k_gamecollectionTagLegacyTag.c_str());
+		}
 		if ( root )
 		{
-			for ( auto const& child : root.children() )
+			for (auto const& child : root.children())
 			{
 				std::string key = child.attribute("key").as_string();
 				const Game placeholder;
@@ -124,7 +134,9 @@ void GameCollection::Serialize(const boost::filesystem::path& folderPath)
 		//TODO:: overwrite it?
 	}
 
-	root = doc.append_child(m_name.c_str());
+	root = doc.append_child(k_gamecollectionTag.c_str());
+	pugi::xml_attribute attr = root.append_attribute("key");
+	attr.set_value(m_name.c_str());
 
 	for ( auto const& keyGamePair : mGamesMap )
 	{
