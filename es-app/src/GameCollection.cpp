@@ -32,6 +32,15 @@ void GameCollection::Rename(const std::string& name)
 	}
 }
 
+void GameCollection::EraseFile()
+{
+	boost::filesystem::path path = GetFilePath(m_folderPath);
+	if (!m_folderPath.empty() && boost::filesystem::exists(path))
+	{
+		boost::filesystem::remove(path);
+	}
+}
+
 std::string GameCollection::GetFilePath(const boost::filesystem::path& folderPath) const
 {
 	return ( folderPath / (m_name + ".xml") ).generic_string();

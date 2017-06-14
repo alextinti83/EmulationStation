@@ -207,7 +207,9 @@ bool SystemData::DeleteGameCollection(const std::string& key)
 	GameCollection* collection = GetGameCollection(key);
 	if (collection)
 	{
-		//return collection.deleteCollection( );
+		collection->EraseFile();
+		using GameCollectionIt = std::map<std::string, GameCollection>::const_iterator;
+		mGameCollections.erase(key);
 	}
 	return false;
 }

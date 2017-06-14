@@ -25,6 +25,7 @@ public:
 public:
 	GameCollection(const std::string& name, const std::string& folderPath);
 	void Rename(const std::string& name);
+	void EraseFile();
 
 	bool Deserialize();
 	bool Serialize();
