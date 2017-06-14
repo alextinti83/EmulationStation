@@ -47,7 +47,6 @@ class ComponentList : public IList<ComponentListRow, void*>
 public:
 	ComponentList(Window* window);
 
-	int GetCursor() const;
 	void addRow(const ComponentListRow& row, bool setCursorHere = false);
 
 	void textInput(const char* text) override;
