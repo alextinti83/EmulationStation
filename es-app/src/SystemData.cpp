@@ -135,6 +135,7 @@ void SystemData::LoadGameCollections()
 				{
 					if (!collectionIt->second.Deserialize(absCollectionsPath.generic_string()))
 					{
+						LOG(LogInfo) << "Deserialization failed for GameCollection: " << filename;
 						mGameCollections.erase(collectionIt);
 					}
 				}
