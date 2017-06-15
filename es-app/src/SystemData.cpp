@@ -230,12 +230,9 @@ bool SystemData::RenameGameCollection(const std::string& key, const std::string&
 		{
 			mCurrentCollectionKey = newKey;
 		}
-		collection->Serialize();
 		collection->Rename(newKey);
-		DeleteGameCollection(key);
-		//reload
-		NewGameCollection(newKey);
-		GetGameCollection(newKey)->Deserialize();
+		mGameCollections.emplace(newKey, *collection); //copy
+		mGameCollections.erase(key);
 	}
 	return false;
 }

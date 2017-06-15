@@ -5,6 +5,7 @@
 #include "GameCollection.h"
 #include "SystemData.h"
 #include "components/SwitchComponent.h"
+#include "guis/GuiTextEditPopupKeyboard.h"
 
 
 
@@ -88,6 +89,15 @@ bool GuiGameCollections::OnEntrySelected(InputConfig* config, Input input,
 	}
 	else if (config->isMappedTo("pageup", input) && input.value)
 	{
+		const std::string key = selectedEntry.key;
+		mWindow->pushGui(new GuiTextEditPopupKeyboard(mWindow,
+			"EDIT COLLECTION NAME", key,
+			[ this, key ]
+		(const std::string& newKey)
+		{
+			mSystemData.RenameGameCollection(key, newKey);
+			LoadEntries();
+		}, false));
 		return true;
 	}
 	else if (config->isMappedTo("pagedown", input) && input.value)
