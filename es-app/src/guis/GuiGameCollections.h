@@ -4,6 +4,8 @@
 
 class SystemData;
 class SwitchComponent;
+class GuiSettings;
+enum class GameCollectionOption;
 
 class GameCollectionEntry
 {
@@ -29,8 +31,21 @@ private:
 	void ShowMessage(const std::string& mgs, const std::function<void()>& func1 = nullptr);
 	void ShowQuestion(const std::string& mgs, const std::function<void()>& func);
 
+	void ShowOptionsMenu(GameCollectionEntry selectedEntry);
+	void InsertRow(GuiSettings& root, const std::string& text, std::function<bool(InputConfig*, Input)> fun);
+	bool OnOptionSelected(
+		InputConfig* config, 
+		Input input, 
+		const GameCollectionOption option, 
+		const GameCollectionEntry selectedEntry, 
+		GuiSettings* menu);
+	void NewGameCollection(const GameCollectionEntry selectedEntry, GuiSettings* menu);
+	void RenameGameCollection(const GameCollectionEntry selectedEntry, GuiSettings* menu);
+	void DeleteGameCollection(const GameCollectionEntry selectedEntry, GuiSettings* menu);
+
 	Window* mWindow;
 	SystemData& mSystemData;
 	std::map<const std::string, GameCollectionEntry> m_entries;
+	std::vector<std::pair<GameCollectionOption, std::string>> m_options;
 
 };
