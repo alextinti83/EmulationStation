@@ -221,12 +221,21 @@ bool SystemData::DeleteGameCollection(const std::string& key)
 }
 
 
-bool SystemData::RenameGameCollection(const std::string& key)
+bool SystemData::RenameGameCollection(const std::string& key, const std::string& newKey)
 {
 	GameCollection* collection = GetGameCollection(key);
 	if (collection)
 	{
-		collection->Rename(key);
+		if (key == mCurrentCollectionKey)
+		{
+			mCurrentCollectionKey = newKey;
+		}
+		collection->Serialize();
+		collection->Rename(newKey);
+		DeleteGameCollection(key);
+		//reload
+		NewGameCollection(newKey);
+		GetGameCollection(newKey)->Deserialize();
 	}
 	return false;
 }
