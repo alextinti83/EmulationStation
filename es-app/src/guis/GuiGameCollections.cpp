@@ -127,13 +127,15 @@ void GuiGameCollections::SetCurrent(const std::string key)
 		{
 			current = pair.second.key;
 		}
-		pair.second.switchComponent->setVisible(false);
-		pair.second.switchComponent->setState(false);
-
 	}
 	if (key == current)
 	{
 		return;
+	}
+	for (auto& pair : m_entries)
+	{
+		pair.second.switchComponent->setVisible(false);
+		pair.second.switchComponent->setState(false);
 	}
 	auto entry = GetEntry(key);
 	if (entry)
