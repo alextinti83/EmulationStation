@@ -30,8 +30,12 @@ void GuiGameCollections::LoadEntries()
 	{
 		InsertEntry(collection.first);
 	}
-	const std::string currentCollectionName = mSystemData.GetCurrentGameCollection()->GetName();
-	SetCurrent(currentCollectionName);
+	GameCollection* current = mSystemData.GetCurrentGameCollection();
+	if (current)
+	{
+		const std::string currentCollectionName = current->GetName();
+		SetCurrent(currentCollectionName);
+	}
 }
 
 void GuiGameCollections::InsertEntry(const std::string& key)
@@ -58,7 +62,6 @@ void GuiGameCollections::InsertEntry(const std::string& key)
 		entry);
 
 	addRow(row);
-	m_entriesIndex.emplace(key, mMenu.GetEntryCount()-1);
 }
 
 bool GuiGameCollections::OnEntrySelected(InputConfig* config, Input input, 
@@ -83,12 +86,17 @@ bool GuiGameCollections::OnEntrySelected(InputConfig* config, Input input,
 			InsertEntry(name);
 		}
 	}
-	else if (config->isMappedTo("y", input) && input.value)
+	else if (config->isMappedTo("pageup", input) && input.value)
 	{
 		return true;
 	}
-	else if (config->isMappedTo("select", input) && input.value)
+	else if (config->isMappedTo("pagedown", input) && input.value)
 	{
+		if (mSystemData.GetGameCollections().size() <= 1)
+		{
+			ShowMessage("You must keep at least 1 Game Collection.");
+			return true;
+		}
 		const std::string key = selectedEntry.key;
 		ShowQuestion("Are you sure you want to delete " + selectedEntry.key + "?", [ this, key ] ()
 		{
@@ -100,7 +108,7 @@ bool GuiGameCollections::OnEntrySelected(InputConfig* config, Input input,
 		});
 		return true;
 	}
-	else if (config->isMappedTo("start", input) && input.value)
+	else if (config->isMappedTo("r", input) && input.value)
 	{
 		return true;
 	}
@@ -112,10 +120,10 @@ std::vector<HelpPrompt> GuiGameCollections::getHelpPrompts()
 	return {
 				{ "a", "Highlight" },
 				{ "b", "Back" },
-				{ "x", "New" },
-				{ "y", "Raname" },
-				{ "start", "Hide" },
-				{ "select", "Delete"}
+				{ "y", "New" },
+				{ "x", "Raname" },
+				{ "r", "Hide" },
+				{ "l", "Delete"}
 			};;
 }
 
@@ -131,15 +139,20 @@ GameCollectionEntry* GuiGameCollections::GetEntry(const std::string key)
 
 void GuiGameCollections::SetCurrent(const std::string key)
 {
-	auto& it = m_entriesIndex.find(key);
-	if (it != m_entriesIndex.end() && mMenu.GetCursor() == it->second)
-	{
-		return;
-	}
+	std::string current;
 	for (auto& pair : m_entries)
 	{
+		if (pair.second.switchComponent->getState())
+		{
+			current = pair.second.key;
+		}
 		pair.second.switchComponent->setVisible(false);
 		pair.second.switchComponent->setState(false);
+		
+	}
+	if (key == current)
+	{
+		return;
 	}
 	auto entry = GetEntry(key);
 	if (entry)

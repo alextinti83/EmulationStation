@@ -32,6 +32,5 @@ private:
 	Window* mWindow;
 	SystemData& mSystemData;
 	std::map<const std::string, GameCollectionEntry> m_entries;
-	std::map<const std::string, int> m_entriesIndex;
 
 };
