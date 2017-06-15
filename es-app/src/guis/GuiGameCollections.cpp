@@ -30,9 +30,8 @@ GuiGameCollections::GuiGameCollections(
 		{ GameCollectionOption::Delete, "Delete" },
 		{ GameCollectionOption::Save, "Save" },
 		{ GameCollectionOption::Reload, "Reload" },
-		{ GameCollectionOption::AddAll, "Add all games" },
-
-}
+//		{ GameCollectionOption::AddAll, "Add all games" },
+	}
 {
 	LoadEntries();
 }
@@ -194,6 +193,7 @@ bool GuiGameCollections::OnOptionSelected(
 {
 	if (config->isMappedTo("a", input) && input.value)
 	{
+		GameCollection* collection;
 		switch (option)
 		{
 		case GameCollectionOption::New:
@@ -206,8 +206,35 @@ bool GuiGameCollections::OnOptionSelected(
 			DeleteGameCollection(selectedEntry, menu);
 			break;
 		case GameCollectionOption::Save:
+			collection = mSystemData.GetGameCollection(selectedEntry.key);
+			if (collection)
+			{
+				if (collection->Serialize())
+				{
+					ShowMessage(selectedEntry.key + " saved.");
+					ViewController::get()->reloadGameListView(&mSystemData);
+				}
+				else
+				{
+					ShowMessage("Error saving " + selectedEntry.key);
+				}
+			}
 			break;
 		case GameCollectionOption::Reload:
+			collection = mSystemData.GetGameCollection(selectedEntry.key);
+			if (collection)
+			{
+				if (collection->Deserialize())
+				{
+					ShowMessage(selectedEntry.key + " reloaded.");
+					mSystemData.replaceAllPlacholdersForGameCollection(selectedEntry.key);
+					ViewController::get()->reloadGameListView(&mSystemData);
+				}
+				else
+				{
+					ShowMessage("Error loading " + selectedEntry.key);
+				}
+			}
 			break;
 		case GameCollectionOption::AddAll:
 			break;
