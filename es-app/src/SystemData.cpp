@@ -841,6 +841,18 @@ void SystemData::replaceGameCollectionPlacholder(const FileData& filedata)
 	//mFavorites->ReplacePlaceholder(filedata);
 }
 
+void SystemData::replaceAllPlacholdersForGameCollection(const std::string& gameCollectionKey)
+{
+	GameCollection* collection = GetGameCollection(gameCollectionKey);
+	if (collection)
+	{
+		for (FileData* filedata : mRootFolder->getFilesRecursive(GAME))
+		{
+			collection->ReplacePlaceholder(*filedata);
+		}
+	}
+}
+
 void SystemData::SetEnabled(const bool enabled)
 {
 	m_enabled = enabled;

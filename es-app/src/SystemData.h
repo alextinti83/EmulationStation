@@ -100,6 +100,7 @@ public:
 	void removeFromCurrentGameCollection(const FileData& filedata);
 	void addToCurrentGameCollection(const FileData& filedata);
 	void replaceGameCollectionPlacholder(const FileData& filedata);
+	void replaceAllPlacholdersForGameCollection(const std::string& gameCollectionKey);
 	
 	const GameCollection* GetGameCollection(const std::string& key) const;
 	const GameCollection* GetCurrentGameCollection() const;
