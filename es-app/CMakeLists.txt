@@ -11,6 +11,7 @@ set(ES_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/src/VolumeControl.h
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Gamelist.h
 	${CMAKE_CURRENT_SOURCE_DIR}/src/GameCollection.h
+	${CMAKE_CURRENT_SOURCE_DIR}/src/GameCollections.h
     ${CMAKE_CURRENT_SOURCE_DIR}/src/FileFilterIndex.h
 	${CMAKE_CURRENT_SOURCE_DIR}/src/CfgFile.h
 
@@ -72,6 +73,7 @@ set(ES_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/VolumeControl.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Gamelist.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/GameCollection.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/GameCollections.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/FileFilterIndex.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/CfgFile.cpp
 

@@ -134,9 +134,13 @@ bool ISimpleGameListView::input(InputConfig* config, Input input)
 		}
 		else if (config->isMappedTo("x", input))
 		{
-			m_window->pushGui(new GuiGameCollections(m_window, *mRoot->getSystem()));
+			GameCollections* gc = mRoot->getSystem()->GetGameCollections();
+			if (gc)
+			{
+				m_window->pushGui(new GuiGameCollections(m_window, *mRoot->getSystem(), *gc));
+				return true;
+			}
 
-			return true;
 		}
 		else if (config->isMappedTo("y", input))  // Toggle favorites status
 		{

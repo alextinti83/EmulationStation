@@ -12,8 +12,8 @@
 #include <iostream>
 #include "Settings.h"
 #include "FileSorts.h"
-#include "GameCollection.h"
 #include "EmulationStation.h"
+#include "GameCollections.h"
 
 std::vector<SystemData*> SystemData::sSystemVector;
 
@@ -28,10 +28,8 @@ SystemData::SystemData(
 	const std::vector<PlatformIds::PlatformId>& platformIds,
 	const std::string& themeFolder,
 	const bool enabled)
-	//: mFavorites()
 	: m_enabled(enabled)
-	, mGameCollectionsPath(".emulationstation/game_collections")
-	, mCurrentCollectionKey("favorites")
+	
 {
 	mName = name;
 	mFullName = fullName;
@@ -61,9 +59,9 @@ SystemData::SystemData(
 			populateFolder(mRootFolder);
 		}
 
-	
-		LoadGameCollections();
-
+		m_gameCollections = std::unique_ptr<GameCollections>(new GameCollections(*mRootFolder));
+		m_gameCollections->LoadGameCollections();
+		
 		if (!Settings::getInstance()->getBool("IgnoreGamelist"))
 		{
 			parseGamelist(this);
@@ -79,8 +77,10 @@ SystemData::~SystemData()
 {
 	if (m_enabled)
 	{
-		SaveGameCollections();
-
+		if (m_gameCollections)
+		{
+			m_gameCollections->SaveGameCollections();
+		}
 		//save changed game data back to xml
 		if (!Settings::getInstance()->getBool("IgnoreGamelist") && Settings::getInstance()->getBool("SaveGamelistsOnExit"))
 		{
@@ -92,177 +92,6 @@ SystemData::~SystemData()
 	delete mFilterIndex;
 }
 
-void SystemData::ImportLegacyFavoriteGameCollection()
-{
-	const std::string favname = "favorites.xml";
-	const boost::filesystem::path legacyFavPath = mRootFolder->getPath() / favname;
-	if (boost::filesystem::exists(legacyFavPath))
-	{
-		const boost::filesystem::path newPath = mRootFolder->getPath() / mGameCollectionsPath / favname;
-		if (!boost::filesystem::exists(newPath))
-		{
-			boost::filesystem::rename(legacyFavPath, newPath);
-		}
-	}
-}
-
-void SystemData::LoadGameCollections()
-{
-	//mFavorites.reset(new GameCollection("favorites"));
-	//mFavorites->Deserialize(mRootFolder->getPath());
-
-	ImportLegacyFavoriteGameCollection();
-
-	using GameCollectionIt = std::map<std::string, GameCollection>::iterator;
-
-	boost::filesystem::path absCollectionsPath(mRootFolder->getPath() / mGameCollectionsPath);
-	if (boost::filesystem::exists(absCollectionsPath))
-	{
-		using fsIt = boost::filesystem::recursive_directory_iterator;
-		fsIt end;
-		for (fsIt i(absCollectionsPath); i != end; ++i)
-		{
-			const boost::filesystem::path cp = ( *i );
-			if (!boost::filesystem::is_directory(cp))
-			{
-				const std::string filename = cp.filename().generic_string();
-				const std::string key = cp.stem().generic_string();
-				LOG(LogInfo) << "Loading GameCollection: " << filename;
-				GameCollection gameCollection(key, absCollectionsPath.generic_string());
-				auto result = mGameCollections.emplace(std::make_pair(key, std::move(gameCollection)));
-				GameCollectionIt collectionIt = result.first;
-				if (collectionIt != mGameCollections.end() && result.second)
-				{
-					if (!collectionIt->second.Deserialize())
-					{
-						LOG(LogError) << "De-serialization failed for GameCollection: " << filename;
-						mGameCollections.erase(collectionIt);
-					}
-				}
-				else
-				{
-					LOG(LogError) << "Duplicated name for GameCollection: " << filename << " [Not loaded]";
-				}
-			}
-		}
-	}
-}
-
-bool SystemData::SaveGameCollections()
-{
-	//if (mFavorites)
-	//{
-	//	mFavorites->Serialize(mRootFolder->getPath());
-	//}
-
-	boost::filesystem::path absCollectionsPath(mRootFolder->getPath() / mGameCollectionsPath);
-	if (!boost::filesystem::exists(absCollectionsPath))
-	{
-		boost::system::error_code returnedError;
-		boost::filesystem::create_directories(absCollectionsPath, returnedError);
-		if (returnedError)
-		{
-			return false;
-		}
-	}
-
-	using GameCollectionMapValueType = std::map<std::string, GameCollection>::value_type;
-	for (GameCollectionMapValueType& pair : mGameCollections)
-	{
-		pair.second.Serialize();	
-	}
-	return true;
-}
-
-const GameCollection* SystemData::GetCurrentGameCollection() const
-{
-	return GetGameCollection(mCurrentCollectionKey);
-}
-
-GameCollection* SystemData::GetCurrentGameCollection()
-{
-	const SystemData& const_this = static_cast< const SystemData& >( *this );
-	return const_cast< GameCollection* >( const_this.GetCurrentGameCollection());
-}
-
-const SystemData::GameCollections& SystemData::GetGameCollections() const
-{
-	return mGameCollections;
-}
-
-bool SystemData::NewGameCollection(const std::string& key)
-{
-	if (GetGameCollection(key))
-	{
-		return false;
-	}
-	boost::filesystem::path absCollectionsPath(mRootFolder->getPath() / mGameCollectionsPath);
-	GameCollection gameCollection(key, absCollectionsPath.generic_string());
-	auto result = mGameCollections.emplace(std::make_pair(key, std::move(gameCollection)));
-	return result.second;
-}
-
-bool SystemData::DeleteGameCollection(const std::string& key)
-{
-	if (mCurrentCollectionKey.size() <= 1)
-	{
-		return false;
-	}
-	GameCollection* collection = GetGameCollection(key);
-	if (collection)
-	{
-		collection->EraseFile();
-		using GameCollectionIt = std::map<std::string, GameCollection>::const_iterator;
-		mGameCollections.erase(key);
-		mCurrentCollectionKey = mGameCollections.begin()->first;
-		return true;
-	}
-	return false;
-}
-
-
-bool SystemData::RenameGameCollection(const std::string& key, const std::string& newKey)
-{
-	GameCollection* collection = GetGameCollection(key);
-	if (collection)
-	{
-		if (key == mCurrentCollectionKey)
-		{
-			mCurrentCollectionKey = newKey;
-		}
-		collection->Rename(newKey);
-		mGameCollections.emplace(newKey, *collection); //copy
-		mGameCollections.erase(key);
-	}
-	return false;
-}
-
-bool SystemData::SetCurrentGameCollection(const std::string& key)
-{
-	if (GetGameCollection(key))
-	{
-		mCurrentCollectionKey = key;
-		return true;
-	}
-	return false;
-}
-
-GameCollection* SystemData::GetGameCollection(const std::string& key)
-{
-	const SystemData& const_this = static_cast< const SystemData& >( *this );
-	return const_cast< GameCollection* >( const_this.GetGameCollection(key) );
-}
-
-const GameCollection* SystemData::GetGameCollection(const std::string& key) const
-{
-	using GameCollectionIt = std::map<std::string, GameCollection>::const_iterator;
-	GameCollectionIt collectionIt = mGameCollections.find(key);
-	if (collectionIt != mGameCollections.end())
-	{
-		return &collectionIt->second;
-	}
-	return nullptr;
-}
 
 std::string strreplace(std::string str, const std::string& replace, const std::string& with)
 {
@@ -807,52 +636,6 @@ void SystemData::loadTheme()
 
 
 
-bool SystemData::isInCurrentGameCollection(const FileData& filedata) const
-{
-	const auto collection = GetCurrentGameCollection();
-	return collection && collection->HasGame(filedata);
-	//return mFavorites->HasGame(filedata);
-}
-
-void SystemData::removeFromCurrentGameCollection(const FileData& filedata)
-{
-	auto collection = GetCurrentGameCollection();
-	if (collection) { collection->RemoveGame(filedata); }
-	//mFavorites->RemoveGame(filedata);
-}
-
-void SystemData::addToCurrentGameCollection(const FileData& filedata)
-{
-	auto collection = GetCurrentGameCollection();
-	if (collection) { collection->AddGame(filedata); }
-	//mFavorites->AddGame(filedata);
-}
-
-
-
-
-void SystemData::replaceGameCollectionPlacholder(const FileData& filedata)
-{
-	using GameCollectionMapValueType = std::map<std::string, GameCollection>::value_type;
-	for (GameCollectionMapValueType& pair : mGameCollections)
-	{
-		pair.second.ReplacePlaceholder(filedata);
-	}
-	//mFavorites->ReplacePlaceholder(filedata);
-}
-
-void SystemData::replaceAllPlacholdersForGameCollection(const std::string& gameCollectionKey)
-{
-	GameCollection* collection = GetGameCollection(gameCollectionKey);
-	if (collection)
-	{
-		for (FileData* filedata : mRootFolder->getFilesRecursive(GAME))
-		{
-			collection->ReplacePlaceholder(*filedata);
-		}
-	}
-}
-
 void SystemData::SetEnabled(const bool enabled)
 {
 	m_enabled = enabled;
@@ -886,4 +669,21 @@ std::vector<SystemData*> SystemData::GetAllSystems()
 		systems.push_back(system);
 	}
 	return systems;
+}
+
+
+
+const GameCollections* SystemData::GetGameCollections() const
+{
+	if (m_gameCollections)
+	{
+		return m_gameCollections.get();
+	}
+	return nullptr;
+}
+
+GameCollections* SystemData::GetGameCollections()
+{
+	const SystemData* const_this = static_cast< const SystemData* >( this );
+	return const_cast< GameCollections* >( const_this->GetGameCollections() );
 }

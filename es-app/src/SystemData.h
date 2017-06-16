@@ -9,7 +9,7 @@
 #include "ThemeData.h"
 #include "FileFilterIndex.h"
 
-class GameCollection;
+class GameCollections;
 
 class SystemData
 {
@@ -17,8 +17,6 @@ public:
 	SystemData(const std::string& name, const std::string& fullName, const std::string& startPath, const std::vector<std::string>& extensions,
 		const std::string& command, const std::vector<PlatformIds::PlatformId>& platformIds, const std::string& themeFolder, const bool enabled = true);
 	~SystemData();
-
-	using GameCollections = std::map<std::string, GameCollection>;
 
 	inline FileData* getRootFolder() const { return mRootFolder; };
 	inline const std::string& getName() const { return mName; }
@@ -95,26 +93,6 @@ public:
 	// Load or re-load theme.
 	void loadTheme();
 
-	// favorites
-	bool isInCurrentGameCollection(const FileData& filedata) const;
-	void removeFromCurrentGameCollection(const FileData& filedata);
-	void addToCurrentGameCollection(const FileData& filedata);
-	void replaceGameCollectionPlacholder(const FileData& filedata);
-	void replaceAllPlacholdersForGameCollection(const std::string& gameCollectionKey);
-	
-	const GameCollection* GetGameCollection(const std::string& key) const;
-	const GameCollection* GetCurrentGameCollection() const;
-	const GameCollections& GetGameCollections() const;
-	GameCollection* GetGameCollection(const std::string& key);
-	GameCollection* GetCurrentGameCollection();
-
-	bool NewGameCollection(const std::string& key);
-	bool DeleteGameCollection(const std::string& key);
-	bool RenameGameCollection(const std::string& key, const std::string& newKey);
-
-	bool SetCurrentGameCollection(const std::string& key);
-
-
 	FileFilterIndex* getIndex() { return mFilterIndex; };
 
 	void SetEnabled(const bool enabled);
@@ -122,10 +100,11 @@ public:
 
 	static std::vector<SystemData*> GetSystems();
 	static std::vector<SystemData*> GetAllSystems(); //disable ones too
+
+	const GameCollections* GetGameCollections() const;
+		  GameCollections* GetGameCollections();
+
 private:
-	void LoadGameCollections();
-	bool SaveGameCollections();
-	void ImportLegacyFavoriteGameCollection();
 
 	std::string mName;
 	std::string mFullName;
@@ -142,14 +121,8 @@ private:
 
 	FileData* mRootFolder;
 
-	//std::unique_ptr<GameCollection> mFavorites;
-
-	GameCollections mGameCollections;
-	std::string mGameCollectionsPath;
-	std::string mCurrentCollectionKey;
-
-
 	bool m_enabled;
 
 	static std::vector<SystemData*> sSystemVector;
+	std::unique_ptr<GameCollections> m_gameCollections;
 };

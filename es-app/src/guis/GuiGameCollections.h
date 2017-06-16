@@ -3,6 +3,7 @@
 #include "components/ComponentList.h"
 
 class SystemData;
+class GameCollections;
 class SwitchComponent;
 class GuiSettings;
 enum class GameCollectionOption;
@@ -18,7 +19,7 @@ public:
 class GuiGameCollections : public GuiOptionWindow
 {
 public:
-	GuiGameCollections(Window* window, SystemData& mSystemData);
+	GuiGameCollections(Window* window, SystemData& system, GameCollections& gameCollections);
 	virtual ~GuiGameCollections();
 
 	void LoadEntries();
@@ -45,6 +46,7 @@ private:
 
 	Window* mWindow;
 	SystemData& mSystemData;
+	GameCollections& mGameCollections;
 	std::map<const std::string, GameCollectionEntry> m_entries;
 	std::vector<std::pair<GameCollectionOption, std::string>> m_options;
 

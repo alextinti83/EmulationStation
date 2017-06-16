@@ -1,5 +1,6 @@
 #include "FileData.h"
 #include "SystemData.h"
+#include "GameCollections.h"
 
 namespace fs = boost::filesystem;
 
@@ -117,13 +118,14 @@ void FileData::SetIsFavorite(bool isFavorite)
 {
 	if ( mSystem )
 	{
+		GameCollections* gc = mSystem->GetGameCollections();
 		if (isFavorite)
 		{
-			mSystem->addToCurrentGameCollection(*this);
+			if (gc) { gc->AddToCurrentGameCollection(*this); }
 		}
 		else
 		{
-			mSystem->removeFromCurrentGameCollection(*this);
+			if (gc) { gc->RemoveFromCurrentGameCollection(*this); }
 		}
 	}
 }
@@ -174,8 +176,9 @@ const std::string& FileData::getMarqueePath() const
 
 bool FileData::isFavorite() const
 {
-	//return metadata.get("favorite").compare("true") == 0;
-	return mSystem->isInCurrentGameCollection(*this);
+	const GameCollections* gc = mSystem->GetGameCollections();
+	if (gc) { return gc->IsInCurrentGameCollection(*this); }
+	return false;
 }
 
 std::vector<FileData*> FileData::getFilesRecursive(unsigned int typeMask, bool displayedOnly) const

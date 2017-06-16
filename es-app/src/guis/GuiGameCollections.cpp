@@ -2,11 +2,13 @@
 #include "guis/GuiMsgBox.h"
 #include "Window.h"
 #include "views/ViewController.h"
-#include "GameCollection.h"
 #include "SystemData.h"
 #include "components/SwitchComponent.h"
 #include "guis/GuiTextEditPopupKeyboard.h"
 #include "GuiSettings.h"
+
+#include "GameCollection.h"
+#include "GameCollections.h"
 
 
 void CloseMenu(GuiSettings* menu)
@@ -20,10 +22,12 @@ enum class GameCollectionOption
 
 GuiGameCollections::GuiGameCollections(
 	Window* window,
-	SystemData& systemData)
+	SystemData& system,
+	GameCollections& gameCollections)
 	: GuiOptionWindow(window, "GAME COLLECTIONS")
 	, mWindow(window)
-	, mSystemData(systemData)
+	, mSystemData(system)
+	, mGameCollections(gameCollections)
 	, m_options {
 		{ GameCollectionOption::New, "New" },
 		{ GameCollectionOption::Rename, "Rename" },
@@ -45,14 +49,16 @@ GuiGameCollections::~GuiGameCollections()
 void GuiGameCollections::LoadEntries()
 {
 	mMenu.ClearRows();
-	GameCollection* current = mSystemData.GetCurrentGameCollection();
+
+	GameCollection* current = mGameCollections.GetCurrentGameCollection();
+
 	std::string currentName;
 	if (current)
 	{
 		currentName = current->GetName();
 		InsertEntry(currentName);
 	}
-	for (const SystemData::GameCollections::value_type& collection : mSystemData.GetGameCollections())
+	for (const GameCollections::GameCollectionMap::value_type& collection : mGameCollections.GetGameCollections())
 	{
 		if (currentName.empty() || collection.first != current->GetName())
 		{
@@ -151,7 +157,7 @@ void GuiGameCollections::SetCurrent(const std::string key)
 	{
 		entry->switchComponent->setVisible(true);
 		entry->switchComponent->setState(true);
-		mSystemData.SetCurrentGameCollection(key);
+		mGameCollections.SetCurrentGameCollection(key);
 	}
 }
 
@@ -217,7 +223,7 @@ bool GuiGameCollections::OnOptionSelected(
 			DeleteGameCollection(selectedEntry, menu);
 			break;
 		case GameCollectionOption::Save:
-			collection = mSystemData.GetGameCollection(selectedEntry.key);
+			collection = mGameCollections.GetGameCollection(selectedEntry.key);
 			if (collection)
 			{
 				if (collection->Serialize())
@@ -232,13 +238,13 @@ bool GuiGameCollections::OnOptionSelected(
 			}
 			break;
 		case GameCollectionOption::Reload:
-			collection = mSystemData.GetGameCollection(selectedEntry.key);
+			collection = mGameCollections.GetGameCollection(selectedEntry.key);
 			if (collection)
 			{
 				if (collection->Deserialize())
 				{
 					ShowMessage(selectedEntry.key + " reloaded.");
-					mSystemData.replaceAllPlacholdersForGameCollection(selectedEntry.key);
+					mGameCollections.ReplaceAllPlacholdersForGameCollection(selectedEntry.key);
 					ViewController::get()->reloadGameListView(&mSystemData);
 				}
 				else
@@ -259,9 +265,9 @@ bool GuiGameCollections::OnOptionSelected(
 
 void GuiGameCollections::NewGameCollection(const GameCollectionEntry selectedEntry, GuiSettings* menu)
 {
-	const std::size_t count = mSystemData.GetGameCollections().size();
+	const std::size_t count = mGameCollections.GetGameCollections().size();
 	const std::string name = "New Collection " + std::to_string(count);
-	if (!mSystemData.NewGameCollection(name))
+	if (!mGameCollections.NewGameCollection(name))
 	{
 		ShowMessage("Error while creating the new collection named: " + name + ". Make sure you don't have a collection with this name already.");
 	}
@@ -280,7 +286,7 @@ void GuiGameCollections::RenameGameCollection(const GameCollectionEntry selected
 		[ this, key, menu ]
 	(const std::string& newKey)
 	{
-		mSystemData.RenameGameCollection(key, newKey);
+		mGameCollections.RenameGameCollection(key, newKey);
 		LoadEntries();
 		CloseMenu(menu);
 	}, false));
@@ -289,14 +295,14 @@ void GuiGameCollections::RenameGameCollection(const GameCollectionEntry selected
 
 void GuiGameCollections::DeleteGameCollection(const GameCollectionEntry selectedEntry, GuiSettings* menu)
 {
-	if (mSystemData.GetGameCollections().size() <= 1)
+	if (mGameCollections.GetGameCollections().size() <= 1)
 	{
 		ShowMessage("You must keep at least 1 Game Collection.");
 	}
 	const std::string key = selectedEntry.key;
 	ShowQuestion("Are you sure you want to delete " + selectedEntry.key + "?", [ this, key, menu ] ()
 	{
-		if (!mSystemData.DeleteGameCollection(key))
+		if (!mGameCollections.DeleteGameCollection(key))
 		{
 			ShowMessage("Could not delete the collection.");
 		}
