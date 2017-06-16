@@ -45,15 +45,24 @@ GuiGameCollections::~GuiGameCollections()
 void GuiGameCollections::LoadEntries()
 {
 	mMenu.ClearRows();
-	for (const SystemData::GameCollections::value_type& collection : mSystemData.GetGameCollections())
-	{
-		InsertEntry(collection.first);
-	}
 	GameCollection* current = mSystemData.GetCurrentGameCollection();
+	std::string currentName;
 	if (current)
 	{
-		const std::string currentCollectionName = current->GetName();
-		SetCurrent(currentCollectionName);
+		currentName = current->GetName();
+		InsertEntry(currentName);
+	}
+	for (const SystemData::GameCollections::value_type& collection : mSystemData.GetGameCollections())
+	{
+		if (currentName.empty() || collection.first != current->GetName())
+		{
+			InsertEntry(collection.first);
+		}
+	}
+
+	if (current)
+	{
+		SetCurrent(currentName);
 	}
 }
 
