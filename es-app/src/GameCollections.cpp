@@ -4,9 +4,17 @@
 
 #include "FileData.h"
 
+boost::filesystem::path GameCollections::k_emulationStationFolder(".emulationstation");
+boost::filesystem::path GameCollections::k_gameCollectionsFolder("game_collections");
+
+
+
+
 GameCollections::GameCollections(const FileData& rootFolder)
 	: mRootFolder(rootFolder)
-	, mGameCollectionsPath(".emulationstation/game_collections")
+	, mGameCollectionsPath(
+		(k_emulationStationFolder / k_gameCollectionsFolder).generic_string()
+	)
 	, mCurrentCollectionKey("favorites")
 {
 }
@@ -31,10 +39,12 @@ void GameCollections::ImportLegacyFavoriteGameCollection()
 
 void GameCollections::LoadGameCollections()
 {
+	LoadCurrentGameCollections();
 	ImportLegacyFavoriteGameCollection();
 
 	using GameCollectionIt = std::map<std::string, GameCollection>::iterator;
 
+	bool currentFound = false;
 	boost::filesystem::path absCollectionsPath(mRootFolder.getPath() / mGameCollectionsPath);
 	if (boost::filesystem::exists(absCollectionsPath))
 	{
@@ -58,6 +68,13 @@ void GameCollections::LoadGameCollections()
 						LOG(LogError) << "De-serialization failed for GameCollection: " << filename;
 						mGameCollections.erase(collectionIt);
 					}
+					else
+					{
+						if (collectionIt->first == mCurrentCollectionKey)
+						{
+							currentFound = true;
+						}
+					}
 				}
 				else
 				{
@@ -65,11 +82,62 @@ void GameCollections::LoadGameCollections()
 				}
 			}
 		}
+		if (!currentFound && mGameCollections.empty())
+		{
+			mCurrentCollectionKey = mGameCollections.begin()->first;
+		}
 	}
+}
+static const std::string k_gamecollectionsTag = "game_collections";
+bool GameCollections::SaveCurrentCollections()
+{
+	const boost::filesystem::path settings(mRootFolder.getPath() / ( mGameCollectionsPath + ".xml" ));
+	pugi::xml_document doc;
+	pugi::xml_node root;
+	const bool forWrite = false;
+	std::string xmlPath = settings.generic_string();
+
+	root = doc.append_child(k_gamecollectionsTag.c_str());
+	pugi::xml_attribute attr = root.append_attribute("current");
+	attr.set_value(mCurrentCollectionKey.c_str());
+
+	if (!doc.save_file(xmlPath.c_str()))
+	{
+		LOG(LogError) << "Error saving \"" << xmlPath << "!";
+		return false;
+	}
+	return true;
+}
+
+bool GameCollections::LoadCurrentGameCollections()
+{
+	const boost::filesystem::path settings(mRootFolder.getPath() / (mGameCollectionsPath + ".xml"));
+
+	pugi::xml_document doc;
+	pugi::xml_node root;
+	const bool forWrite = false;
+	std::string xmlPath = settings.generic_string();
+
+	if (boost::filesystem::exists(xmlPath))
+	{
+		pugi::xml_parse_result result = doc.load_file(xmlPath.c_str());
+		pugi::xml_node root = doc.child(k_gamecollectionsTag.c_str());
+		if (root)
+		{
+			mCurrentCollectionKey = root.attribute("current").as_string();
+		}
+		else
+		{
+			LOG(LogError) << "Could parsing favorites list: \"" << xmlPath << "\"!";
+			return false;
+		}
+	}
+	return true;
 }
 
 bool GameCollections::SaveGameCollections()
 {
+	SaveCurrentCollections();
 
 	boost::filesystem::path absCollectionsPath(mRootFolder.getPath() / mGameCollectionsPath);
 	if (!boost::filesystem::exists(absCollectionsPath))

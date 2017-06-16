@@ -46,6 +46,9 @@ public:
 	//serialization
 	void LoadGameCollections();
 	bool SaveGameCollections();
+	bool SaveCurrentCollections();
+	bool LoadCurrentGameCollections();
+
 
 private:
 	void ImportLegacyFavoriteGameCollection();
@@ -56,4 +59,8 @@ private:
 	std::string mCurrentCollectionKey;
 
 	const FileData& mRootFolder;
+
+	static boost::filesystem::path k_emulationStationFolder;
+	static boost::filesystem::path k_gameCollectionsFolder;
+
 };
