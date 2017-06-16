@@ -17,7 +17,7 @@ void CloseMenu(GuiSettings* menu)
 }
 enum class GameCollectionOption
 {
-	New, Rename, Delete, Save, Reload, AddAll
+	New, Duplicate, Rename, Delete, Save, Reload, AddAll
 };
 
 GuiGameCollections::GuiGameCollections(
@@ -30,6 +30,7 @@ GuiGameCollections::GuiGameCollections(
 	, mGameCollections(gameCollections)
 	, m_options {
 		{ GameCollectionOption::New, "New" },
+		{ GameCollectionOption::Duplicate, "Duplicate" },
 		{ GameCollectionOption::Rename, "Rename" },
 		{ GameCollectionOption::Delete, "Delete" },
 		{ GameCollectionOption::Save, "Save" },
@@ -216,6 +217,9 @@ bool GuiGameCollections::OnOptionSelected(
 		case GameCollectionOption::New:
 			NewGameCollection(selectedEntry, menu);
 			break;
+		case GameCollectionOption::Duplicate:
+			DuplicateGameCollection(selectedEntry, menu);
+			break;
 		case GameCollectionOption::Rename:
 			RenameGameCollection(selectedEntry, menu);
 			break;
@@ -274,6 +278,21 @@ void GuiGameCollections::NewGameCollection(const GameCollectionEntry selectedEnt
 	else
 	{
 		InsertEntry(name);
+		CloseMenu(menu);
+	}
+}
+
+void GuiGameCollections::DuplicateGameCollection(const GameCollectionEntry selectedEntry, GuiSettings* menu)
+{
+	const std::string name = selectedEntry.key;
+	const std::string duplicateName = name + " Copy";
+	if (!mGameCollections.DuplicateGameCollection(name, duplicateName))
+	{
+		ShowMessage("Error while duplicating the collection " + name + ".");
+	}
+	else
+	{
+		InsertEntry(duplicateName);
 		CloseMenu(menu);
 	}
 }

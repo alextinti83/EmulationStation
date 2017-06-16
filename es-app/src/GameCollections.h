@@ -35,6 +35,8 @@ public:
 	bool NewGameCollection(const std::string& key);
 	bool DeleteGameCollection(const std::string& key);
 	bool RenameGameCollection(const std::string& key, const std::string& newKey);
+	bool DuplicateGameCollection(const std::string& key, const std::string& duplicateKey);
+
 
 	bool SetCurrentGameCollection(const std::string& key);
 
@@ -46,8 +48,8 @@ public:
 	//serialization
 	void LoadGameCollections();
 	bool SaveGameCollections();
-	bool SaveCurrentCollections();
-	bool LoadCurrentGameCollections();
+	bool SaveSettings();
+	bool LoadSettings();
 
 
 private:

@@ -41,6 +41,7 @@ private:
 		const GameCollectionEntry selectedEntry, 
 		GuiSettings* menu);
 	void NewGameCollection(const GameCollectionEntry selectedEntry, GuiSettings* menu);
+	void DuplicateGameCollection(const GameCollectionEntry selectedEntry, GuiSettings* menu);
 	void RenameGameCollection(const GameCollectionEntry selectedEntry, GuiSettings* menu);
 	void DeleteGameCollection(const GameCollectionEntry selectedEntry, GuiSettings* menu);
 

@@ -39,7 +39,7 @@ void GameCollections::ImportLegacyFavoriteGameCollection()
 
 void GameCollections::LoadGameCollections()
 {
-	LoadCurrentGameCollections();
+	LoadSettings();
 	ImportLegacyFavoriteGameCollection();
 
 	using GameCollectionIt = std::map<std::string, GameCollection>::iterator;
@@ -89,7 +89,7 @@ void GameCollections::LoadGameCollections()
 	}
 }
 static const std::string k_gamecollectionsTag = "game_collections";
-bool GameCollections::SaveCurrentCollections()
+bool GameCollections::SaveSettings()
 {
 	const boost::filesystem::path settings(mRootFolder.getPath() / ( mGameCollectionsPath + ".xml" ));
 	pugi::xml_document doc;
@@ -109,7 +109,7 @@ bool GameCollections::SaveCurrentCollections()
 	return true;
 }
 
-bool GameCollections::LoadCurrentGameCollections()
+bool GameCollections::LoadSettings()
 {
 	const boost::filesystem::path settings(mRootFolder.getPath() / (mGameCollectionsPath + ".xml"));
 
@@ -137,7 +137,7 @@ bool GameCollections::LoadCurrentGameCollections()
 
 bool GameCollections::SaveGameCollections()
 {
-	SaveCurrentCollections();
+	SaveSettings();
 
 	boost::filesystem::path absCollectionsPath(mRootFolder.getPath() / mGameCollectionsPath);
 	if (!boost::filesystem::exists(absCollectionsPath))
@@ -216,6 +216,22 @@ bool GameCollections::RenameGameCollection(const std::string& key, const std::st
 		collection->Rename(newKey);
 		mGameCollections.emplace(newKey, *collection); //copy
 		mGameCollections.erase(key);
+	}
+	return false;
+}
+
+bool GameCollections::DuplicateGameCollection(const std::string& key, const std::string& duplicateKey)
+{
+	GameCollection* collection = GetGameCollection(key);
+	if (collection && !GetGameCollection(duplicateKey))
+	{
+		mGameCollections.emplace(duplicateKey, *collection); //copy
+		GameCollection* duplicate = GetGameCollection(duplicateKey);
+		if (duplicate)
+		{
+			duplicate->Rename(duplicateKey);
+			return true;
+		}
 	}
 	return false;
 }
