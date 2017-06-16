@@ -145,6 +145,7 @@ void parseGamelistAtPath(const std::string& xmlpath, SystemData* system)
 			file->SetMetadata(metadata);
 			
 			GameCollections* gc = system->GetGameCollections();
+			if (gc) { gc->ReplaceGameCollectionPlacholder(*file); }
 
 			// index if it's a game!
 			if(type == GAME)
