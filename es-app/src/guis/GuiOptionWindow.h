@@ -23,7 +23,6 @@ public:
 protected:
 	virtual void OnButtonAdded(std::shared_ptr<ButtonComponent> button) { }
 	MenuComponent mMenu;
-	std::vector< std::function<void()> > mSaveFuncs;
 	std::shared_ptr<ButtonComponent> m_backButton;
 
 };
