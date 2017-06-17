@@ -14,6 +14,7 @@ public:
 	class Game
 	{
 	public:
+	public:
 		Game() : m_filedata(nullptr) { }
 		Game(const FileData& fd) : m_filedata(&fd) { }
 		const FileData& GetFiledata() const { assert(m_filedata); return *m_filedata; }
@@ -23,10 +24,12 @@ public:
 	};
 
 public:
+	enum class Tag { None, Highlighted, Hidden };
+
 	GameCollection(const std::string& name, const std::string& folderPath);
 	void Rename(const std::string& name);
 	void EraseFile();
-
+	
 	bool Deserialize();
 	bool Serialize();
 	
@@ -34,6 +37,10 @@ public:
 	void AddGame(const FileData& filedata);
 	void RemoveGame(const FileData& filedata);
 	const std::string& GetName() const;
+
+	bool HasTag(Tag tag) const { return m_tag == tag; }
+	void SetTag(Tag tag) { m_tag = tag; }
+
 	// since we serialize/deserialize only key
 	// we need to map filedatas to their respective key
 	void ReplacePlaceholder(const FileData& filedata); 
@@ -49,5 +56,10 @@ private:
 
 	using GamesMap = std::map<std::string, Game>;
 	GamesMap mGamesMap;
+	Tag m_tag;
+
+private:
+	static const std::map<GameCollection::Tag, std::string> k_tagsNames;
+	static const std::map<std::string, GameCollection::Tag> k_namesTags;
 
 };
