@@ -122,6 +122,26 @@ void GameCollection::ReplacePlaceholder(const FileData& filedata)
 	}
 }
 
+const std::string& GameCollection::GetTagName(Tag tag)
+{
+	const auto tagIt = k_tagsNames.find(tag);
+	if (tagIt != k_tagsNames.cend())
+	{
+		return tagIt->second;
+	}
+	return "";
+}
+
+const std::vector<GameCollection::Tag> GameCollection::GetTags()
+{
+	std::vector<GameCollection::Tag> result;
+	for (const auto& kv : k_tagsNames)
+	{
+		result.emplace_back(kv.first);
+	}
+	return result;
+}
+
 static const std::string k_gamecollectionTag = "game_collection";
 static const std::string k_gamecollectionTagLegacyTag = "favorites";
 
