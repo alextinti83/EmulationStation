@@ -8,14 +8,14 @@ boost::filesystem::path GameCollections::k_emulationStationFolder(".emulationsta
 boost::filesystem::path GameCollections::k_gameCollectionsFolder("game_collections");
 
 
-
+static std::string k_autoCreatedCollection = "Favorites";
 
 GameCollections::GameCollections(const FileData& rootFolder)
 	: mRootFolder(rootFolder)
 	, mGameCollectionsPath(
 		(k_emulationStationFolder / k_gameCollectionsFolder).generic_string()
 	)
-	, mCurrentCollectionKey("favorites")
+	, mCurrentCollectionKey("")
 {
 }
 
@@ -82,7 +82,12 @@ void GameCollections::LoadGameCollections()
 				}
 			}
 		}
-		if (!currentFound && mGameCollections.empty())
+		if (mGameCollections.empty())
+		{
+			GameCollection gameCollection(k_autoCreatedCollection, absCollectionsPath.generic_string());
+			auto result = mGameCollections.emplace(std::make_pair(k_autoCreatedCollection, std::move(gameCollection)));
+		}
+		if (!currentFound)
 		{
 			mCurrentCollectionKey = mGameCollections.begin()->first;
 		}
@@ -198,7 +203,17 @@ bool GameCollections::DeleteGameCollection(const std::string& key)
 		collection->EraseFile();
 		using GameCollectionIt = std::map<std::string, GameCollection>::const_iterator;
 		mGameCollections.erase(key);
-		mCurrentCollectionKey = mGameCollections.begin()->first;
+		if (mCurrentCollectionKey == key)
+		{
+			if (mGameCollections.size() > 0)
+			{
+				mCurrentCollectionKey = mGameCollections.begin()->first;
+			}
+			else
+			{
+				mCurrentCollectionKey = "";
+			}
+		}
 		return true;
 	}
 	return false;
