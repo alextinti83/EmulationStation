@@ -54,6 +54,7 @@ GuiGameCollections::~GuiGameCollections()
 
 void GuiGameCollections::LoadEntries()
 {
+	m_entries.clear();
 	mMenu.ClearRows();
 
 	GameCollection* current = mGameCollections.GetCurrentGameCollection();
@@ -187,10 +188,6 @@ void GuiGameCollections::SetCurrent(const std::string key)
 		{
 			current = pair.second.key;
 		}
-	}
-	if (key == current)
-	{
-		return;
 	}
 	for (auto& pair : m_entries)
 	{
@@ -365,6 +362,7 @@ void GuiGameCollections::DeleteGameCollection(const GameCollectionEntry selected
 	if (mGameCollections.GetGameCollections().size() <= 1)
 	{
 		ShowMessage("You must keep at least 1 Game Collection.");
+		return;
 	}
 	const std::string key = selectedEntry.key;
 	ShowQuestion("Are you sure you want to delete " + selectedEntry.key + "?", [ this, key, menu ] ()
