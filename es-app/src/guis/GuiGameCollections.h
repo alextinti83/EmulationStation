@@ -1,6 +1,8 @@
 #pragma  once
 #include "GuiOptionWindow.h"
 #include "components/ComponentList.h"
+#include "components/OptionListComponent.h"
+#include "GameCollection.h"
 
 class SystemData;
 class GameCollections;
@@ -14,13 +16,14 @@ public:
 	std::string key;
 	std::shared_ptr<TextComponent> textComponent;
 	std::shared_ptr<SwitchComponent> switchComponent;
+	std::shared_ptr<OptionListComponent<GameCollection::Tag> > optionListComponent;
 };
 
 class GuiGameCollections : public GuiOptionWindow
 {
 public:
 	GuiGameCollections(Window* window, SystemData& system, GameCollections& gameCollections);
-	virtual ~GuiGameCollections();
+	~GuiGameCollections() override;
 
 	void LoadEntries();
 	void InsertEntry(const std::string& entryName);
@@ -45,10 +48,13 @@ private:
 	void RenameGameCollection(const GameCollectionEntry selectedEntry, GuiSettings* menu);
 	void DeleteGameCollection(const GameCollectionEntry selectedEntry, GuiSettings* menu);
 
+	inline void AddOnCloseFunction(const std::function<void()>& func) { m_onCloseFunctions.push_back(func); };
+
 	Window* mWindow;
 	SystemData& mSystemData;
 	GameCollections& mGameCollections;
 	std::map<const std::string, GameCollectionEntry> m_entries;
 	std::vector<std::pair<GameCollectionOption, std::string>> m_options;
-
+	std::vector< std::function<void()> > m_onCloseFunctions;
+	bool m_gamelistNeedsReload;
 };

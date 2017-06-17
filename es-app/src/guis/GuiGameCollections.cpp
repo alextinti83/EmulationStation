@@ -9,6 +9,7 @@
 
 #include "GameCollection.h"
 #include "GameCollections.h"
+#include "components/OptionListComponent.h"
 
 
 void CloseMenu(GuiSettings* menu)
@@ -43,7 +44,11 @@ GuiGameCollections::GuiGameCollections(
 
 GuiGameCollections::~GuiGameCollections()
 {
-
+	for (auto& f : m_onCloseFunctions)	{ f(); }
+	if (m_gamelistNeedsReload)
+	{
+		ViewController::get()->reloadGameListView(&mSystemData);
+	}
 }
 
 
@@ -75,28 +80,67 @@ void GuiGameCollections::LoadEntries()
 
 void GuiGameCollections::InsertEntry(const std::string& key)
 {
-	GameCollectionEntry entry;
-	ComponentListRow row;
-	entry.key = key;
+	const GameCollection* gc = mGameCollections.GetGameCollection(key);
+	if (gc)
+	{
+		GameCollectionEntry entry;
+		auto tags = std::make_shared< OptionListComponent<GameCollection::Tag> >(mWindow, "Tags", false);
+		entry.optionListComponent = tags;
 
-	entry.textComponent = std::make_shared<TextComponent>(mWindow, key, Font::get(FONT_SIZE_MEDIUM), 0x777777FF);
-	entry.switchComponent = std::make_shared<SwitchComponent>(mWindow);
+		for (GameCollection::Tag tag : GameCollection::GetTags())
+		{
+			const bool selected = gc->HasTag(tag);
+			const std::string tagName = GameCollection::GetTagName(tag);
+			tags->add(tagName, tag, selected);
+		}
+		AddOnCloseFunction([ this, tags, key ]
+		{
+			GameCollection* gc = mGameCollections.GetGameCollection(key);
+			if (gc)
+			{
+				const GameCollection::Tag selectedTag = tags->getSelected();
+				if (!gc->HasTag(selectedTag))
+				{
+					gc->SetTag(selectedTag);
+					m_gamelistNeedsReload = true;
+				}
+			}
+		});
+		
+		ComponentListRow row;
+		entry.key = key;
+		auto padding = std::make_shared<TextComponent>(mWindow, "  ", Font::get(FONT_SIZE_MEDIUM), 0x777777FF);
+		entry.textComponent = std::make_shared<TextComponent>(mWindow, key, Font::get(FONT_SIZE_MEDIUM), 0x777777FF);
+		entry.switchComponent = std::make_shared<SwitchComponent>(mWindow);
 
-	entry.switchComponent->setState(false);
-	entry.switchComponent->setVisible(false);
+		entry.switchComponent->setState(false);
+		entry.switchComponent->setVisible(false);
+		
+		const bool resizeWith = true;
+		const bool invertWhenSelected = true;
 
-	row.addElement(entry.textComponent, true);
-	row.addElement(entry.switchComponent, false, true);
+		row.addElement(entry.switchComponent, !resizeWith, invertWhenSelected);
+		row.addElement(padding, !resizeWith);
+		row.addElement(entry.textComponent, resizeWith);
+		row.addElement(tags, !resizeWith, invertWhenSelected);
 
-	m_entries.emplace(key, entry);
 
-	row.input_handler = std::bind(&GuiGameCollections::OnEntrySelected,
-		this,
-		std::placeholders::_1,
-		std::placeholders::_2,
-		entry);
-
-	addRow(row);
+		// The current ComponentList behavior does NOT forward the input to 
+		// its rightmost element if we set an inputHandler
+		// It doesn't care whether our inputHandler actually consumes the event or discards it..
+		// I'd rather fix the ComponentList but I'm afraid that will cause 
+		// some undesired side effects
+		// So.. here's as workaround we pass the OptionListComponent to our
+		// input handler so that we can eventually forward the input to it.
+		row.input_handler = std::bind(&GuiGameCollections::OnEntrySelected,
+			this,
+			std::placeholders::_1,
+			std::placeholders::_2,
+			entry);
+		
+		m_entries.emplace(key, entry);
+		addRow(row);
+	}
 }
 
 bool GuiGameCollections::OnEntrySelected(InputConfig* config, Input input,
@@ -105,14 +149,14 @@ bool GuiGameCollections::OnEntrySelected(InputConfig* config, Input input,
 	if (config->isMappedTo("a", input) && input.value)
 	{
 		SetCurrent(selectedEntry.key);
-		ViewController::get()->reloadGameListView(&mSystemData);
+		m_gamelistNeedsReload = true;
 		return true;
 	}
 	else if (config->isMappedTo("x", input) && input.value)
 	{
 		ShowOptionsMenu(selectedEntry);
 	}
-	return false;
+	return selectedEntry.optionListComponent->input(config, input);
 }
 
 std::vector<HelpPrompt> GuiGameCollections::getHelpPrompts()
@@ -233,7 +277,6 @@ bool GuiGameCollections::OnOptionSelected(
 				if (collection->Serialize())
 				{
 					ShowMessage(selectedEntry.key + " saved.");
-					ViewController::get()->reloadGameListView(&mSystemData);
 				}
 				else
 				{
@@ -249,7 +292,7 @@ bool GuiGameCollections::OnOptionSelected(
 				{
 					ShowMessage(selectedEntry.key + " reloaded.");
 					mGameCollections.ReplaceAllPlacholdersForGameCollection(selectedEntry.key);
-					ViewController::get()->reloadGameListView(&mSystemData);
+					m_gamelistNeedsReload = true;
 				}
 				else
 				{
@@ -334,3 +377,5 @@ void GuiGameCollections::DeleteGameCollection(const GameCollectionEntry selected
 		CloseMenu(menu);
 	});
 }
+
+
