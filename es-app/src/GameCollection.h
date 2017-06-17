@@ -24,7 +24,7 @@ public:
 	};
 
 public:
-	enum class Tag { None, Highlighted, Hidden };
+	enum class Tag { None, Highlight, Hide };
 
 	GameCollection(const std::string& name, const std::string& folderPath);
 	void Rename(const std::string& name);

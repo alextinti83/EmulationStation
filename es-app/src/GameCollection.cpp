@@ -9,15 +9,15 @@
 
 const std::map<GameCollection::Tag, std::string> GameCollection::k_tagsNames =
 { 
-	// None the default: it won't be serialized
-	{ GameCollection::Tag::Highlighted, "Highlighted"},
-	{ GameCollection::Tag::Hidden,		"Hidden" },
+	{ GameCollection::Tag::None,		"None" },
+	{ GameCollection::Tag::Highlight,	"Highlight"},
+	{ GameCollection::Tag::Hide,		"Hide" },
 };
 const std::map<std::string, GameCollection::Tag> GameCollection::k_namesTags =
 {
-	// None the default: it won't be serialized
-	{ "Highlighted", GameCollection::Tag::Highlighted },
-	{ "Hidden",		 GameCollection::Tag::Hidden },
+	{ "None",		GameCollection::Tag::None },
+	{ "Highlight",	GameCollection::Tag::Highlight },
+	{ "Hide",		GameCollection::Tag::Hide },
 };
 
 GameCollection::GameCollection(
@@ -204,12 +204,14 @@ bool GameCollection::Serialize(const boost::filesystem::path& folderPath)
 	root = doc.append_child(k_gamecollectionTag.c_str());
 	pugi::xml_attribute attr = root.append_attribute("key");
 	attr.set_value(m_name.c_str());
-
-	const auto tagIt = k_tagsNames.find(m_tag);
-	if (tagIt != k_tagsNames.cend())
+	if (m_tag != Tag::None)
 	{
-		pugi::xml_attribute attr = root.append_attribute("tag");
-		attr.set_value(tagIt->second.c_str());
+		const auto tagIt = k_tagsNames.find(m_tag);
+		if (tagIt != k_tagsNames.cend())
+		{
+			pugi::xml_attribute attr = root.append_attribute("tag");
+			attr.set_value(tagIt->second.c_str());
+		}
 	}
 
 	for ( auto const& keyGamePair : mGamesMap )
