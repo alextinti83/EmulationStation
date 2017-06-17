@@ -32,9 +32,9 @@ GuiGameCollections::GuiGameCollections(
 		{ GameCollectionOption::New, "New" },
 		{ GameCollectionOption::Duplicate, "Duplicate" },
 		{ GameCollectionOption::Rename, "Rename" },
-		{ GameCollectionOption::Delete, "Delete" },
 		{ GameCollectionOption::Save, "Save" },
 		{ GameCollectionOption::Reload, "Reload" },
+		{ GameCollectionOption::Delete, "Delete" },
 //		{ GameCollectionOption::AddAll, "Add all games" },
 	}
 {
@@ -285,7 +285,12 @@ void GuiGameCollections::NewGameCollection(const GameCollectionEntry selectedEnt
 void GuiGameCollections::DuplicateGameCollection(const GameCollectionEntry selectedEntry, GuiSettings* menu)
 {
 	const std::string name = selectedEntry.key;
-	const std::string duplicateName = name + " Copy";
+	std::string duplicateName = name + " Copy";
+	std::size_t count = 1;
+	while (mGameCollections.GetGameCollection(duplicateName) != nullptr)
+	{
+		duplicateName = name + " Copy " + std::to_string(++count);
+	}
 	if (!mGameCollections.DuplicateGameCollection(name, duplicateName))
 	{
 		ShowMessage("Error while duplicating the collection " + name + ".");
