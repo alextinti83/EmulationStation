@@ -45,7 +45,7 @@ public:
 	// we need to map filedatas to their respective key
 	void ReplacePlaceholder(const FileData& filedata); 
 public:
-	static const std::string& GetTagName(Tag tag);
+	static std::string GetTagName(Tag tag);
 	static const std::vector<Tag> GetTags();
 
 

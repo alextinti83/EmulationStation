@@ -122,7 +122,7 @@ void GameCollection::ReplacePlaceholder(const FileData& filedata)
 	}
 }
 
-const std::string& GameCollection::GetTagName(Tag tag)
+std::string GameCollection::GetTagName(Tag tag)
 {
 	const auto tagIt = k_tagsNames.find(tag);
 	if (tagIt != k_tagsNames.cend())
