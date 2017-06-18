@@ -64,6 +64,7 @@ private:
 	using GamesMap = std::map<std::string, Game>;
 	GamesMap mGamesMap;
 	Tag m_tag;
+	std::size_t m_invalidCount;
 
 private:
 	static const std::map<GameCollection::Tag, std::string> k_tagsNames;

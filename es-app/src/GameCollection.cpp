@@ -26,6 +26,7 @@ GameCollection::GameCollection(
 	: m_name(name)
 	, m_folderPath(folderPath)
 	, m_tag(Tag::None)
+	, m_invalidCount(0u)
 {
 	// nothing to do
 }
@@ -100,7 +101,7 @@ const std::string& GameCollection::GetName() const
 
 std::size_t GameCollection::GetGameCount() const
 {
-	return mGamesMap.size();
+	return mGamesMap.size() - m_invalidCount;
 }
 
 bool GameCollection::HasTag(Tag tag) const
@@ -138,7 +139,11 @@ void GameCollection::ReplacePlaceholder(const FileData& filedata)
 	auto it = mGamesMap.find(key);
 	if ( it != mGamesMap.end() )
 	{
-		it->second = Game(filedata);
+		if (!it->second.IsValid())
+		{
+			it->second = Game(filedata);
+			m_invalidCount--;
+		}
 	}
 }
 
@@ -196,6 +201,7 @@ bool GameCollection::Deserialize(const boost::filesystem::path& folderPath)
 				std::string key = child.attribute("key").as_string();
 				const Game placeholder;
 				mGamesMap.emplace(key, placeholder);
+				m_invalidCount++;
 			}
 		}
 		else
@@ -237,16 +243,18 @@ bool GameCollection::Serialize(const boost::filesystem::path& folderPath)
 	for ( auto const& keyGamePair : mGamesMap )
 	{
 		const Game& game = keyGamePair.second;
-		if ( game.IsValid() )
+
+		const std::string key = keyGamePair.first;
+		pugi::xml_node newNode = root.append_child("game");
+		pugi::xml_attribute attr = newNode.append_attribute("key");
+		attr.set_value(key.c_str());
+		if (!game.IsValid())
 		{
-			const FileData&  gamedata = game.GetFiledata();
-			const std::string key = keyGamePair.first;
-			pugi::xml_node newNode = root.append_child("game");
-			pugi::xml_attribute attr = newNode.append_attribute("key");
-			attr.set_value(key.c_str());
+			pugi::xml_attribute attr = newNode.append_attribute("error");
+			attr.set_value("invalid_path");
 		}
 	}
-	if ( !doc.save_file(xmlPath.c_str()) )
+	if (!doc.save_file(xmlPath.c_str()))
 	{
 		LOG(LogError) << "Error saving \"" << xmlPath << "\" (for GameCollection " << m_name << ")!";
 		return false;
