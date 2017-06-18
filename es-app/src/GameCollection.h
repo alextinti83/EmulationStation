@@ -36,6 +36,7 @@ public:
 	bool HasGame(const FileData& filedata) const;
 	void AddGame(const FileData& filedata);
 	void RemoveGame(const FileData& filedata);
+	void ClearAllGames();
 	const std::string& GetName() const;
 	std::size_t GetGameCount() const;
 	bool HasTag(Tag tag) const;

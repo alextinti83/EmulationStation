@@ -94,6 +94,12 @@ void GameCollection::RemoveGame(const FileData& filedata)
 	}
 }
 
+void GameCollection::ClearAllGames()
+{
+	mGamesMap.clear();
+	m_invalidCount = 0;
+}
+
 const std::string& GameCollection::GetName() const
 {
 	return m_name;

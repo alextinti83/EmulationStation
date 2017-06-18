@@ -18,7 +18,7 @@ void CloseMenu(GuiSettings* menu)
 }
 enum class GameCollectionOption
 {
-	New, Duplicate, Rename, Delete, Save, Reload, AddAll
+	New, Duplicate, Rename, Delete, Save, Reload, AddAll, RemoveAll
 };
 
 GuiGameCollections::GuiGameCollections(
@@ -37,7 +37,8 @@ GuiGameCollections::GuiGameCollections(
 		{ GameCollectionOption::Save, "Save" },
 		{ GameCollectionOption::Reload, "Reload" },
 		{ GameCollectionOption::Delete, "Delete" },
-//		{ GameCollectionOption::AddAll, "Add all games" },
+		{ GameCollectionOption::AddAll, "Add all games" },
+		{ GameCollectionOption::RemoveAll, "Remove all games" },
 	}
 {
 	LoadEntries();
@@ -305,7 +306,33 @@ bool GuiGameCollections::OnOptionSelected(
 			}
 			break;
 		case GameCollectionOption::AddAll:
-			break;
+		{
+			std::size_t count = 0;
+			for (FileData* game : mSystemData.getRootFolder()->getChildrenListToDisplay())
+			{
+				if (game->getType() == GAME)
+				{
+					mGameCollections.AddToCurrentGameCollection(*game);
+					++count;
+				}
+			}
+			ShowMessage(std::to_string(count) + " games added.", [ this ] () { LoadEntries(); });
+			m_gamelistNeedsReload = true;
+		} break;
+		case GameCollectionOption::RemoveAll:
+		{
+			GameCollection* gc = mGameCollections.GetCurrentGameCollection();
+			if (gc) {
+				const std::size_t count = gc->GetGameCount();
+				gc->ClearAllGames();
+				ShowMessage(std::to_string(count) + " games removed.", [ this ] () { LoadEntries(); });
+				m_gamelistNeedsReload = true;
+			}
+			else
+			{
+				ShowMessage("Error: could not get the current Game Collection.");
+			}
+		} break;
 		default:
 			break;
 		}
