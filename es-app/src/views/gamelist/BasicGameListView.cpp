@@ -177,8 +177,8 @@ std::vector<HelpPrompt> BasicGameListView::getHelpPrompts()
 	prompts.push_back(HelpPrompt("up/down", "choose"));
 	prompts.push_back(HelpPrompt("a", "launch"));
 	prompts.push_back(HelpPrompt("b", "back"));
-	prompts.push_back(HelpPrompt("x", "game collect. options")); 
-	prompts.push_back(HelpPrompt("y", "+/- game collect.")); 
+	prompts.push_back(HelpPrompt("y", "game collect. options")); 
+	prompts.push_back(HelpPrompt("x", "+/- game collect.")); 
 	prompts.push_back(HelpPrompt("select", "options"));
 	return prompts;
 }

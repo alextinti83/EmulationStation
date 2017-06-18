@@ -132,7 +132,7 @@ bool ISimpleGameListView::input(InputConfig* config, Input input)
 				return true;
 			}
 		}
-		else if (config->isMappedTo("x", input))
+		else if (config->isMappedTo("y", input))
 		{
 			GameCollections* gc = mRoot->getSystem()->GetGameCollections();
 			if (gc)
@@ -142,7 +142,7 @@ bool ISimpleGameListView::input(InputConfig* config, Input input)
 			}
 
 		}
-		else if (config->isMappedTo("y", input))  // add/remove to current game collection
+		else if (config->isMappedTo("x", input))  // add/remove to current game collection
 		{
 			FileData* cursor = getCursor();
 			if (cursor->getType() == GAME)

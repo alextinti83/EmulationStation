@@ -161,7 +161,7 @@ bool GuiGameCollections::OnEntrySelected(InputConfig* config, Input input,
 		m_gamelistNeedsReload = true;
 		return true;
 	}
-	else if (config->isMappedTo("x", input) && input.value)
+	else if (config->isMappedTo("y", input) && input.value)
 	{
 		ShowOptionsMenu(selectedEntry);
 	}
@@ -171,9 +171,9 @@ bool GuiGameCollections::OnEntrySelected(InputConfig* config, Input input,
 std::vector<HelpPrompt> GuiGameCollections::getHelpPrompts()
 {
 	return {
-				{ "a", "Highlight" },
+				{ "a", "Set Current" },
 				{ "b", "Back" },
-				{ "x", "Options" },
+				{ "y", "Options" },
 	};;
 }
 
