@@ -111,10 +111,14 @@ void GuiGameCollections::InsertEntry(const std::string& key)
 		
 		ComponentListRow row;
 		entry.key = key;
-		const std::string name = key + " (" + std::to_string(gc->GetGameCount())+ ")";
+		const std::string name = key;
+		const std::string gameCount = " " + std::to_string(gc->GetGameCount()) + "  ";
+
 		auto padding = std::make_shared<TextComponent>(mWindow, "  ", Font::get(FONT_SIZE_MEDIUM), 0x777777FF);
 		entry.textComponent = std::make_shared<TextComponent>(mWindow, name, Font::get(FONT_SIZE_MEDIUM), 0x777777FF);
 		entry.switchComponent = std::make_shared<SwitchComponent>(mWindow);
+		auto gameCountTextComp = std::make_shared<TextComponent>(mWindow, gameCount, Font::get(FONT_SIZE_MEDIUM), 0xCCCCCCFF);
+
 
 		entry.switchComponent->setState(false);
 		entry.switchComponent->setVisible(false);
@@ -125,6 +129,7 @@ void GuiGameCollections::InsertEntry(const std::string& key)
 		row.addElement(entry.switchComponent, !resizeWith, invertWhenSelected);
 		row.addElement(padding, !resizeWith);
 		row.addElement(entry.textComponent, resizeWith);
+		row.addElement(gameCountTextComp, !resizeWith);
 		row.addElement(tags, !resizeWith, invertWhenSelected);
 
 
