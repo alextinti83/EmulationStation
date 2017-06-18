@@ -46,7 +46,6 @@ void GameCollections::ImportLegacyFavoriteGameCollection()
 		const boost::filesystem::path newPath = mRootFolder.getPath() / mGameCollectionsPath / favname;
 		if (!boost::filesystem::exists(newPath))
 		{
-			CreateDir(newPath.parent_path());
 			boost::filesystem::rename(legacyFavPath, newPath);
 		}
 	}
@@ -54,13 +53,15 @@ void GameCollections::ImportLegacyFavoriteGameCollection()
 
 void GameCollections::LoadGameCollections()
 {
+	boost::filesystem::path absCollectionsPath(mRootFolder.getPath() / mGameCollectionsPath);
+	CreateDir(absCollectionsPath);
+
 	LoadSettings();
 	ImportLegacyFavoriteGameCollection();
 
 	using GameCollectionIt = std::map<std::string, GameCollection>::iterator;
 
 	bool currentFound = false;
-	boost::filesystem::path absCollectionsPath(mRootFolder.getPath() / mGameCollectionsPath);
 	if (boost::filesystem::exists(absCollectionsPath))
 	{
 		using fsIt = boost::filesystem::recursive_directory_iterator;
@@ -108,6 +109,7 @@ void GameCollections::LoadGameCollections()
 		}
 	}
 }
+
 static const std::string k_gamecollectionsTag = "game_collections";
 bool GameCollections::SaveSettings()
 {
@@ -157,10 +159,10 @@ bool GameCollections::LoadSettings()
 
 bool GameCollections::SaveGameCollections()
 {
-	SaveSettings();
-
 	boost::filesystem::path absCollectionsPath(mRootFolder.getPath() / mGameCollectionsPath);
 	CreateDir(absCollectionsPath);
+	
+	SaveSettings();
 
 	using GameCollectionMapValueType = std::map<std::string, GameCollection>::value_type;
 	for (GameCollectionMapValueType& pair : mGameCollections)
