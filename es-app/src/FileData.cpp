@@ -174,10 +174,24 @@ const std::string& FileData::getMarqueePath() const
 	return metadata.get("marquee");
 }
 
-bool FileData::isFavorite() const
+bool FileData::isInCurrentGameCollection() const
 {
 	const GameCollections* gc = mSystem->GetGameCollections();
 	if (gc) { return gc->IsInCurrentGameCollection(*this); }
+	return false;
+}
+
+bool FileData::isHighlighted() const
+{
+	const GameCollections* gc = mSystem->GetGameCollections();
+	if (gc) { return gc->HasTag(*this, GameCollection::Tag::Highlight); }
+	return false;
+}
+
+bool FileData::isHidden() const
+{
+	const GameCollections* gc = mSystem->GetGameCollections();
+	if (gc) { return gc->HasTag(*this, GameCollection::Tag::Hide); }
 	return false;
 }
 

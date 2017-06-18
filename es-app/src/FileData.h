@@ -56,7 +56,10 @@ public:
 	virtual const std::string& getVideoPath() const;
 	virtual const std::string& getMarqueePath() const;
 
-	bool isFavorite() const;
+	bool isInCurrentGameCollection() const;
+	bool isHighlighted() const;
+	bool isHidden() const;
+
 	void SetIsFavorite(bool isFavorite);
 	void SetMetadata(const MetaDataList& i_metadata);
 
