@@ -6,7 +6,7 @@
 #include "Settings.h"
 #include "FileData.h"
 #include "SystemData.h"
-#include "guis/GuiGameCollections.h"
+#include "guis/GuiGameCollectionsSettings.h"
 #include "guis/GuiMsgBox.h"
 #include "GameCollections.h"
 
@@ -139,7 +139,7 @@ bool ISimpleGameListView::input(InputConfig* config, Input input)
 			GameCollections* gc = mRoot->getSystem()->GetGameCollections();
 			if (gc)
 			{
-				m_window->pushGui(new GuiGameCollections(m_window, *mRoot->getSystem(), *gc));
+				m_window->pushGui(new GuiGameCollectionsSettings(m_window, *mRoot->getSystem(), *gc));
 				return true;
 			}
 

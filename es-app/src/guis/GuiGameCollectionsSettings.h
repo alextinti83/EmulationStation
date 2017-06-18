@@ -19,11 +19,11 @@ public:
 	std::shared_ptr<OptionListComponent<GameCollection::Tag> > optionListComponent;
 };
 
-class GuiGameCollections : public GuiOptionWindow
+class GuiGameCollectionsSettings : public GuiOptionWindow
 {
 public:
-	GuiGameCollections(Window* window, SystemData& system, GameCollections& gameCollections);
-	~GuiGameCollections() override;
+	GuiGameCollectionsSettings(Window* window, SystemData& system, GameCollections& gameCollections);
+	~GuiGameCollectionsSettings() override;
 
 	void LoadEntries();
 	void InsertEntry(const std::string& entryName);

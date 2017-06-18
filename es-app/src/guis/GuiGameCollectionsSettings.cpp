@@ -1,4 +1,4 @@
-#include "guis/GuiGameCollections.h"
+#include "guis/GuiGameCollectionsSettings.h"
 #include "guis/GuiMsgBox.h"
 #include "Window.h"
 #include "views/ViewController.h"
@@ -21,7 +21,7 @@ enum class GameCollectionOption
 	New, Duplicate, Rename, Delete, Save, Reload, AddAll, RemoveAll
 };
 
-GuiGameCollections::GuiGameCollections(
+GuiGameCollectionsSettings::GuiGameCollectionsSettings(
 	Window* window,
 	SystemData& system,
 	GameCollections& gameCollections)
@@ -44,7 +44,7 @@ GuiGameCollections::GuiGameCollections(
 	LoadEntries();
 }
 
-GuiGameCollections::~GuiGameCollections()
+GuiGameCollectionsSettings::~GuiGameCollectionsSettings()
 {
 	for (auto& f : m_onCloseFunctions)	{ f(); }
 	if (m_gamelistNeedsReload)
@@ -54,7 +54,7 @@ GuiGameCollections::~GuiGameCollections()
 }
 
 
-void GuiGameCollections::LoadEntries()
+void GuiGameCollectionsSettings::LoadEntries()
 {
 	m_entries.clear();
 	mMenu.ClearRows();
@@ -81,7 +81,7 @@ void GuiGameCollections::LoadEntries()
 	}
 }
 
-void GuiGameCollections::InsertEntry(const std::string& key)
+void GuiGameCollectionsSettings::InsertEntry(const std::string& key)
 {
 	const GameCollection* gc = mGameCollections.GetGameCollection(key);
 	if (gc)
@@ -141,7 +141,7 @@ void GuiGameCollections::InsertEntry(const std::string& key)
 		// some undesired side effects
 		// So.. here's as workaround we pass the OptionListComponent to our
 		// input handler so that we can eventually forward the input to it.
-		row.input_handler = std::bind(&GuiGameCollections::OnEntrySelected,
+		row.input_handler = std::bind(&GuiGameCollectionsSettings::OnEntrySelected,
 			this,
 			std::placeholders::_1,
 			std::placeholders::_2,
@@ -152,7 +152,7 @@ void GuiGameCollections::InsertEntry(const std::string& key)
 	}
 }
 
-bool GuiGameCollections::OnEntrySelected(InputConfig* config, Input input,
+bool GuiGameCollectionsSettings::OnEntrySelected(InputConfig* config, Input input,
 	GameCollectionEntry selectedEntry)
 {
 	if (config->isMappedTo("a", input) && input.value)
@@ -168,7 +168,7 @@ bool GuiGameCollections::OnEntrySelected(InputConfig* config, Input input,
 	return selectedEntry.optionListComponent->input(config, input);
 }
 
-std::vector<HelpPrompt> GuiGameCollections::getHelpPrompts()
+std::vector<HelpPrompt> GuiGameCollectionsSettings::getHelpPrompts()
 {
 	return {
 				{ "a", "Set Current" },
@@ -177,7 +177,7 @@ std::vector<HelpPrompt> GuiGameCollections::getHelpPrompts()
 	};;
 }
 
-GameCollectionEntry* GuiGameCollections::GetEntry(const std::string key)
+GameCollectionEntry* GuiGameCollectionsSettings::GetEntry(const std::string key)
 {
 	auto it = m_entries.find(key);
 	if (it != m_entries.end())
@@ -187,7 +187,7 @@ GameCollectionEntry* GuiGameCollections::GetEntry(const std::string key)
 	return nullptr;
 }
 
-void GuiGameCollections::SetCurrent(const std::string key)
+void GuiGameCollectionsSettings::SetCurrent(const std::string key)
 {
 	std::string current;
 	for (auto& pair : m_entries)
@@ -211,17 +211,17 @@ void GuiGameCollections::SetCurrent(const std::string key)
 	}
 }
 
-void GuiGameCollections::ShowMessage(const std::string& mgs, const std::function<void()>& func)
+void GuiGameCollectionsSettings::ShowMessage(const std::string& mgs, const std::function<void()>& func)
 {
 	mWindow->pushGui(new GuiMsgBox(mWindow, mgs, "Close", func));
 }
 
-void GuiGameCollections::ShowQuestion(const std::string& mgs, const std::function<void()>& func)
+void GuiGameCollectionsSettings::ShowQuestion(const std::string& mgs, const std::function<void()>& func)
 {
 	mWindow->pushGui(new GuiMsgBox(mWindow, mgs, "YES", func, "NO", nullptr));
 }
 
-void GuiGameCollections::ShowOptionsMenu(const GameCollectionEntry selectedEntry)
+void GuiGameCollectionsSettings::ShowOptionsMenu(const GameCollectionEntry selectedEntry)
 {
 	std::string title = strToUpper(selectedEntry.key);
 	auto s = new GuiSettings(mWindow, (title + std::string(" OPTIONS")).c_str());
@@ -231,7 +231,7 @@ void GuiGameCollections::ShowOptionsMenu(const GameCollectionEntry selectedEntry
 		InsertRow(
 			*s,
 			option.second,
-			std::bind(&GuiGameCollections::OnOptionSelected,
+			std::bind(&GuiGameCollectionsSettings::OnOptionSelected,
 				this,
 				std::placeholders::_1,
 				std::placeholders::_2,
@@ -243,7 +243,7 @@ void GuiGameCollections::ShowOptionsMenu(const GameCollectionEntry selectedEntry
 }
 
 
-void GuiGameCollections::InsertRow(GuiSettings& root, const std::string& text, std::function<bool(InputConfig*, Input)> fun)
+void GuiGameCollectionsSettings::InsertRow(GuiSettings& root, const std::string& text, std::function<bool(InputConfig*, Input)> fun)
 {
 	ComponentListRow row;
 	row.addElement(std::make_shared<TextComponent>(mWindow, text, Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
@@ -251,7 +251,7 @@ void GuiGameCollections::InsertRow(GuiSettings& root, const std::string& text, s
 	root.addRow(row);
 }
 
-bool GuiGameCollections::OnOptionSelected(
+bool GuiGameCollectionsSettings::OnOptionSelected(
 	InputConfig* config,
 	Input input,
 	const GameCollectionOption option,
@@ -341,7 +341,7 @@ bool GuiGameCollections::OnOptionSelected(
 	return false;
 }
 
-void GuiGameCollections::NewGameCollection(const GameCollectionEntry selectedEntry, GuiSettings* menu)
+void GuiGameCollectionsSettings::NewGameCollection(const GameCollectionEntry selectedEntry, GuiSettings* menu)
 {
 	const std::size_t count = mGameCollections.GetGameCollectionMap().size();
 	const std::string name = "New Collection " + std::to_string(count);
@@ -356,7 +356,7 @@ void GuiGameCollections::NewGameCollection(const GameCollectionEntry selectedEnt
 	}
 }
 
-void GuiGameCollections::DuplicateGameCollection(const GameCollectionEntry selectedEntry, GuiSettings* menu)
+void GuiGameCollectionsSettings::DuplicateGameCollection(const GameCollectionEntry selectedEntry, GuiSettings* menu)
 {
 	const std::string name = selectedEntry.key;
 	std::string duplicateName = name + " Copy";
@@ -376,7 +376,7 @@ void GuiGameCollections::DuplicateGameCollection(const GameCollectionEntry selec
 	}
 }
 
-void GuiGameCollections::RenameGameCollection(const GameCollectionEntry selectedEntry, GuiSettings* menu)
+void GuiGameCollectionsSettings::RenameGameCollection(const GameCollectionEntry selectedEntry, GuiSettings* menu)
 {
 	const std::string key = selectedEntry.key;
 	mWindow->pushGui(new GuiTextEditPopupKeyboard(mWindow,
@@ -391,7 +391,7 @@ void GuiGameCollections::RenameGameCollection(const GameCollectionEntry selected
 }
 
 
-void GuiGameCollections::DeleteGameCollection(const GameCollectionEntry selectedEntry, GuiSettings* menu)
+void GuiGameCollectionsSettings::DeleteGameCollection(const GameCollectionEntry selectedEntry, GuiSettings* menu)
 {
 	if (mGameCollections.GetGameCollectionMap().size() <= 1)
 	{
