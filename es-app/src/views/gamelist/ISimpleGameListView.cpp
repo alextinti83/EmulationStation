@@ -150,13 +150,19 @@ bool ISimpleGameListView::input(InputConfig* config, Input input)
 				cursor->getSystem()->getIndex()->removeFromIndex(cursor);
 
 				const int cursorIndex = getCursorIndex();
-				const int favCount = getFavoritesCount();
-				const bool wasFavorite = cursor->isInCurrentGameCollection();
-				cursor->SetIsFavorite(!wasFavorite);
-				FileChangeType fileChangeType = wasFavorite ? FILE_REMOVED : FILE_ADDED;
+				const int highlightCount = getHighlightCount();
+				const bool wasInCurrentGameCollection = cursor->isInCurrentGameCollection();
+				cursor->AddToCurrentGameCollection(!wasInCurrentGameCollection);
+				FileChangeType fileChangeType = wasInCurrentGameCollection ? FILE_REMOVED : FILE_ADDED;
+
+				if (cursor->GetCurrentGameCollectionTag() == GameCollection::Tag::Hide)
+				{
+					fileChangeType = wasInCurrentGameCollection ? FILE_ADDED: FILE_REMOVED;
+				}
 				
 				cursor->getSystem()->getIndex()->addToIndex(cursor);
-				onFileChanged(cursor, fileChangeType);
+
+				onFileChanged(cursor, fileChangeType);//this will repopulate the list..(twice)
 
 				if (fileChangeType == FILE_ADDED)
 				{
@@ -164,7 +170,7 @@ bool ISimpleGameListView::input(InputConfig* config, Input input)
 				}
 				else
 				{
-					if (cursorIndex < favCount)
+					if (cursorIndex < highlightCount)
 					{
 						setCursorIndex(cursorIndex);
 					}
