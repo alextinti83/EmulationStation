@@ -145,7 +145,7 @@ bool ISimpleGameListView::input(InputConfig* config, Input input)
 		else if (config->isMappedTo("y", input))  // add/remove to current game collection
 		{
 			FileData* cursor = getCursor();
-			if (cursor->getType() != FOLDER)
+			if (cursor->getType() == GAME)
 			{
 				cursor->getSystem()->getIndex()->removeFromIndex(cursor);
 
