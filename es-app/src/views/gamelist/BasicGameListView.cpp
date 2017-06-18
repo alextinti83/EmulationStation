@@ -170,15 +170,6 @@ void BasicGameListView::remove(FileData *game)
 
 std::vector<HelpPrompt> BasicGameListView::getHelpPrompts()
 {
-	std::vector<HelpPrompt> prompts;
-
-	if(Settings::getInstance()->getBool("QuickSystemSelect"))
-		prompts.push_back(HelpPrompt("left/right", "system"));
-	prompts.push_back(HelpPrompt("up/down", "choose"));
-	prompts.push_back(HelpPrompt("a", "launch"));
-	prompts.push_back(HelpPrompt("b", "back"));
-	prompts.push_back(HelpPrompt("y", "game collect. options")); 
-	prompts.push_back(HelpPrompt("x", "+/- game collect.")); 
-	prompts.push_back(HelpPrompt("select", "options"));
+	std::vector<HelpPrompt> prompts = ISimpleGameListView::getHelpPrompts();
 	return prompts;
 }

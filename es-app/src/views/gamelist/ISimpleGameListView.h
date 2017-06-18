@@ -27,6 +27,7 @@ public:
 
 	virtual bool input(InputConfig* config, Input input) override;
 
+	std::vector<HelpPrompt> getHelpPrompts() override;
 protected:
 	virtual void populateList(const std::vector<FileData*>& files) = 0;
 	virtual void launch(FileData* game) = 0;
