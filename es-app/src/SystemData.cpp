@@ -600,6 +600,17 @@ unsigned int SystemData::getDisplayedGameCount() const
 	return mRootFolder->getFilesRecursive(GAME, true).size();
 }
 
+
+SystemData* SystemData::getPrevEnabled() const
+{
+	return findNextIfEnabled(sSystemVector.rbegin(), sSystemVector.rend());
+}
+
+SystemData* SystemData::getNextEnabled() const
+{
+	return findNextIfEnabled(sSystemVector.begin(), sSystemVector.end());
+}
+
 void SystemData::loadTheme()
 {
 	mTheme = std::make_shared<ThemeData>();

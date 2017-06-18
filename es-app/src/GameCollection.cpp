@@ -78,7 +78,7 @@ void GameCollection::ReplacePlaceholder(const FileData& filedata)
 	}
 }
 
-void GameCollection::Deserialize(const boost::filesystem::path& folderPath)
+bool GameCollection::Deserialize(const boost::filesystem::path& folderPath)
 {
 	pugi::xml_document doc;
 	pugi::xml_node root;
@@ -101,8 +101,10 @@ void GameCollection::Deserialize(const boost::filesystem::path& folderPath)
 		else
 		{
 			LOG(LogError) << "Could parsing favorites list: \"" << xmlPath << "\"!";
+			return false;
 		}
 	}
+	return true;
 }
 
 void GameCollection::Serialize(const boost::filesystem::path& folderPath)
