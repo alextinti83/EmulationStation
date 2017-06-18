@@ -46,7 +46,7 @@ void BasicGameListView::populateList(const std::vector<FileData*>& files)
 	{
 		mHeaderText.setText(files.at(0)->getSystem()->getFullName());
 
-		std::vector<FileData*> games, folders, favorites;
+		std::vector<FileData*> games, folders, highlights;
 
 		for ( FileData* filedata : files )
 		{
@@ -56,18 +56,21 @@ void BasicGameListView::populateList(const std::vector<FileData*>& files)
 			}
 			else
 			{
-				games.push_back(filedata);
-				if (filedata->isFavorite())
+				if (!filedata->isHidden())
 				{
-					favorites.push_back(filedata);
+					games.push_back(filedata);
+				}
+				if (filedata->isHighlighted())
+				{
+					highlights.push_back(filedata);
 				}
 			}
 		}
-		mFavoritesCount = favorites.size();
+		mFavoritesCount = highlights.size();
 		FileFilterIndex* idx = this->mRoot->getSystem()->getIndex();
 		if (!idx->isFilteredByType(FAVORITES_FILTER))
 		{
-			for (FileData* filedata : favorites)
+			for (FileData* filedata : highlights)
 			{
 				mList.add("  " + filedata->getName(), filedata, 0, 2);
 			}

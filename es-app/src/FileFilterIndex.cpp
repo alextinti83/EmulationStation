@@ -105,7 +105,7 @@ std::string FileFilterIndex::getIndexableKey(FileData* game, FilterIndexType typ
 			if (getSecondary)
 				break;
 			//key = game->metadata.get("favorite");
-			key = game->isFavorite() ? "true" : "false";
+			key = game->isInCurrentGameCollection() ? "true" : "false";
 			break;
 		}
 	}

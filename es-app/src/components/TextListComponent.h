@@ -89,7 +89,7 @@ protected:
 	{
 		const Entry& selectedEntry = mEntries.at(entryIndex);
 		const FileData& fileData = *selectedEntry.object;
-		const bool isFavorite = fileData.isFavorite();
+		const bool isFavorite = fileData.isInCurrentGameCollection();
 		return isFavorite;
 	}
 

@@ -151,7 +151,7 @@ bool ISimpleGameListView::input(InputConfig* config, Input input)
 
 				const int cursorIndex = getCursorIndex();
 				const int favCount = getFavoritesCount();
-				const bool wasFavorite = cursor->isFavorite();
+				const bool wasFavorite = cursor->isInCurrentGameCollection();
 				cursor->SetIsFavorite(!wasFavorite);
 				FileChangeType fileChangeType = wasFavorite ? FILE_REMOVED : FILE_ADDED;
 				
