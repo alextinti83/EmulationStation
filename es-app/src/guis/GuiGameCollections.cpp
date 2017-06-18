@@ -29,6 +29,7 @@ GuiGameCollections::GuiGameCollections(
 	, mWindow(window)
 	, mSystemData(system)
 	, mGameCollections(gameCollections)
+	, m_gamelistNeedsReload(false)
 	, m_options {
 		{ GameCollectionOption::New, "New" },
 		{ GameCollectionOption::Duplicate, "Duplicate" },
@@ -65,7 +66,7 @@ void GuiGameCollections::LoadEntries()
 		currentName = current->GetName();
 		InsertEntry(currentName);
 	}
-	for (const GameCollections::GameCollectionMap::value_type& collection : mGameCollections.GetGameCollections())
+	for (const GameCollections::GameCollectionMap::value_type& collection : mGameCollections.GetGameCollectionMap())
 	{
 		if (currentName.empty() || collection.first != current->GetName())
 		{
@@ -110,8 +111,9 @@ void GuiGameCollections::InsertEntry(const std::string& key)
 		
 		ComponentListRow row;
 		entry.key = key;
+		const std::string name = key + " (" + std::to_string(gc->GetGameCount())+ ")";
 		auto padding = std::make_shared<TextComponent>(mWindow, "  ", Font::get(FONT_SIZE_MEDIUM), 0x777777FF);
-		entry.textComponent = std::make_shared<TextComponent>(mWindow, key, Font::get(FONT_SIZE_MEDIUM), 0x777777FF);
+		entry.textComponent = std::make_shared<TextComponent>(mWindow, name, Font::get(FONT_SIZE_MEDIUM), 0x777777FF);
 		entry.switchComponent = std::make_shared<SwitchComponent>(mWindow);
 
 		entry.switchComponent->setState(false);
@@ -309,7 +311,7 @@ bool GuiGameCollections::OnOptionSelected(
 
 void GuiGameCollections::NewGameCollection(const GameCollectionEntry selectedEntry, GuiSettings* menu)
 {
-	const std::size_t count = mGameCollections.GetGameCollections().size();
+	const std::size_t count = mGameCollections.GetGameCollectionMap().size();
 	const std::string name = "New Collection " + std::to_string(count);
 	if (!mGameCollections.NewGameCollection(name))
 	{
@@ -359,7 +361,7 @@ void GuiGameCollections::RenameGameCollection(const GameCollectionEntry selected
 
 void GuiGameCollections::DeleteGameCollection(const GameCollectionEntry selectedEntry, GuiSettings* menu)
 {
-	if (mGameCollections.GetGameCollections().size() <= 1)
+	if (mGameCollections.GetGameCollectionMap().size() <= 1)
 	{
 		ShowMessage("You must keep at least 1 Game Collection.");
 		return;
