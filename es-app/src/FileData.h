@@ -6,6 +6,7 @@
 #include <boost/filesystem.hpp>
 #include "MetaData.h"
 #include <memory>
+#include "GameCollection.h"
 
 class SystemData;
 
@@ -57,6 +58,7 @@ public:
 	virtual const std::string& getMarqueePath() const;
 
 	bool isInCurrentGameCollection() const;
+	GameCollection::Tag GetCurrentGameCollectionTag() const;
 	bool isHighlighted() const;
 	bool isHidden() const;
 

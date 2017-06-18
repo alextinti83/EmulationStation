@@ -114,7 +114,17 @@ const std::string& FileData::getThumbnailPath() const
 		return metadata.get("image");
 }
 
-void FileData::SetIsFavorite(bool isFavorite)
+GameCollection::Tag FileData::GetCurrentGameCollectionTag() const
+{
+	if (mSystem)
+	{
+		const GameCollection* gc = mSystem->GetGameCollections()->GetCurrentGameCollection();
+		return gc->GetTag();
+	}
+	return GameCollection::Tag::None;
+}
+
+void FileData::AddToCurrentGameCollection(bool isFavorite)
 {
 	if ( mSystem )
 	{
