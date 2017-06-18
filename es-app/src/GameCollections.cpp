@@ -133,7 +133,7 @@ bool GameCollections::LoadSettings()
 		}
 		else
 		{
-			LOG(LogError) << "Could parsing favorites list: \"" << xmlPath << "\"!";
+			LOG(LogError) << "Could parsing game collection list: \"" << xmlPath << "\"!";
 			return false;
 		}
 	}

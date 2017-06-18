@@ -316,19 +316,19 @@ void TextListComponent::applyTheme(const std::shared_ptr<ThemeData>& theme, cons
 			setColor(0, elem->get<unsigned int>("primaryColor"));
 		if ( elem->has("secondaryColor") )
 			setColor(1, elem->get<unsigned int>("secondaryColor"));
-		if (elem->has("favoriteIconColor"))
+		if (elem->has("gameCollectionIconColor"))
 		{
-			mColors[ 2 ] = elem->get<unsigned int>("favoriteIconColor");
+			mColors[ 2 ] = elem->get<unsigned int>("gameCollectionIconColor");
 		}
 		
 	}
-	if (elem && properties & PATH && elem->has("favoriteIconPath"))
+	if (elem && properties & PATH && elem->has("gameCollectionIconPath"))
 	{
-		m_gameCollectionImage.setImage(elem->get<std::string>("favoriteIconPath"));
+		m_gameCollectionImage.setImage(elem->get<std::string>("gameCollectionIconPath"));
 	}
-	if (elem && properties && elem->has("favoriteIconScale"))
+	if (elem && properties && elem->has("gameCollectionIconScale"))
 	{
-		mGameCollectionImageScale = elem->get<float>("favoriteIconScale");
+		mGameCollectionImageScale = elem->get<float>("gameCollectionIconScale");
 	}
 
 	setFont(Font::getFromTheme(elem, properties, mFont));
@@ -355,9 +355,9 @@ void TextListComponent::applyTheme(const std::shared_ptr<ThemeData>& theme, cons
 		{
 			mHorizontalMargin = elem->get<float>("horizontalMargin") * ( this->mParent ? this->mParent->getSize().x() : ( float ) Renderer::getScreenWidth() );
 		}
-		if (elem->has("favoriteIconhorizontalMargin"))
+		if (elem->has("gameCollectionIconhorizontalMargin"))
 		{
-			mGCImageHorizontalMargin = elem->get<float>("favoriteIconhorizontalMargin")* ( this->mParent ? this->mParent->getSize().x() : ( float ) Renderer::getScreenWidth() );
+			mGCImageHorizontalMargin = elem->get<float>("gameCollectionIconhorizontalMargin")* ( this->mParent ? this->mParent->getSize().x() : ( float ) Renderer::getScreenWidth() );
 		}
 	}
 

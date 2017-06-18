@@ -128,7 +128,7 @@ void GameCollection::AddGame(const FileData& filedata)
 	}
 	else
 	{
-		LOG(LogWarning) << "Favorite game " << filedata.getPath() << "already set";
+		LOG(LogWarning) << "Collection game " << filedata.getPath() << "already set";
 	}
 }
 

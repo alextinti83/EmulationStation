@@ -142,7 +142,7 @@ bool ISimpleGameListView::input(InputConfig* config, Input input)
 			}
 
 		}
-		else if (config->isMappedTo("y", input))  // Toggle favorites status
+		else if (config->isMappedTo("y", input))  // add/remove to current game collection
 		{
 			FileData* cursor = getCursor();
 			if (cursor->getType() != FOLDER)
