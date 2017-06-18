@@ -23,6 +23,20 @@ GameCollections::~GameCollections()
 {
 }
 
+bool CreateDir(boost::filesystem::path path)
+{
+	if (!boost::filesystem::exists(path))
+	{
+		boost::system::error_code returnedError;
+		boost::filesystem::create_directories(path, returnedError);
+		if (returnedError)
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
 void GameCollections::ImportLegacyFavoriteGameCollection()
 {
 	const std::string favname = "favorites.xml";
@@ -32,6 +46,7 @@ void GameCollections::ImportLegacyFavoriteGameCollection()
 		const boost::filesystem::path newPath = mRootFolder.getPath() / mGameCollectionsPath / favname;
 		if (!boost::filesystem::exists(newPath))
 		{
+			CreateDir(newPath.parent_path());
 			boost::filesystem::rename(legacyFavPath, newPath);
 		}
 	}
@@ -145,15 +160,7 @@ bool GameCollections::SaveGameCollections()
 	SaveSettings();
 
 	boost::filesystem::path absCollectionsPath(mRootFolder.getPath() / mGameCollectionsPath);
-	if (!boost::filesystem::exists(absCollectionsPath))
-	{
-		boost::system::error_code returnedError;
-		boost::filesystem::create_directories(absCollectionsPath, returnedError);
-		if (returnedError)
-		{
-			return false;
-		}
-	}
+	CreateDir(absCollectionsPath);
 
 	using GameCollectionMapValueType = std::map<std::string, GameCollection>::value_type;
 	for (GameCollectionMapValueType& pair : mGameCollections)
