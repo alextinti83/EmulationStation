@@ -7,6 +7,8 @@
 #include "FileData.h"
 #include "SystemData.h"
 #include "guis/GuiGameCollections.h"
+#include "guis/GuiMsgBox.h"
+#include "GameCollections.h"
 
 ISimpleGameListView::ISimpleGameListView(Window* window, FileData* root) : IGameListView(window, root),
 	mHeaderText(window), mHeaderImage(window), mBackground(window), m_window(window)
@@ -145,37 +147,16 @@ bool ISimpleGameListView::input(InputConfig* config, Input input)
 		else if (config->isMappedTo("x", input))  // add/remove to current game collection
 		{
 			FileData* cursor = getCursor();
-			if (cursor->getType() == GAME)
+			const GameCollections* gc = mRoot->getSystem()->GetGameCollections();
+			if (cursor->getType() == GAME && gc)
 			{
-				cursor->getSystem()->getIndex()->removeFromIndex(cursor);
-
-				const int cursorIndex = getCursorIndex();
-				const int highlightCount = getHighlightCount();
-				const bool wasInCurrentGameCollection = cursor->isInCurrentGameCollection();
-				cursor->AddToCurrentGameCollection(!wasInCurrentGameCollection);
-				FileChangeType fileChangeType = wasInCurrentGameCollection ? FILE_REMOVED : FILE_ADDED;
-
-				if (cursor->GetCurrentGameCollectionTag() == GameCollection::Tag::Hide)
-				{
-					fileChangeType = wasInCurrentGameCollection ? FILE_ADDED: FILE_REMOVED;
-				}
-				
-				cursor->getSystem()->getIndex()->addToIndex(cursor);
-
-				onFileChanged(cursor, fileChangeType);//this will repopulate the list..(twice)
-
-				if (fileChangeType == FILE_ADDED)
-				{
-					setCursorIndex(cursorIndex + 1); //keep same file selected
-				}
-				else
-				{
-					if (cursorIndex < highlightCount)
-					{
-						setCursorIndex(cursorIndex);
-					}
-				}
-				
+				const bool isInCurrentGameCollection = cursor->isInCurrentGameCollection();
+				const std::string gameName = cursor->getName();
+				const std::string collectionName = gc->GetCurrentGameCollection()->GetName();
+				std::string msg = isInCurrentGameCollection
+					? "Remove " + gameName + " from your \"" + collectionName + "\" collection?"
+					: "Add " + gameName + " to your \"" + collectionName + "\" collection?";
+				ShowQuestion(msg, [ this ] { AddOrRemoveGameFromCollection(); });
 			}
 			return true;
 		}
@@ -197,4 +178,47 @@ std::vector<HelpPrompt> ISimpleGameListView::getHelpPrompts()
 	prompts.push_back(HelpPrompt("select", "options"));
 
 	return prompts;
+}
+
+
+void ISimpleGameListView::AddOrRemoveGameFromCollection()
+{
+	FileData* cursor = getCursor();
+	if (cursor->getType() == GAME)
+	{
+		cursor->getSystem()->getIndex()->removeFromIndex(cursor);
+
+		const int cursorIndex = getCursorIndex();
+		const int highlightCount = getHighlightCount();
+		const bool wasInCurrentGameCollection = cursor->isInCurrentGameCollection();
+		cursor->AddToCurrentGameCollection(!wasInCurrentGameCollection);
+		FileChangeType fileChangeType = wasInCurrentGameCollection ? FILE_REMOVED : FILE_ADDED;
+
+		if (cursor->GetCurrentGameCollectionTag() == GameCollection::Tag::Hide)
+		{
+			fileChangeType = wasInCurrentGameCollection ? FILE_ADDED : FILE_REMOVED;
+		}
+
+		cursor->getSystem()->getIndex()->addToIndex(cursor);
+
+		onFileChanged(cursor, fileChangeType);//this will repopulate the list..(twice)
+
+		if (fileChangeType == FILE_ADDED)
+		{
+			setCursorIndex(cursorIndex + 1); //keep same file selected
+		}
+		else
+		{
+			if (cursorIndex < highlightCount)
+			{
+				setCursorIndex(cursorIndex);
+			}
+		}
+
+	}
+}
+
+void ISimpleGameListView::ShowQuestion(const std::string& mgs, const std::function<void()>& func)
+{
+	m_window->pushGui(new GuiMsgBox(mWindow, mgs, "YES", func, "NO", nullptr));
 }

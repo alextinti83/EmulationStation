@@ -29,6 +29,9 @@ public:
 
 	std::vector<HelpPrompt> getHelpPrompts() override;
 protected:
+	void AddOrRemoveGameFromCollection();
+	void ShowQuestion(const std::string& mgs, const std::function<void()>& func);
+
 	virtual void populateList(const std::vector<FileData*>& files) = 0;
 	virtual void launch(FileData* game) = 0;
 
