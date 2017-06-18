@@ -251,7 +251,7 @@ bool GameCollection::Serialize(const boost::filesystem::path& folderPath)
 		if (!game.IsValid())
 		{
 			pugi::xml_attribute attr = newNode.append_attribute("error");
-			attr.set_value("invalid_path");
+			attr.set_value("path_not_found");
 		}
 	}
 	if (!doc.save_file(xmlPath.c_str()))
