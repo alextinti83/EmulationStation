@@ -174,7 +174,7 @@ GameCollection* GameCollections::GetCurrentGameCollection()
 	return const_cast< GameCollection* >( const_this.GetCurrentGameCollection() );
 }
 
-const GameCollections::GameCollectionMap& GameCollections::GetGameCollections() const
+const GameCollections::GameCollectionMap& GameCollections::GetGameCollectionMap() const
 {
 	return mGameCollections;
 }
@@ -282,6 +282,21 @@ bool GameCollections::IsInCurrentGameCollection(const FileData& filedata) const
 {
 	const auto collection = GetCurrentGameCollection();
 	return collection && collection->HasGame(filedata);
+}
+
+bool GameCollections::HasTag(const FileData& filedata, GameCollection::Tag tag) const
+{
+	for (GameCollectionMap::value_type kv : mGameCollections)
+	{
+		if (kv.second.HasTag(tag))
+		{
+			if (kv.second.HasGame(filedata))
+			{
+				return true;
+			}
+		}
+	}
+	return false;
 }
 
 void GameCollections::RemoveFromCurrentGameCollection(const FileData& filedata)

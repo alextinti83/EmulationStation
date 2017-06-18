@@ -13,7 +13,7 @@ class GameCollections
 {
 public:
 	using GameCollectionMap = std::map<std::string, GameCollection>;
-
+	using GameCollectionList = std::vector<const GameCollection*>;
 public:
 	GameCollections(const FileData& rootFolder);
 	~GameCollections();
@@ -25,12 +25,14 @@ public:
 	//getters
 	const GameCollection* GetGameCollection(const std::string& key) const;
 	const GameCollection* GetCurrentGameCollection() const;
-	const GameCollectionMap& GetGameCollections() const;
+	const GameCollectionMap& GetGameCollectionMap() const;
+
 	GameCollection* GetGameCollection(const std::string& key);
 	GameCollection* GetCurrentGameCollection();
 
 	bool IsInCurrentGameCollection(const FileData& filedata) const;
-	
+	bool HasTag(const FileData& filedata, GameCollection::Tag tag) const;
+
 	//actions
 	bool NewGameCollection(const std::string& key);
 	bool DeleteGameCollection(const std::string& key);
