@@ -85,11 +85,11 @@ protected:
 	virtual void onScroll(int amt) { if(mScrollSound) mScrollSound->play(); }
 	virtual void onCursorChanged(const CursorState& state);
 
-	bool IsInCurrentGameCollection(unsigned int entryIndex)
+	bool IsInGameCollection(unsigned int entryIndex)
 	{
 		const Entry& selectedEntry = mEntries.at(entryIndex);
 		const FileData& fileData = *selectedEntry.object;
-		const bool isCurrent = fileData.isInCurrentGameCollection();
+		const bool isCurrent = fileData.isInCurrentGameCollection() || fileData.isHighlighted();
 		return isCurrent;
 	}
 

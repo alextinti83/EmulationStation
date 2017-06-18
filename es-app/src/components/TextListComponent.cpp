@@ -95,8 +95,8 @@ void TextListComponent::render(const Eigen::Affine3f& parentTrans)
 		float gcHorizPos = mHorizontalMargin + mGCImageHorizontalMargin;
 		float extraLeftMargin = 0;
 		float verticalCenterShift;
-		const bool isCurrentGC = IsInCurrentGameCollection(i);
-		if ( isCurrentGC )
+		const bool isInAnyGC = IsInGameCollection(i);
+		if ( isInAnyGC )
 		{
 			const Eigen::Vector2f gcImageSize = m_gameCollectionImage.getSize() * mGameCollectionImageScale;
 			const float gcHeight = gcImageSize.y();
@@ -146,7 +146,7 @@ void TextListComponent::render(const Eigen::Affine3f& parentTrans)
 		font->renderTextCache(entry.data.textCache.get());
 
 #if DRAW_GAMECOLLECTION
-		if ( isCurrentGC )
+		if ( isInAnyGC )
 		{
 			m_gameCollectionImage.setColorShift(mColors[ entry.data.imageColorId]);
 			Eigen::Affine3f gcTrans = trans;
