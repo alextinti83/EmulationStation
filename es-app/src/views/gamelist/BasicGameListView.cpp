@@ -66,7 +66,7 @@ void BasicGameListView::populateList(const std::vector<FileData*>& files)
 				}
 			}
 		}
-		mFavoritesCount = highlights.size();
+		mHighlightCount = highlights.size();
 		FileFilterIndex* idx = this->mRoot->getSystem()->getIndex();
 		if (!idx->isFilteredByType(FAVORITES_FILTER))
 		{

@@ -284,7 +284,7 @@ void FileData::importLegacyFavoriteTag()
 {
 	if ( metadata.get("favorite").compare("true") == 0 )
 	{
-		SetIsFavorite(true);
+		AddToCurrentGameCollection(true);
 		metadata.erase("favorite");
 	}
 }
