@@ -37,9 +37,9 @@ public:
 	void AddGame(const FileData& filedata);
 	void RemoveGame(const FileData& filedata);
 	const std::string& GetName() const;
-
-	bool HasTag(Tag tag) const { return m_tag == tag; }
-	void SetTag(Tag tag) { m_tag = tag; }
+	std::size_t GetGameCount() const;
+	bool HasTag(Tag tag) const;
+	void SetTag(Tag tag);
 
 	// since we serialize/deserialize only key
 	// we need to map filedatas to their respective key

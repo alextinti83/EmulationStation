@@ -98,6 +98,21 @@ const std::string& GameCollection::GetName() const
 	return m_name;
 }
 
+std::size_t GameCollection::GetGameCount() const
+{
+	return mGamesMap.size();
+}
+
+bool GameCollection::HasTag(Tag tag) const
+{
+	return m_tag == tag;
+}
+
+void GameCollection::SetTag(Tag tag)
+{
+	m_tag = tag;
+}
+
 void GameCollection::AddGame(const FileData& filedata)
 {
 	const std::string& key = GetKey(filedata);
