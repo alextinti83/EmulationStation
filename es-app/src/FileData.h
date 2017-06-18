@@ -62,7 +62,7 @@ public:
 	bool isHighlighted() const;
 	bool isHidden() const;
 
-	void AddToCurrentGameCollection(bool isFavorite);
+	void AddToCurrentGameCollection(bool addOrRemove);
 	void SetMetadata(const MetaDataList& i_metadata);
 
 	const std::vector<FileData*>& getChildrenListToDisplay();

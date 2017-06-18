@@ -85,12 +85,12 @@ protected:
 	virtual void onScroll(int amt) { if(mScrollSound) mScrollSound->play(); }
 	virtual void onCursorChanged(const CursorState& state);
 
-	bool IsFavorite(unsigned int entryIndex)
+	bool IsInCurrentGameCollection(unsigned int entryIndex)
 	{
 		const Entry& selectedEntry = mEntries.at(entryIndex);
 		const FileData& fileData = *selectedEntry.object;
-		const bool isFavorite = fileData.isInCurrentGameCollection();
-		return isFavorite;
+		const bool isCurrent = fileData.isInCurrentGameCollection();
+		return isCurrent;
 	}
 
 	void PushClipRect(const Eigen::Affine3f& trans, float extraLeftMargin = 0.0f)
@@ -110,7 +110,7 @@ private:
 
 	Alignment mAlignment;
 	float mHorizontalMargin;
-	float mFavoriteImageHorizontalMargin;
+	float mGCImageHorizontalMargin;//game collection image margin
 
 	std::function<void(CursorState state)> mCursorChangedCallback;
 
@@ -123,7 +123,7 @@ private:
 	static const unsigned int COLOR_ID_COUNT = 3;
 	unsigned int mColors[COLOR_ID_COUNT];
 
-	ImageComponent m_favoriteImage;
-	float mfavoriteImageScale;
+	ImageComponent m_gameCollectionImage;
+	float mGameCollectionImageScale;
 };
 
