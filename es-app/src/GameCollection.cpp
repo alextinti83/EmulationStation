@@ -113,6 +113,11 @@ void GameCollection::SetTag(Tag tag)
 	m_tag = tag;
 }
 
+GameCollection::Tag GameCollection::GetTag() const
+{
+	return m_tag;
+}
+
 void GameCollection::AddGame(const FileData& filedata)
 {
 	const std::string& key = GetKey(filedata);

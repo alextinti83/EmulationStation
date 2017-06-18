@@ -40,6 +40,8 @@ public:
 	std::size_t GetGameCount() const;
 	bool HasTag(Tag tag) const;
 	void SetTag(Tag tag);
+	GameCollection::Tag GetTag() const;
+
 
 	// since we serialize/deserialize only key
 	// we need to map filedatas to their respective key
