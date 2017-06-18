@@ -42,6 +42,7 @@ void BasicGameListView::onFileChanged(FileData* file, FileChangeType change)
 void BasicGameListView::populateList(const std::vector<FileData*>& files)
 {
 	mList.clear();
+	std::size_t hiddenCount = 0;
 	if (files.size() > 0)
 	{
 		mHeaderText.setText(files.at(0)->getSystem()->getFullName());
@@ -56,7 +57,11 @@ void BasicGameListView::populateList(const std::vector<FileData*>& files)
 			}
 			else
 			{
-				if (!filedata->isHidden())
+				if (filedata->isHidden())
+				{
+					hiddenCount++;
+				}
+				else
 				{
 					games.push_back(filedata);
 				}
@@ -85,11 +90,17 @@ void BasicGameListView::populateList(const std::vector<FileData*>& files)
 		}
 
 	}
-	else
+	if (mList.size() == 0)
 	{
 		// empty list - add a placeholder
 		FileData* placeholder = new FileData(PLACEHOLDER, "<No Results Found for Current Filter Criteria>", this->mRoot->getSystem());
 		mList.add(placeholder->getName(), placeholder, (placeholder->getType() == PLACEHOLDER), 0);
+		if (hiddenCount > 0)
+		{
+			const std::string text = "<" + std::to_string(hiddenCount) + " hidden games>";
+			FileData* placeholder = new FileData(PLACEHOLDER, text, this->mRoot->getSystem());
+			mList.add(placeholder->getName(), placeholder, ( placeholder->getType() == PLACEHOLDER ), 0);
+		}
 	}
 }
 
