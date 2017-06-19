@@ -621,8 +621,18 @@ std::string Font::wrapText(std::string text, float xLen)
 	while(text.length() > 0) //while there's text or we still have text to render
 	{
 		space = text.find_first_of(" \t\n");
-		if(space == std::string::npos)
-			space = text.length() - 1;
+		if (space == std::string::npos)
+		{
+			space = text.find_first_of("/\\");
+			if (space == std::string::npos)
+			{
+				space = text.find_first_of(".");
+				if (space == std::string::npos)
+				{
+					space = text.length() - 1;
+				}
+			}
+		}
 
 		word = text.substr(0, space + 1);
 		text.erase(0, space + 1);

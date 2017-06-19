@@ -20,6 +20,7 @@ private:
 	void clearLoadedInput();
 	void addEntry(const char* name, unsigned int color, bool add_arrow, const std::function<void()>& func);
 	void addTemperatureEntry(GuiSettings* s);
+	void addSystemsEntry(GuiSettings* s);
 	MenuComponent mMenu;
 	TextComponent mVersion;
 	std::vector<StrInputConfig*> mLoadedInput; // used to keep information about loaded devices in case there are unpluged between device window load and save

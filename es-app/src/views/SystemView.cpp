@@ -28,31 +28,30 @@ SystemView::SystemView(Window* window) : IList<SystemViewData, SystemData*>(wind
 void SystemView::populate()
 {
 	mEntries.clear();
-
-	for(auto it = SystemData::sSystemVector.begin(); it != SystemData::sSystemVector.end(); it++)
+	for (SystemData* system : SystemData::GetSystems())
 	{
-		const std::shared_ptr<ThemeData>& theme = (*it)->getTheme();
+		const std::shared_ptr<ThemeData>& theme = system->getTheme();
 
 		if(mViewNeedsReload)
 			getViewElements(theme);
 
 		Entry e;
-		e.name = (*it)->getName();
-		e.object = *it;
+		e.name = system->getName();
+		e.object = system;
 
 		// make logo
 		if(theme->getElement("system", "logo", "image"))
 		{
 			ImageComponent* logo = new ImageComponent(mWindow, false, false);
 			logo->setMaxSize(Eigen::Vector2f(mCarousel.logoSize.x(), mCarousel.logoSize.y()));
-			logo->applyTheme((*it)->getTheme(), "system", "logo", ThemeFlags::PATH);
+			logo->applyTheme(system->getTheme(), "system", "logo", ThemeFlags::PATH);
 			logo->setPosition((mCarousel.logoSize.x() - logo->getSize().x()) / 2,
 				(mCarousel.logoSize.y() - logo->getSize().y()) / 2); // center
 			e.data.logo = std::shared_ptr<GuiComponent>(logo);
 
 			ImageComponent* logoSelected = new ImageComponent(mWindow, false, false);
 			logoSelected->setMaxSize(Eigen::Vector2f(mCarousel.logoSize.x() * mCarousel.logoScale, mCarousel.logoSize.y() * mCarousel.logoScale));
-			logoSelected->applyTheme((*it)->getTheme(), "system", "logo", ThemeFlags::PATH | ThemeFlags::COLOR);
+			logoSelected->applyTheme(system->getTheme(), "system", "logo", ThemeFlags::PATH | ThemeFlags::COLOR);
 			logoSelected->setPosition((mCarousel.logoSize.x() - logoSelected->getSize().x()) / 2,
 				(mCarousel.logoSize.y() - logoSelected->getSize().y()) / 2); // center
 			e.data.logoSelected = std::shared_ptr<GuiComponent>(logoSelected);
@@ -60,7 +59,7 @@ void SystemView::populate()
 		}else{
 			// no logo in theme; use text
 			TextComponent* text = new TextComponent(mWindow,
-				(*it)->getName(),
+				system->getName(),
 				Font::get(FONT_SIZE_LARGE),
 				0x000000FF,
 				ALIGN_CENTER);
@@ -68,7 +67,7 @@ void SystemView::populate()
 			e.data.logo = std::shared_ptr<GuiComponent>(text);
 
 			TextComponent* textSelected = new TextComponent(mWindow,
-				(*it)->getName(),
+				system->getName(),
 				Font::get((int)(FONT_SIZE_LARGE * 1.5)),
 				0x000000FF,
 				ALIGN_CENTER);
@@ -82,7 +81,7 @@ void SystemView::populate()
 		e.data.backgroundExtras.clear();
 
 		// make background extras
-		e.data.backgroundExtras = ThemeData::makeExtras((*it)->getTheme(), "system", mWindow);
+		e.data.backgroundExtras = ThemeData::makeExtras(system->getTheme(), "system", mWindow);
 
 		// sort the extras by z-index
 		std:stable_sort(e.data.backgroundExtras.begin(), e.data.backgroundExtras.end(),  [](GuiComponent* a, GuiComponent* b) {

@@ -6,6 +6,6 @@ echo copying to $_OUTPUT
 
 date
 
-cp emulationstation ${_OUTPUT}
+cp ../emulationstation ${_OUTPUT}
 
 ls -l ${_OUTPUT}

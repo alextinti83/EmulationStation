@@ -15,6 +15,7 @@ GuiSettings::GuiSettings(Window* window, const char* title) : GuiComponent(windo
 
 GuiSettings::~GuiSettings()
 {
+	if (mCloseFuncs) { mCloseFuncs(); }
 	save();
 }
 
@@ -25,7 +26,7 @@ void GuiSettings::save()
 
 	for(auto it = mSaveFuncs.begin(); it != mSaveFuncs.end(); it++)
 		(*it)();
-
+	
 	Settings::getInstance()->saveFile();
 }
 

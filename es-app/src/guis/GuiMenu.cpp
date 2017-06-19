@@ -206,9 +206,12 @@ GuiMenu::GuiMenu(Window* window) : GuiComponent(window), mMenu(window, "MAIN MEN
 			mWindow->pushGui(s);
 	});
 
+
+
 	addEntry("OTHER SETTINGS", 0x777777FF, true,
 		[this] {
 			auto s = new GuiSettings(mWindow, "OTHER SETTINGS");
+			addSystemsEntry(s);
 
 			// gamelists
 			auto save_gamelists = std::make_shared<SwitchComponent>(mWindow);
@@ -714,6 +717,60 @@ void GuiMenu::addTemperatureEntry(GuiSettings* s)
 		window->pushGui(s);
 	});
 	row.addElement(std::make_shared<TextComponent>(window, "TEMPERATURE", Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
+	s->addRow(row);
+	row.elements.clear();
+}
+
+
+void GuiMenu::addSystemsEntry(GuiSettings* s)
+{
+	Window* window = mWindow;
+
+	ComponentListRow row;
+	row.makeAcceptInputHandler([ window ]
+	{
+		auto s = new GuiSettings(window, "ENABLE SYSTEMS");
+		std::vector<std::pair<std::shared_ptr<SwitchComponent>, SystemData*>> switches;
+		for(SystemData* system : SystemData::GetAllSystems())
+		{
+			auto onOffSwitch = std::make_shared<SwitchComponent>(window);
+			switches.push_back(std::make_pair(onOffSwitch, system));
+			onOffSwitch->setState(system->IsEnabled());
+			s->addWithLabel(system->getName(), onOffSwitch);
+			s->addSaveFunc([ system, onOffSwitch ]
+			{
+				system->SetEnabled(onOffSwitch->getState());
+			});
+		}
+		s->setCloseFunc([
+			window, 
+					 // this vector captured by copy is intended
+			switches // I'm getting weird behaviors by capturing its reference
+					 // it might be some stack memory corrupted
+		]
+		{
+			bool needsRefresh = false;
+			for (auto& onOff: switches)
+			{
+				if (onOff.first->getState() != onOff.second->IsEnabled())
+				{
+					needsRefresh = true;
+				}
+			}
+			if (needsRefresh)
+			{
+
+				window->pushGui(new GuiMsgBox(window, "RESTART EMULATION STATION TO APPLY CHANGES?", "YES",
+					[]
+				{
+					if (quitES("/tmp/es-restart") != 0)
+						LOG(LogWarning) << "Restart terminated with non-zero result!";
+				}, "NO", nullptr));
+			}
+		});
+		window->pushGui(s);
+	});
+	row.addElement(std::make_shared<TextComponent>(window, "SYSTEMS", Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
 	s->addRow(row);
 	row.elements.clear();
 }
