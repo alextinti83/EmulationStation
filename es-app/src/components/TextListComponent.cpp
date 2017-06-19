@@ -3,6 +3,7 @@
 TextListComponent::TextListComponent(Window* window) :
 	BaseT(window),
 	m_favoriteImage(window),
+	mSelectorImage(window),
 	mFavoriteImageHorizontalMargin(0.0f),
 #ifdef WIN32
 	mfavoriteImageScale(0.7f)

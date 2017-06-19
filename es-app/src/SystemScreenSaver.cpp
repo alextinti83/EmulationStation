@@ -87,7 +87,7 @@ void SystemScreenSaver::startScreenSaver()
 #endif
 
 			mVideoScreensaver->setOrigin(0.5f, 0.5f);
-			mVideoScreensaver->setPosition(Renderer::getScreenWidth()/2, Renderer::getScreenHeight()/2);
+			mVideoScreensaver->setPosition(Renderer::getScreenWidth()/2.0f, Renderer::getScreenHeight()/2.0f);
 
 			if (Settings::getInstance()->getBool("StretchVideoOnScreenSaver"))
 			{
@@ -145,12 +145,11 @@ void SystemScreenSaver::countVideos()
 	{
 		mVideoCount = 0;
 		mCounted = true;
-		std::vector<SystemData*>:: iterator it;
-		for (it = SystemData::sSystemVector.begin(); it != SystemData::sSystemVector.end(); ++it)
+		for (SystemData* system : SystemData::GetSystems())
 		{
 			pugi::xml_document doc;
 			pugi::xml_node root;
-			std::string xmlReadPath = (*it)->getGamelistPath(false);
+			std::string xmlReadPath = system->getGamelistPath(false);
 
 			if(boost::filesystem::exists(xmlReadPath))
 			{
@@ -179,12 +178,11 @@ void SystemScreenSaver::pickRandomVideo(std::string& path)
 	{
 		int video = (int)(((float)rand() / float(RAND_MAX)) * (float)mVideoCount);
 
-		std::vector<SystemData*>:: iterator it;
-		for (it = SystemData::sSystemVector.begin(); it != SystemData::sSystemVector.end(); ++it)
+		for (SystemData* system : SystemData::GetSystems())
 		{
 			pugi::xml_document doc;
 			pugi::xml_node root;
-			std::string xmlReadPath = (*it)->getGamelistPath(false);
+			std::string xmlReadPath = system->getGamelistPath(false);
 
 			if(boost::filesystem::exists(xmlReadPath))
 			{
@@ -203,18 +201,18 @@ void SystemScreenSaver::pickRandomVideo(std::string& path)
 						if (video-- == 0)
 						{
 							// Yes. Resolve to a full path
-							path = resolvePath(videoNode.text().get(), (*it)->getStartPath(), true).generic_string();
-							mSystemName = (*it)->getFullName();
+							path = resolvePath(videoNode.text().get(), system->getStartPath(), true).generic_string();
+							mSystemName = system->getFullName();
 							mGameName = fileNode.child("name").text().get();
 
 							// getting corresponding FileData
 
 							// try the easy way. Should work for the majority of cases, unless in subfolders
-							FileData* rootFileData = (*it)->getRootFolder();
-							std::string gamePath = resolvePath(fileNode.child("path").text().get(), (*it)->getStartPath(), false).string();
+							FileData* rootFileData = system->getRootFolder();
+							std::string gamePath = resolvePath(fileNode.child("path").text().get(), system->getStartPath(), false).string();
 
 							std::string shortPath = gamePath;
-							shortPath = shortPath.replace(0, (*it)->getStartPath().length()+1, "");
+							shortPath = shortPath.replace(0, system->getStartPath().length()+1, "");
 
 							const std::unordered_map<std::string, FileData*>& children = rootFileData->getChildrenByFilename();
 							std::unordered_map<std::string, FileData*>::const_iterator screenSaverGame = children.find(shortPath);
