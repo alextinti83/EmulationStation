@@ -280,12 +280,10 @@ void Window::render()
 	if(mTimeSinceLastInput >= screensaverTime && screensaverTime != 0)
 		startScreenSaver();
 	
-	// Always call the screensaver render function regardless of whether the screensaver is active
-	// or not because it may perform a fade on transition
-	renderScreenSaver();
 	
 	if(mTimeSinceLastInput >= screensaverTime && screensaverTime != 0)
 	{
+		renderScreenSaver();
 		if (!isProcessing() && mAllowSleep && (!mScreenSaver || mScreenSaver->allowSleep()))
 		{
 			// go to sleep
