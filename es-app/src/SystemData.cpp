@@ -12,8 +12,8 @@
 #include <iostream>
 #include "Settings.h"
 #include "FileSorts.h"
-#include "GameCollection.h"
 #include "EmulationStation.h"
+#include "GameCollections.h"
 
 std::vector<SystemData*> SystemData::sSystemVector;
 
@@ -28,7 +28,8 @@ SystemData::SystemData(
 	const std::vector<PlatformIds::PlatformId>& platformIds,
 	const std::string& themeFolder,
 	const bool enabled)
-	: mFavorites(), m_enabled(enabled)
+	: m_enabled(enabled)
+	
 {
 	mName = name;
 	mFullName = fullName;
@@ -58,9 +59,9 @@ SystemData::SystemData(
 			populateFolder(mRootFolder);
 		}
 
-		mFavorites.reset(new GameCollection("favorites"));
-		mFavorites->Deserialize(mRootFolder->getPath());
-
+		m_gameCollections = std::unique_ptr<GameCollections>(new GameCollections(*mRootFolder));
+		m_gameCollections->LoadGameCollections();
+		
 		if (!Settings::getInstance()->getBool("IgnoreGamelist"))
 		{
 			parseGamelist(this);
@@ -74,10 +75,12 @@ SystemData::SystemData(
 
 SystemData::~SystemData()
 {
-	if (m_enabled && mFavorites)
+	if (m_enabled)
 	{
-		mFavorites->Serialize(mRootFolder->getPath());
-
+		if (m_gameCollections)
+		{
+			m_gameCollections->SaveGameCollections();
+		}
 		//save changed game data back to xml
 		if (!Settings::getInstance()->getBool("IgnoreGamelist") && Settings::getInstance()->getBool("SaveGamelistsOnExit"))
 		{
@@ -633,27 +636,6 @@ void SystemData::loadTheme()
 
 
 
-bool SystemData::isFavorite(const FileData& filedata) const
-{
-	return mFavorites->HasGame(filedata);
-}
-
-void SystemData::removeFavorite(const FileData& filedata)
-{
-	mFavorites->RemoveGame(filedata);
-}
-
-void SystemData::addFavorite(const FileData& filedata)
-{
-	mFavorites->AddGame(filedata);
-}
-
-
-void SystemData::replaceFavoritePlacholder(const FileData& filedata)
-{
-	mFavorites->ReplacePlaceholder(filedata);
-}
-
 void SystemData::SetEnabled(const bool enabled)
 {
 	m_enabled = enabled;
@@ -687,4 +669,21 @@ std::vector<SystemData*> SystemData::GetAllSystems()
 		systems.push_back(system);
 	}
 	return systems;
+}
+
+
+
+const GameCollections* SystemData::GetGameCollections() const
+{
+	if (m_gameCollections)
+	{
+		return m_gameCollections.get();
+	}
+	return nullptr;
+}
+
+GameCollections* SystemData::GetGameCollections()
+{
+	const SystemData* const_this = static_cast< const SystemData* >( this );
+	return const_cast< GameCollections* >( const_this->GetGameCollections() );
 }

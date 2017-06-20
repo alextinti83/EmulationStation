@@ -48,6 +48,7 @@ public:
 	ComponentList(Window* window);
 
 	void addRow(const ComponentListRow& row, bool setCursorHere = false);
+	std::size_t GetSize() const { return mEntries.size(); }
 
 	void textInput(const char* text) override;
 	bool input(InputConfig* config, Input input) override;

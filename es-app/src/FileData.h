@@ -6,6 +6,7 @@
 #include <boost/filesystem.hpp>
 #include "MetaData.h"
 #include <memory>
+#include "GameCollection.h"
 
 class SystemData;
 
@@ -56,8 +57,12 @@ public:
 	virtual const std::string& getVideoPath() const;
 	virtual const std::string& getMarqueePath() const;
 
-	bool isFavorite() const;
-	void SetIsFavorite(bool isFavorite);
+	bool isInActiveGameCollection() const;
+	GameCollection::Tag GetActiveGameCollectionTag() const;
+	bool isHighlighted() const;
+	bool isHidden() const;
+
+	void AddToActiveGameCollection(bool addOrRemove);
 	void SetMetadata(const MetaDataList& i_metadata);
 
 	const std::vector<FileData*>& getChildrenListToDisplay();

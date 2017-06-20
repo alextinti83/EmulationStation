@@ -23,11 +23,15 @@ public:
 	virtual void setCursor(FileData*) = 0;
 	virtual int getCursorIndex() const = 0;
 	virtual void setCursorIndex(int index) = 0;
-	virtual uint32_t getFavoritesCount() const = 0;
+	virtual uint32_t getHighlightCount() const = 0;
 
 	virtual bool input(InputConfig* config, Input input) override;
 
+	std::vector<HelpPrompt> getHelpPrompts() override;
 protected:
+	void AddOrRemoveGameFromCollection();
+	void ShowQuestion(const std::string& mgs, const std::function<void()>& func);
+
 	virtual void populateList(const std::vector<FileData*>& files) = 0;
 	virtual void launch(FileData* game) = 0;
 
@@ -38,4 +42,5 @@ protected:
 	std::vector<GuiComponent*> mThemeExtras;
 
 	std::stack<FileData*> mCursorStack;
+	Window* m_window;
 };

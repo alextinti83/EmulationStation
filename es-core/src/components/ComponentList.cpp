@@ -33,6 +33,7 @@ void ComponentList::addRow(const ComponentListRow& row, bool setCursorHere)
 	}
 }
 
+
 void ComponentList::onSizeChanged()
 {
 	for(auto it = mEntries.begin(); it != mEntries.end(); it++)

@@ -5,6 +5,7 @@
 #include "Log.h"
 #include "Settings.h"
 #include "Util.h"
+#include "GameCollections.h"
 
 namespace fs = boost::filesystem;
 
@@ -143,7 +144,8 @@ void parseGamelistAtPath(const std::string& xmlpath, SystemData* system)
 			MetaDataList metadata = MetaDataList::createFromXML(GAME_METADATA, fileNode, relativeTo);
 			file->SetMetadata(metadata);
 			
-			system->replaceFavoritePlacholder(*file);
+			GameCollections* gc = system->GetGameCollections();
+			if (gc) { gc->ReplaceGameCollectionPlacholder(*file); }
 
 			// index if it's a game!
 			if(type == GAME)
