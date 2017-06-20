@@ -280,10 +280,10 @@ void Window::render()
 	if(mTimeSinceLastInput >= screensaverTime && screensaverTime != 0)
 		startScreenSaver();
 	
+	renderScreenSaver();
 	
 	if(mTimeSinceLastInput >= screensaverTime && screensaverTime != 0)
 	{
-		renderScreenSaver();
 		if (!isProcessing() && mAllowSleep && (!mScreenSaver || mScreenSaver->allowSleep()))
 		{
 			// go to sleep
@@ -424,9 +424,10 @@ bool Window::isProcessing()
 
 void Window::renderScreenSaver()
 {
-	Renderer::setMatrix(Eigen::Affine3f::Identity());
-	unsigned char opacity = Settings::getInstance()->getString("ScreenSaverBehavior") == "dim" ? 0xA0 : 0xFF;
-	Renderer::drawRect(0, 0, Renderer::getScreenWidth(), Renderer::getScreenHeight(), 0x00000000 | opacity);
+	if (mScreenSaver)
+	{
+		mScreenSaver->renderScreenSaver();
+	}
 }
 
 bool Window::ShouldRenderTemperature(double temp)
