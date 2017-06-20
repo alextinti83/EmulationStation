@@ -13,7 +13,8 @@ TextListComponent::TextListComponent(Window* window) :
 {
 
 	m_favoriteImage.setImage(":/star_filled.svg");
-
+	//mSelectorImage.setImage(":/arrow.svg");
+	
 	mMarqueeOffset = 0;
 
 	mHorizontalMargin = 0;
@@ -22,8 +23,12 @@ TextListComponent::TextListComponent(Window* window) :
 	mFont = Font::get(FONT_SIZE_MEDIUM);
 	mUppercase = false;
 	mLineSpacing = 1.5f;
+	
+	mSelectorHeight = mFont->getSize();
+	mSelectorOffsetY = 0;
 	mSelectorColor = 0x000000FF;
 	mSelectedColor = 0;
+	
 	mColors[ 0 ] = 0x0000FFFF;
 	mColors[ 1 ] = 0x00FF00FF;
 	mColors[ 2 ] = 0xFFFF00FF;
@@ -34,13 +39,15 @@ TextListComponent::TextListComponent(Window* window) :
 void TextListComponent::render(const Eigen::Affine3f& parentTrans)
 {
 	Eigen::Affine3f trans = parentTrans * getTransform();
+	//Eigen::Affine3f trans = Eigen::Affine3f::Identity();
 
 	std::shared_ptr<Font>& font = mFont;
 
 	if ( size() == 0 )
 		return;
 
-	const float entrySize = round(font->getHeight(mLineSpacing));
+	//const float entrySize = round(font->getHeight(mLineSpacing));
+	const float entrySize = font->getSize() * mLineSpacing;
 
 	int startEntry = 0;
 
@@ -65,11 +72,23 @@ void TextListComponent::render(const Eigen::Affine3f& parentTrans)
 	// draw selector bar
 	if ( startEntry < listCutoff )
 	{
-		Renderer::setMatrix(trans);
-		//BaseT::Entry& entry = mEntries.at(( unsigned int ) mCursor);
-		//unsigned int color = mColors[ entry.data.colorId ];
-		Renderer::drawRect(0.f, ( mCursor - startEntry )*entrySize + ( entrySize - fontHeight ) / 2, mSize.x(), fontHeight, mSelectorColor);
+		if (mSelectorImage.hasImage())
+		{
+			const Eigen::Vector2f imgSize = mSelectorImage.getSize();
+			const float verticalCenterShift = ( fontHeight - imgSize.y() ) * 0.5f;
+			mSelectorImage.setPosition(
+				-mSelectorImage.getSize().x(), 
+				( mCursor - startEntry )*entrySize + verticalCenterShift + mSelectorOffsetY, 0.f);
+			mSelectorImage.render(trans);
+
+		}
+		else
+		{
+			Renderer::setMatrix(trans);
+			Renderer::drawRect(0.f, ( mCursor - startEntry )*entrySize + mSelectorOffsetY, mSize.x(), mSelectorHeight, mSelectorColor);
+		}
 	}
+
 
 	PushClipRect(trans);
 
@@ -100,6 +119,9 @@ void TextListComponent::render(const Eigen::Affine3f& parentTrans)
 		if ( isFavorite )
 		{
 			const Eigen::Vector2f favImageSize = m_favoriteImage.getSize() * mfavoriteImageScale;
+			//hack: text has some horz shift applied..//
+			//favHorizPos += favImageSize.x() * 0.5f; //
+
 			const float favHeight = favImageSize.y();
 			verticalCenterShift = ( fontHeight - favHeight ) * 0.5f;
 			extraLeftMargin = favHorizPos + favImageSize.x();
@@ -229,7 +251,7 @@ void TextListComponent::update(int deltaTime)
 		float extraLeftMargin = 0;
 		if ( hasFavorites )
 		{
-			extraLeftMargin = m_favoriteImage.getSize().x() * mfavoriteImageScale;
+			extraLeftMargin = m_favoriteImage.getSize().x() * mfavoriteImageScale + mHorizontalMargin;
 		}
 
 		const std::string& text = selectedEntry.name;
@@ -367,11 +389,43 @@ void TextListComponent::applyTheme(const std::shared_ptr<ThemeData>& theme, cons
 		}
 	}
 
-	if ( properties & FORCE_UPPERCASE && elem->has("forceUppercase") )
+	if (properties & FORCE_UPPERCASE && elem->has("forceUppercase"))
+	{
 		setUppercase(elem->get<bool>("forceUppercase"));
+	}
 
-	if ( properties & LINE_SPACING && elem->has("lineSpacing") )
-		setLineSpacing(elem->get<float>("lineSpacing"));
+	if (properties & LINE_SPACING)
+	{
+		if (elem->has("lineSpacing"))
+		{ 
+			setLineSpacing(elem->get<float>("lineSpacing"));
+		}
+		if (elem->has("selectorHeight"))
+		{
+			setSelectorHeight(elem->get<float>("selectorHeight") * Renderer::getScreenHeight());
+		}
+		else
+		{
+			setSelectorHeight(mFont->getSize() * 1.5);
 
+		}
+		if (elem->has("selectorOffsetY"))
+		{
+			float scale = this->mParent ? this->mParent->getSize().y() : ( float ) Renderer::getScreenHeight();
+			setSelectorOffsetY(elem->get<float>("selectorOffsetY") * scale);
+		}
+		else
+		{
+			setSelectorOffsetY(0.0);
+		}
+	}
 
+	if (elem->has("selectorImagePath"))
+	{
+		std::string path = elem->get<std::string>("selectorImagePath");
+		bool tile = elem->has("selectorImageTile") && elem->get<bool>("selectorImageTile");
+		mSelectorImage.setImage(path, tile);
+		mSelectorImage.setSize(mSize.x(), mSelectorHeight);
+		mSelectorImage.setColorShift(mSelectorColor);
+	}
 }
