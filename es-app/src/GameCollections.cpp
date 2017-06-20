@@ -15,7 +15,7 @@ GameCollections::GameCollections(const FileData& rootFolder)
 	, mGameCollectionsPath(
 		(k_emulationStationFolder / k_gameCollectionsFolder).generic_string()
 	)
-	, mCurrentCollectionKey("")
+	, mActiveCollectionKey("")
 {
 }
 
@@ -61,7 +61,7 @@ void GameCollections::LoadGameCollections()
 
 	using GameCollectionIt = std::map<std::string, GameCollection>::iterator;
 
-	bool currentFound = false;
+	bool activeFound = false;
 	if (boost::filesystem::exists(absCollectionsPath))
 	{
 		using fsIt = boost::filesystem::recursive_directory_iterator;
@@ -86,9 +86,9 @@ void GameCollections::LoadGameCollections()
 					}
 					else
 					{
-						if (collectionIt->first == mCurrentCollectionKey)
+						if (collectionIt->first == mActiveCollectionKey)
 						{
-							currentFound = true;
+							activeFound = true;
 						}
 					}
 				}
@@ -103,9 +103,9 @@ void GameCollections::LoadGameCollections()
 			GameCollection gameCollection(k_autoCreatedCollection, absCollectionsPath.generic_string());
 			auto result = mGameCollections.emplace(std::make_pair(k_autoCreatedCollection, std::move(gameCollection)));
 		}
-		if (!currentFound)
+		if (!activeFound)
 		{
-			mCurrentCollectionKey = mGameCollections.begin()->first;
+			mActiveCollectionKey = mGameCollections.begin()->first;
 		}
 	}
 }
@@ -120,8 +120,8 @@ bool GameCollections::SaveSettings()
 	std::string xmlPath = settings.generic_string();
 
 	root = doc.append_child(k_gamecollectionsTag.c_str());
-	pugi::xml_attribute attr = root.append_attribute("current");
-	attr.set_value(mCurrentCollectionKey.c_str());
+	pugi::xml_attribute attr = root.append_attribute("active");
+	attr.set_value(mActiveCollectionKey.c_str());
 
 	if (!doc.save_file(xmlPath.c_str()))
 	{
@@ -146,7 +146,7 @@ bool GameCollections::LoadSettings()
 		pugi::xml_node root = doc.child(k_gamecollectionsTag.c_str());
 		if (root)
 		{
-			mCurrentCollectionKey = root.attribute("current").as_string();
+			mActiveCollectionKey = root.attribute("active").as_string();
 		}
 		else
 		{
@@ -172,15 +172,15 @@ bool GameCollections::SaveGameCollections()
 	return true;
 }
 
-const GameCollection* GameCollections::GetCurrentGameCollection() const
+const GameCollection* GameCollections::GetActiveGameCollection() const
 {
-	return GetGameCollection(mCurrentCollectionKey);
+	return GetGameCollection(mActiveCollectionKey);
 }
 
-GameCollection* GameCollections::GetCurrentGameCollection()
+GameCollection* GameCollections::GetActiveGameCollection()
 {
 	const GameCollections& const_this = static_cast< const GameCollections& >( *this );
-	return const_cast< GameCollection* >( const_this.GetCurrentGameCollection() );
+	return const_cast< GameCollection* >( const_this.GetActiveGameCollection() );
 }
 
 const GameCollections::GameCollectionMap& GameCollections::GetGameCollectionMap() const
@@ -202,7 +202,7 @@ bool GameCollections::NewGameCollection(const std::string& key)
 
 bool GameCollections::DeleteGameCollection(const std::string& key)
 {
-	if (mCurrentCollectionKey.size() <= 1)
+	if (mActiveCollectionKey.size() <= 1)
 	{
 		return false;
 	}
@@ -212,15 +212,15 @@ bool GameCollections::DeleteGameCollection(const std::string& key)
 		collection->EraseFile();
 		using GameCollectionIt = std::map<std::string, GameCollection>::const_iterator;
 		mGameCollections.erase(key);
-		if (mCurrentCollectionKey == key)
+		if (mActiveCollectionKey == key)
 		{
 			if (mGameCollections.size() > 0)
 			{
-				mCurrentCollectionKey = mGameCollections.begin()->first;
+				mActiveCollectionKey = mGameCollections.begin()->first;
 			}
 			else
 			{
-				mCurrentCollectionKey = "";
+				mActiveCollectionKey = "";
 			}
 		}
 		return true;
@@ -233,9 +233,9 @@ bool GameCollections::RenameGameCollection(const std::string& key, const std::st
 	GameCollection* collection = GetGameCollection(key);
 	if (collection)
 	{
-		if (key == mCurrentCollectionKey)
+		if (key == mActiveCollectionKey)
 		{
-			mCurrentCollectionKey = newKey;
+			mActiveCollectionKey = newKey;
 		}
 		collection->Rename(newKey);
 		mGameCollections.emplace(newKey, *collection); //copy
@@ -260,11 +260,11 @@ bool GameCollections::DuplicateGameCollection(const std::string& key, const std:
 	return false;
 }
 
-bool GameCollections::SetCurrentGameCollection(const std::string& key)
+bool GameCollections::SetActiveGameCollection(const std::string& key)
 {
 	if (GetGameCollection(key))
 	{
-		mCurrentCollectionKey = key;
+		mActiveCollectionKey = key;
 		return true;
 	}
 	return false;
@@ -287,9 +287,9 @@ const GameCollection* GameCollections::GetGameCollection(const std::string& key)
 	return nullptr;
 }
 
-bool GameCollections::IsInCurrentGameCollection(const FileData& filedata) const
+bool GameCollections::IsInActivetGameCollection(const FileData& filedata) const
 {
-	const auto collection = GetCurrentGameCollection();
+	const auto collection = GetActiveGameCollection();
 	return collection && collection->HasGame(filedata);
 }
 
@@ -308,15 +308,15 @@ bool GameCollections::HasTag(const FileData& filedata, GameCollection::Tag tag) 
 	return false;
 }
 
-void GameCollections::RemoveFromCurrentGameCollection(const FileData& filedata)
+void GameCollections::RemoveFromActiveGameCollection(const FileData& filedata)
 {
-	auto collection = GetCurrentGameCollection();
+	auto collection = GetActiveGameCollection();
 	if (collection) { collection->RemoveGame(filedata); }
 }
 
-void GameCollections::AddToCurrentGameCollection(const FileData& filedata)
+void GameCollections::AddToActiveGameCollection(const FileData& filedata)
 {
-	auto collection = GetCurrentGameCollection();
+	auto collection = GetActiveGameCollection();
 	if (collection) { collection->AddGame(filedata); }
 }
 

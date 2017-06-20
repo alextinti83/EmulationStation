@@ -24,13 +24,13 @@ public:
 	
 	//getters
 	const GameCollection* GetGameCollection(const std::string& key) const;
-	const GameCollection* GetCurrentGameCollection() const;
+	const GameCollection* GetActiveGameCollection() const;
 	const GameCollectionMap& GetGameCollectionMap() const;
 
 	GameCollection* GetGameCollection(const std::string& key);
-	GameCollection* GetCurrentGameCollection();
+	GameCollection* GetActiveGameCollection();
 
-	bool IsInCurrentGameCollection(const FileData& filedata) const;
+	bool IsInActivetGameCollection(const FileData& filedata) const;
 	bool HasTag(const FileData& filedata, GameCollection::Tag tag) const;
 
 	//actions
@@ -40,10 +40,10 @@ public:
 	bool DuplicateGameCollection(const std::string& key, const std::string& duplicateKey);
 
 
-	bool SetCurrentGameCollection(const std::string& key);
+	bool SetActiveGameCollection(const std::string& key);
 
-	void RemoveFromCurrentGameCollection(const FileData& filedata);
-	void AddToCurrentGameCollection(const FileData& filedata);
+	void RemoveFromActiveGameCollection(const FileData& filedata);
+	void AddToActiveGameCollection(const FileData& filedata);
 
 	
 
@@ -60,7 +60,7 @@ private:
 private:
 	GameCollectionMap mGameCollections;
 	std::string mGameCollectionsPath;
-	std::string mCurrentCollectionKey;
+	std::string mActiveCollectionKey;
 
 	const FileData& mRootFolder;
 

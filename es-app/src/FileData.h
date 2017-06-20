@@ -57,12 +57,12 @@ public:
 	virtual const std::string& getVideoPath() const;
 	virtual const std::string& getMarqueePath() const;
 
-	bool isInCurrentGameCollection() const;
-	GameCollection::Tag GetCurrentGameCollectionTag() const;
+	bool isInActiveGameCollection() const;
+	GameCollection::Tag GetActiveGameCollectionTag() const;
 	bool isHighlighted() const;
 	bool isHidden() const;
 
-	void AddToCurrentGameCollection(bool addOrRemove);
+	void AddToActiveGameCollection(bool addOrRemove);
 	void SetMetadata(const MetaDataList& i_metadata);
 
 	const std::vector<FileData*>& getChildrenListToDisplay();

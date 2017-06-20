@@ -150,10 +150,10 @@ bool ISimpleGameListView::input(InputConfig* config, Input input)
 			const GameCollections* gc = mRoot->getSystem()->GetGameCollections();
 			if (cursor->getType() == GAME && gc)
 			{
-				const bool isInCurrentGameCollection = cursor->isInCurrentGameCollection();
+				const bool isInActiveGameCollection = cursor->isInActiveGameCollection();
 				const std::string gameName = cursor->getName();
-				const std::string collectionName = gc->GetCurrentGameCollection()->GetName();
-				std::string msg = isInCurrentGameCollection
+				const std::string collectionName = gc->GetActiveGameCollection()->GetName();
+				std::string msg = isInActiveGameCollection
 					? "Remove " + gameName + " from your \"" + collectionName + "\" collection?"
 					: "Add " + gameName + " to your \"" + collectionName + "\" collection?";
 				ShowQuestion(msg, [ this ] { AddOrRemoveGameFromCollection(); });
@@ -190,13 +190,13 @@ void ISimpleGameListView::AddOrRemoveGameFromCollection()
 
 		const int cursorIndex = getCursorIndex();
 		const int highlightCount = getHighlightCount();
-		const bool wasInCurrentGameCollection = cursor->isInCurrentGameCollection();
-		cursor->AddToCurrentGameCollection(!wasInCurrentGameCollection);
-		FileChangeType fileChangeType = wasInCurrentGameCollection ? FILE_REMOVED : FILE_ADDED;
+		const bool wasInActiveGameCollection = cursor->isInActiveGameCollection();
+		cursor->AddToActiveGameCollection(!wasInActiveGameCollection);
+		FileChangeType fileChangeType = wasInActiveGameCollection ? FILE_REMOVED : FILE_ADDED;
 
-		if (cursor->GetCurrentGameCollectionTag() == GameCollection::Tag::Hide)
+		if (cursor->GetActiveGameCollectionTag() == GameCollection::Tag::Hide)
 		{
-			fileChangeType = wasInCurrentGameCollection ? FILE_ADDED : FILE_REMOVED;
+			fileChangeType = wasInActiveGameCollection ? FILE_ADDED : FILE_REMOVED;
 		}
 
 		cursor->getSystem()->getIndex()->addToIndex(cursor);

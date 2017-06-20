@@ -104,7 +104,7 @@ std::string FileFilterIndex::getIndexableKey(FileData* game, FilterIndexType typ
 		{
 			if (getSecondary)
 				break;
-			key = game->isInCurrentGameCollection() ? "true" : "false";
+			key = game->isInActiveGameCollection() ? "true" : "false";
 			break;
 		}
 	}

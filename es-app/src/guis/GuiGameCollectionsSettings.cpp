@@ -59,7 +59,7 @@ void GuiGameCollectionsSettings::LoadEntries()
 	m_entries.clear();
 	mMenu.ClearRows();
 
-	GameCollection* current = mGameCollections.GetCurrentGameCollection();
+	GameCollection* current = mGameCollections.GetActiveGameCollection();
 
 	std::string currentName;
 	if (current)
@@ -207,7 +207,7 @@ void GuiGameCollectionsSettings::SetCurrent(const std::string key)
 	{
 		entry->switchComponent->setVisible(true);
 		entry->switchComponent->setState(true);
-		mGameCollections.SetCurrentGameCollection(key);
+		mGameCollections.SetActiveGameCollection(key);
 	}
 }
 

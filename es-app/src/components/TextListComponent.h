@@ -89,7 +89,7 @@ protected:
 	{
 		const Entry& selectedEntry = mEntries.at(entryIndex);
 		const FileData& fileData = *selectedEntry.object;
-		const bool isCurrent = fileData.isInCurrentGameCollection() || fileData.isHighlighted();
+		const bool isCurrent = fileData.isInActiveGameCollection() || fileData.isHighlighted();
 		return isCurrent;
 	}
 

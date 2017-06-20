@@ -114,28 +114,28 @@ const std::string& FileData::getThumbnailPath() const
 		return metadata.get("image");
 }
 
-GameCollection::Tag FileData::GetCurrentGameCollectionTag() const
+GameCollection::Tag FileData::GetActiveGameCollectionTag() const
 {
 	if (mSystem)
 	{
-		const GameCollection* gc = mSystem->GetGameCollections()->GetCurrentGameCollection();
+		const GameCollection* gc = mSystem->GetGameCollections()->GetActiveGameCollection();
 		return gc->GetTag();
 	}
 	return GameCollection::Tag::None;
 }
 
-void FileData::AddToCurrentGameCollection(bool isFavorite)
+void FileData::AddToActiveGameCollection(bool isFavorite)
 {
 	if ( mSystem )
 	{
 		GameCollections* gc = mSystem->GetGameCollections();
 		if (isFavorite)
 		{
-			if (gc) { gc->AddToCurrentGameCollection(*this); }
+			if (gc) { gc->AddToActiveGameCollection(*this); }
 		}
 		else
 		{
-			if (gc) { gc->RemoveFromCurrentGameCollection(*this); }
+			if (gc) { gc->RemoveFromActiveGameCollection(*this); }
 		}
 	}
 }
@@ -184,10 +184,10 @@ const std::string& FileData::getMarqueePath() const
 	return metadata.get("marquee");
 }
 
-bool FileData::isInCurrentGameCollection() const
+bool FileData::isInActiveGameCollection() const
 {
 	const GameCollections* gc = mSystem->GetGameCollections();
-	if (gc) { return gc->IsInCurrentGameCollection(*this); }
+	if (gc) { return gc->IsInActivetGameCollection(*this); }
 	return false;
 }
 
@@ -284,7 +284,7 @@ void FileData::importLegacyFavoriteTag()
 {
 	if ( metadata.get("favorite").compare("true") == 0 )
 	{
-		AddToCurrentGameCollection(true);
+		AddToActiveGameCollection(true);
 		metadata.erase("favorite");
 	}
 }
