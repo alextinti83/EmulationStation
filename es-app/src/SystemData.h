@@ -9,7 +9,7 @@
 #include "ThemeData.h"
 #include "FileFilterIndex.h"
 
-class GameCollection;
+class GameCollections;
 
 class SystemData
 {
@@ -93,12 +93,6 @@ public:
 	// Load or re-load theme.
 	void loadTheme();
 
-	// favorites
-	bool isFavorite(const FileData& filedata) const;
-	void removeFavorite(const FileData& filedata);
-	void addFavorite(const FileData& filedata);
-	void replaceFavoritePlacholder(const FileData& filedata);
-
 	FileFilterIndex* getIndex() { return mFilterIndex; };
 
 	void SetEnabled(const bool enabled);
@@ -106,7 +100,12 @@ public:
 
 	static std::vector<SystemData*> GetSystems();
 	static std::vector<SystemData*> GetAllSystems(); //disable ones too
+
+	const GameCollections* GetGameCollections() const;
+		  GameCollections* GetGameCollections();
+
 private:
+
 	std::string mName;
 	std::string mFullName;
 	std::string mStartPath;
@@ -122,8 +121,8 @@ private:
 
 	FileData* mRootFolder;
 
-	std::unique_ptr<GameCollection> mFavorites;
 	bool m_enabled;
 
 	static std::vector<SystemData*> sSystemVector;
+	std::unique_ptr<GameCollections> m_gameCollections;
 };

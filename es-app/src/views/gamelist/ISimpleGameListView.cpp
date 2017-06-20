@@ -6,9 +6,12 @@
 #include "Settings.h"
 #include "FileData.h"
 #include "SystemData.h"
+#include "guis/GuiGameCollectionsSettings.h"
+#include "guis/GuiMsgBox.h"
+#include "GameCollections.h"
 
 ISimpleGameListView::ISimpleGameListView(Window* window, FileData* root) : IGameListView(window, root),
-	mHeaderText(window), mHeaderImage(window), mBackground(window)
+	mHeaderText(window), mHeaderImage(window), mBackground(window), m_window(window)
 {
 	mHeaderText.setText("Logo Text");
 	mHeaderText.setSize(mSize.x(), 0);
@@ -131,53 +134,91 @@ bool ISimpleGameListView::input(InputConfig* config, Input input)
 				return true;
 			}
 		}
-		else if (config->isMappedTo("x", input))
+		else if (config->isMappedTo("y", input))
 		{
-			ViewController::get()->goToRandomGame();
-			return true;
-		}
-		else if (config->isMappedTo("y", input))  // Toggle favorites status
-		{
-			//Alex: metadata change here
-			FileData* cursor = getCursor();
-#if 0
-			cursor->getSystem()->getIndex()->removeFromIndex(cursor);
-			std::string newval = (cursor->metadata.get("favorite").compare("true") == 0) ? "false" : "true";
-			cursor->metadata.set("favorite", newval);
-			
-			cursor->getSystem()->getIndex()->addToIndex(cursor);
-			onFileChanged(cursor, FILE_METADATA_CHANGED);
-#else
-			if (cursor->getType() != FOLDER)
+			GameCollections* gc = mRoot->getSystem()->GetGameCollections();
+			if (gc)
 			{
-				cursor->getSystem()->getIndex()->removeFromIndex(cursor);
-
-				const int cursorIndex = getCursorIndex();
-				const int favCount = getFavoritesCount();
-				const bool wasFavorite = cursor->isFavorite();
-				cursor->SetIsFavorite(!wasFavorite);
-				FileChangeType fileChangeType = wasFavorite ? FILE_REMOVED : FILE_ADDED;
-				
-				cursor->getSystem()->getIndex()->addToIndex(cursor);
-				onFileChanged(cursor, fileChangeType);
-
-				if (fileChangeType == FILE_ADDED)
-				{
-					setCursorIndex(cursorIndex + 1); //keep same file selected
-				}
-				else
-				{
-					if (cursorIndex < favCount)
-					{
-						setCursorIndex(cursorIndex);
-					}
-				}
-				
+				m_window->pushGui(new GuiGameCollectionsSettings(m_window, *mRoot->getSystem(), *gc));
+				return true;
 			}
-#endif
+
+		}
+		else if (config->isMappedTo("x", input))  // add/remove to current game collection
+		{
+			FileData* cursor = getCursor();
+			const GameCollections* gc = mRoot->getSystem()->GetGameCollections();
+			if (cursor->getType() == GAME && gc)
+			{
+				const bool isInActiveGameCollection = cursor->isInActiveGameCollection();
+				const std::string gameName = cursor->getName();
+				const std::string collectionName = gc->GetActiveGameCollection()->GetName();
+				std::string msg = isInActiveGameCollection
+					? "Remove " + gameName + " from your \"" + collectionName + "\" collection?"
+					: "Add " + gameName + " to your \"" + collectionName + "\" collection?";
+				ShowQuestion(msg, [ this ] { AddOrRemoveGameFromCollection(); });
+			}
 			return true;
 		}
 	}
 
 	return IGameListView::input(config, input);
+}
+std::vector<HelpPrompt> ISimpleGameListView::getHelpPrompts()
+{
+	std::vector<HelpPrompt> prompts;
+
+	if (Settings::getInstance()->getBool("QuickSystemSelect"))
+		prompts.push_back(HelpPrompt("left/right", "system"));
+	prompts.push_back(HelpPrompt("up/down", "choose"));
+	prompts.push_back(HelpPrompt("a", "launch"));
+	prompts.push_back(HelpPrompt("b", "back"));
+	prompts.push_back(HelpPrompt("y", "game collect. options"));
+	prompts.push_back(HelpPrompt("x", "+/- game collect."));
+	prompts.push_back(HelpPrompt("select", "options"));
+
+	return prompts;
+}
+
+
+void ISimpleGameListView::AddOrRemoveGameFromCollection()
+{
+	FileData* cursor = getCursor();
+	if (cursor->getType() == GAME)
+	{
+		cursor->getSystem()->getIndex()->removeFromIndex(cursor);
+
+		const int cursorIndex = getCursorIndex();
+		const int highlightCount = getHighlightCount();
+		const bool wasInActiveGameCollection = cursor->isInActiveGameCollection();
+		cursor->AddToActiveGameCollection(!wasInActiveGameCollection);
+		FileChangeType fileChangeType = wasInActiveGameCollection ? FILE_REMOVED : FILE_ADDED;
+
+		if (cursor->GetActiveGameCollectionTag() == GameCollection::Tag::Hide)
+		{
+			fileChangeType = wasInActiveGameCollection ? FILE_ADDED : FILE_REMOVED;
+		}
+
+		cursor->getSystem()->getIndex()->addToIndex(cursor);
+
+		onFileChanged(cursor, fileChangeType);//this will repopulate the list..(twice)
+
+		if (fileChangeType == FILE_ADDED)
+		{
+			setCursorIndex(cursorIndex + 1); //keep same file selected
+		}
+		else
+		{
+			if (cursorIndex < highlightCount)
+			{
+				setCursorIndex(cursorIndex);
+			}
+		}
+
+	}
+}
+
+void ISimpleGameListView::ShowQuestion(const std::string& mgs, const std::function<void()>& func)
+{
+	m_window->pushGui(new GuiMsgBox(mWindow, mgs, "YES", func, "NO", nullptr));
 }

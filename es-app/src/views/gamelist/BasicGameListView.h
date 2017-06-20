@@ -18,7 +18,7 @@ public:
 
 	virtual int getCursorIndex() const override { return mList.getSelectedIndex(); }
 	virtual void setCursorIndex(int index) override { mList.setCursorIndex(index); }
-	virtual uint32_t getFavoritesCount() const override { return mFavoritesCount; }
+	virtual uint32_t getHighlightCount() const override { return mHighlightCount; }
 
 	virtual const char* getName() const override { return "basic"; }
 
@@ -30,5 +30,5 @@ protected:
 	virtual void remove(FileData* game) override;
 
 	TextListComponent mList;
-	uint32_t mFavoritesCount = 0;
+	uint32_t mHighlightCount = 0;
 };

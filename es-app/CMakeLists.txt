@@ -11,6 +11,7 @@ set(ES_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/src/VolumeControl.h
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Gamelist.h
 	${CMAKE_CURRENT_SOURCE_DIR}/src/GameCollection.h
+	${CMAKE_CURRENT_SOURCE_DIR}/src/GameCollections.h
     ${CMAKE_CURRENT_SOURCE_DIR}/src/FileFilterIndex.h
 	${CMAKE_CURRENT_SOURCE_DIR}/src/CfgFile.h
     ${CMAKE_CURRENT_SOURCE_DIR}/src/SystemScreenSaver.h
@@ -37,6 +38,7 @@ set(ES_HEADERS
 	${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiRetroArchConfig.h
 	${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiPagedListView.h
 	${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiImportRetroArchConfig.h
+	${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiGameCollectionsSettings.h
 	${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiCfgEditor.h
 
 	
@@ -72,6 +74,7 @@ set(ES_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/VolumeControl.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Gamelist.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/GameCollection.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/GameCollections.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/FileFilterIndex.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/CfgFile.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/SystemScreenSaver.cpp
@@ -98,6 +101,7 @@ set(ES_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiRetroArchConfig.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiPagedListView.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiImportRetroArchConfig.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiGameCollectionsSettings.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiCfgEditor.cpp
 
     # Scrapers

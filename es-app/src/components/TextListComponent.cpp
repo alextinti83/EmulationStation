@@ -2,19 +2,19 @@
 
 TextListComponent::TextListComponent(Window* window) :
 	BaseT(window),
-	m_favoriteImage(window),
 	mSelectorImage(window),
-	mFavoriteImageHorizontalMargin(0.0f),
+	mGCImageHorizontalMargin(0.0f),
+	m_gameCollectionImage(window),
 #ifdef WIN32
-	mfavoriteImageScale(0.7f)
+	mGameCollectionImageScale(0.7f)
 #else
-	mfavoriteImageScale(1.0f)
+	mGameCollectionImageScale(1.0f)
 #endif
 {
 
-	m_favoriteImage.setImage(":/star_filled.svg");
 	//mSelectorImage.setImage(":/arrow.svg");
-	
+	m_gameCollectionImage.setImage(":/star_filled.svg");
+
 	mMarqueeOffset = 0;
 
 	mHorizontalMargin = 0;
@@ -109,22 +109,23 @@ void TextListComponent::render(const Eigen::Affine3f& parentTrans)
 
 		Eigen::Vector3f offset(0, y, 0);
 
-#define DRAW_FAVORITE 1
-#if	DRAW_FAVORITE
+#define DRAW_GAMECOLLECTION 1
+#if	DRAW_GAMECOLLECTION
 		float horizMargin = mHorizontalMargin;
-		float favHorizPos = mHorizontalMargin + mFavoriteImageHorizontalMargin;
+		float gcHorizPos = mHorizontalMargin + mGCImageHorizontalMargin;
 		float extraLeftMargin = 0;
 		float verticalCenterShift;
-		const bool isFavorite = IsFavorite(i);
-		if ( isFavorite )
+		const bool isInAnyGC = IsInGameCollection(i);
+		if ( isInAnyGC )
 		{
-			const Eigen::Vector2f favImageSize = m_favoriteImage.getSize() * mfavoriteImageScale;
+			const Eigen::Vector2f gcImageSize = m_gameCollectionImage.getSize() * mGameCollectionImageScale;
 			//hack: text has some horz shift applied..//
-			//favHorizPos += favImageSize.x() * 0.5f; //
+			//gcHorizPos += favImageSize.x() * 0.5f; //		
 
-			const float favHeight = favImageSize.y();
-			verticalCenterShift = ( fontHeight - favHeight ) * 0.5f;
-			extraLeftMargin = favHorizPos + favImageSize.x();
+			const float gcHeight = gcImageSize.y();
+			verticalCenterShift = ( fontHeight - gcHeight ) * 0.5f;
+			extraLeftMargin = gcHorizPos + gcImageSize.x();
+
 			PushClipRect(trans, extraLeftMargin);
 			horizMargin += extraLeftMargin;
 		}
@@ -145,7 +146,7 @@ void TextListComponent::render(const Eigen::Affine3f& parentTrans)
 			{
 				offset[ 0 ] = ( mSize.x() - textSize.x() ) / 2;
 				offset[ 0 ] = std::max(offset[ 0 ], 0.f);
-				favHorizPos = offset[ 0 ] - extraLeftMargin;
+				gcHorizPos = offset[ 0 ] - extraLeftMargin;
 			}
 			else
 			{
@@ -168,19 +169,19 @@ void TextListComponent::render(const Eigen::Affine3f& parentTrans)
 
 		font->renderTextCache(entry.data.textCache.get());
 
-#if DRAW_FAVORITE
-		if ( isFavorite )
+#if DRAW_GAMECOLLECTION
+		if ( isInAnyGC )
 		{
-			m_favoriteImage.setColorShift(mColors[ entry.data.imageColorId]);
-			Eigen::Affine3f favTrans = trans;
-			Eigen::Vector3f favOffset(favHorizPos, y + verticalCenterShift, 0);
-			favTrans.translate(favOffset);
+			m_gameCollectionImage.setColorShift(mColors[ entry.data.imageColorId]);
+			Eigen::Affine3f gcTrans = trans;
+			Eigen::Vector3f gcOffset(gcHorizPos, y + verticalCenterShift, 0);
+			gcTrans.translate(gcOffset);
 			{
-				const float scale = mfavoriteImageScale;
-				favTrans.scale(Eigen::Vector3f(scale, scale, scale));
+				const float scale = mGameCollectionImageScale;
+				gcTrans.scale(Eigen::Vector3f(scale, scale, scale));
 			}
 			Renderer::popClipRect(); //pop extra margin
-			m_favoriteImage.render(favTrans);
+			m_gameCollectionImage.render(gcTrans);
 		}
 #endif
 		y += entrySize;
@@ -247,12 +248,7 @@ void TextListComponent::update(int deltaTime)
 
 		const Entry& selectedEntry = mEntries.at(( unsigned int ) mCursor);
 
-		const bool hasFavorites = true;
-		float extraLeftMargin = 0;
-		if ( hasFavorites )
-		{
-			extraLeftMargin = m_favoriteImage.getSize().x() * mfavoriteImageScale + mHorizontalMargin;
-		}
+		float extraLeftMargin = m_gameCollectionImage.getSize().x() * mGameCollectionImageScale;
 
 		const std::string& text = selectedEntry.name;
 		const Eigen::Vector2f textSize = mFont->sizeText(text);
@@ -344,19 +340,19 @@ void TextListComponent::applyTheme(const std::shared_ptr<ThemeData>& theme, cons
 			setColor(0, elem->get<unsigned int>("primaryColor"));
 		if ( elem->has("secondaryColor") )
 			setColor(1, elem->get<unsigned int>("secondaryColor"));
-		if (elem->has("favoriteIconColor"))
+		if (elem->has("gameCollectionIconColor"))
 		{
-			mColors[ 2 ] = elem->get<unsigned int>("favoriteIconColor");
+			mColors[ 2 ] = elem->get<unsigned int>("gameCollectionIconColor");
 		}
 		
 	}
-	if (elem && properties & PATH && elem->has("favoriteIconPath"))
+	if (elem && properties & PATH && elem->has("gameCollectionIconPath"))
 	{
-		m_favoriteImage.setImage(elem->get<std::string>("favoriteIconPath"));
+		m_gameCollectionImage.setImage(elem->get<std::string>("gameCollectionIconPath"));
 	}
-	if (elem && properties && elem->has("favoriteIconScale"))
+	if (elem && properties && elem->has("gameCollectionIconScale"))
 	{
-		mfavoriteImageScale = elem->get<float>("favoriteIconScale");
+		mGameCollectionImageScale = elem->get<float>("gameCollectionIconScale");
 	}
 
 	setFont(Font::getFromTheme(elem, properties, mFont));
@@ -383,9 +379,9 @@ void TextListComponent::applyTheme(const std::shared_ptr<ThemeData>& theme, cons
 		{
 			mHorizontalMargin = elem->get<float>("horizontalMargin") * ( this->mParent ? this->mParent->getSize().x() : ( float ) Renderer::getScreenWidth() );
 		}
-		if (elem->has("favoriteIconhorizontalMargin"))
+		if (elem->has("gameCollectionIconhorizontalMargin"))
 		{
-			mFavoriteImageHorizontalMargin = elem->get<float>("favoriteIconhorizontalMargin")* ( this->mParent ? this->mParent->getSize().x() : ( float ) Renderer::getScreenWidth() );
+			mGCImageHorizontalMargin = elem->get<float>("gameCollectionIconhorizontalMargin")* ( this->mParent ? this->mParent->getSize().x() : ( float ) Renderer::getScreenWidth() );
 		}
 	}
 

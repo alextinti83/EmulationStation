@@ -1,5 +1,6 @@
 #include "FileData.h"
 #include "SystemData.h"
+#include "GameCollections.h"
 
 namespace fs = boost::filesystem;
 
@@ -113,17 +114,28 @@ const std::string& FileData::getThumbnailPath() const
 		return metadata.get("image");
 }
 
-void FileData::SetIsFavorite(bool isFavorite)
+GameCollection::Tag FileData::GetActiveGameCollectionTag() const
+{
+	if (mSystem)
+	{
+		const GameCollection* gc = mSystem->GetGameCollections()->GetActiveGameCollection();
+		return gc->GetTag();
+	}
+	return GameCollection::Tag::None;
+}
+
+void FileData::AddToActiveGameCollection(bool isFavorite)
 {
 	if ( mSystem )
 	{
+		GameCollections* gc = mSystem->GetGameCollections();
 		if (isFavorite)
 		{
-			mSystem->addFavorite(*this);
+			if (gc) { gc->AddToActiveGameCollection(*this); }
 		}
 		else
 		{
-			mSystem->removeFavorite(*this);
+			if (gc) { gc->RemoveFromActiveGameCollection(*this); }
 		}
 	}
 }
@@ -172,10 +184,25 @@ const std::string& FileData::getMarqueePath() const
 	return metadata.get("marquee");
 }
 
-bool FileData::isFavorite() const
+bool FileData::isInActiveGameCollection() const
 {
-	//return metadata.get("favorite").compare("true") == 0;
-	return mSystem->isFavorite(*this);
+	const GameCollections* gc = mSystem->GetGameCollections();
+	if (gc) { return gc->IsInActivetGameCollection(*this); }
+	return false;
+}
+
+bool FileData::isHighlighted() const
+{
+	const GameCollections* gc = mSystem->GetGameCollections();
+	if (gc) { return gc->HasTag(*this, GameCollection::Tag::Highlight); }
+	return false;
+}
+
+bool FileData::isHidden() const
+{
+	const GameCollections* gc = mSystem->GetGameCollections();
+	if (gc) { return gc->HasTag(*this, GameCollection::Tag::Hide); }
+	return false;
 }
 
 std::vector<FileData*> FileData::getFilesRecursive(unsigned int typeMask, bool displayedOnly) const
@@ -257,7 +284,7 @@ void FileData::importLegacyFavoriteTag()
 {
 	if ( metadata.get("favorite").compare("true") == 0 )
 	{
-		SetIsFavorite(true);
+		AddToActiveGameCollection(true);
 		metadata.erase("favorite");
 	}
 }

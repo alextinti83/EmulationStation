@@ -566,17 +566,17 @@ Can be created as an extra.
 * `zIndex` - type: FLOAT.
 	- z-index value for component.  Components will be rendered in order of z-index value from low to high.
 
-*	`favoriteIconPath` - type: PATH. Favorite icon is not tested with a right text alignment. 
-*	`favoriteIconScale` - type: FLOAT.
-*	`favoriteIconhorizontalMargin`> - type: FLOAT.
-*	`favoriteIconColor` - type: COLOR.
+*	`gameCollectionIconPath` - type: PATH. gameCollection icon is not tested with a right text alignment. 
+*	`gameCollectionIconScale` - type: FLOAT.
+*	`gameCollectionIconhorizontalMargin`> - type: FLOAT.
+*	`gameCollectionIconColor` - type: COLOR.
 
 
 ```xml
-	<favoriteIconPath>./art/favorite.svg</favoriteIconPath>
-	<favoriteIconScale>0.1</favoriteIconScale>
-	<favoriteIconhorizontalMargin>0.01</favoriteIconhorizontalMargin>
-	<favoriteIconColor>FF0000</favoriteIconColor>
+	<gameCollectionIconPath>./art/gameCollection.svg</gameCollectionIconPath>
+	<gameCollectionIconScale>0.1</gameCollectionIconScale>
+	<gameCollectionIconhorizontalMargin>0.01</gameCollectionIconhorizontalMargin>
+	<gameCollectionIconColor>FF0000</gameCollectionIconColor>
 ```
 #### ninepatch
 

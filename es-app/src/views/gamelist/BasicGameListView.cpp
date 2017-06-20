@@ -42,11 +42,12 @@ void BasicGameListView::onFileChanged(FileData* file, FileChangeType change)
 void BasicGameListView::populateList(const std::vector<FileData*>& files)
 {
 	mList.clear();
+	std::size_t hiddenCount = 0;
 	if (files.size() > 0)
 	{
 		mHeaderText.setText(files.at(0)->getSystem()->getFullName());
 
-		std::vector<FileData*> games, folders, favorites;
+		std::vector<FileData*> games, folders, highlights;
 
 		for ( FileData* filedata : files )
 		{
@@ -56,18 +57,25 @@ void BasicGameListView::populateList(const std::vector<FileData*>& files)
 			}
 			else
 			{
-				games.push_back(filedata);
-				if (filedata->isFavorite())
+				if (filedata->isHidden())
 				{
-					favorites.push_back(filedata);
+					hiddenCount++;
+				}
+				else
+				{
+					games.push_back(filedata);
+				}
+				if (filedata->isHighlighted())
+				{
+					highlights.push_back(filedata);
 				}
 			}
 		}
-		mFavoritesCount = favorites.size();
+		mHighlightCount = highlights.size();
 		FileFilterIndex* idx = this->mRoot->getSystem()->getIndex();
 		if (!idx->isFilteredByType(FAVORITES_FILTER))
 		{
-			for (FileData* filedata : favorites)
+			for (FileData* filedata : highlights)
 			{
 				mList.add("  " + filedata->getName(), filedata, 0, 2);
 			}
@@ -82,11 +90,17 @@ void BasicGameListView::populateList(const std::vector<FileData*>& files)
 		}
 
 	}
-	else
+	if (mList.size() == 0)
 	{
 		// empty list - add a placeholder
 		FileData* placeholder = new FileData(PLACEHOLDER, "<No Results Found for Current Filter Criteria>", this->mRoot->getSystem());
 		mList.add(placeholder->getName(), placeholder, (placeholder->getType() == PLACEHOLDER), 0);
+		if (hiddenCount > 0)
+		{
+			const std::string text = "<" + std::to_string(hiddenCount) + " hidden games>";
+			FileData* placeholder = new FileData(PLACEHOLDER, text, this->mRoot->getSystem());
+			mList.add(placeholder->getName(), placeholder, ( placeholder->getType() == PLACEHOLDER ), 0);
+		}
 	}
 }
 
@@ -156,15 +170,6 @@ void BasicGameListView::remove(FileData *game)
 
 std::vector<HelpPrompt> BasicGameListView::getHelpPrompts()
 {
-	std::vector<HelpPrompt> prompts;
-
-	if(Settings::getInstance()->getBool("QuickSystemSelect"))
-		prompts.push_back(HelpPrompt("left/right", "system"));
-	prompts.push_back(HelpPrompt("up/down", "choose"));
-	prompts.push_back(HelpPrompt("a", "launch"));
-	prompts.push_back(HelpPrompt("b", "back"));
-	prompts.push_back(HelpPrompt("x", "random")); 
-	prompts.push_back(HelpPrompt("y", "favorite")); 
-	prompts.push_back(HelpPrompt("select", "options"));
+	std::vector<HelpPrompt> prompts = ISimpleGameListView::getHelpPrompts();
 	return prompts;
 }
