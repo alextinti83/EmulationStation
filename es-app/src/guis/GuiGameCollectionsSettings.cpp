@@ -251,6 +251,19 @@ void GuiGameCollectionsSettings::InsertRow(GuiSettings& root, const std::string&
 	root.addRow(row);
 }
 
+std::size_t GetGameCount(const std::vector<FileData*>& games)
+{
+	std::size_t count = 0;
+	for (FileData* game : games)
+	{
+		if (game->getType() == GAME)
+		{
+			++count;
+		}
+	}
+	return count;
+}
+
 bool GuiGameCollectionsSettings::OnOptionSelected(
 	InputConfig* config,
 	Input input,
@@ -260,7 +273,8 @@ bool GuiGameCollectionsSettings::OnOptionSelected(
 {
 	if (config->isMappedTo("a", input) && input.value)
 	{
-		GameCollection* collection;
+		GameCollection* collection  = mGameCollections.GetGameCollection(selectedEntry.key);
+
 		switch (option)
 		{
 		case GameCollectionOption::New:
@@ -276,7 +290,6 @@ bool GuiGameCollectionsSettings::OnOptionSelected(
 			DeleteGameCollection(selectedEntry, menu);
 			break;
 		case GameCollectionOption::Save:
-			collection = mGameCollections.GetGameCollection(selectedEntry.key);
 			if (collection)
 			{
 				if (collection->Serialize())
@@ -288,9 +301,12 @@ bool GuiGameCollectionsSettings::OnOptionSelected(
 					ShowMessage("Error saving " + selectedEntry.key);
 				}
 			}
+			else
+			{
+				ShowMessage("Error: could not get the selected Game Collection.");
+			}
 			break;
 		case GameCollectionOption::Reload:
-			collection = mGameCollections.GetGameCollection(selectedEntry.key);
 			if (collection)
 			{
 				if (collection->Deserialize())
@@ -304,33 +320,55 @@ bool GuiGameCollectionsSettings::OnOptionSelected(
 					ShowMessage("Error loading " + selectedEntry.key);
 				}
 			}
+			else
+			{
+				ShowMessage("Error: could not get the selected Game Collection.");
+			}
 			break;
 		case GameCollectionOption::AddAll:
 		{
-			std::size_t count = 0;
-			for (FileData* game : mSystemData.getRootFolder()->getChildrenListToDisplay())
+			if (collection)
 			{
-				if (game->getType() == GAME)
+				const std::string collectionName = selectedEntry.key;
+				const std::vector<FileData*> games = mSystemData.getRootFolder()->getChildrenListToDisplay();
+				std::size_t count = GetGameCount(games);
+				ShowQuestion("Add " +std::to_string(count) + " games to \"" + collectionName + "\"?", [this, collection, collectionName, games ] ()
 				{
-					mGameCollections.AddToCurrentGameCollection(*game);
-					++count;
-				}
-			}
-			ShowMessage(std::to_string(count) + " games added.", [ this ] () { LoadEntries(); });
-			m_gamelistNeedsReload = true;
-		} break;
-		case GameCollectionOption::RemoveAll:
-		{
-			GameCollection* gc = mGameCollections.GetCurrentGameCollection();
-			if (gc) {
-				const std::size_t count = gc->GetGameCount();
-				gc->ClearAllGames();
-				ShowMessage(std::to_string(count) + " games removed.", [ this ] () { LoadEntries(); });
-				m_gamelistNeedsReload = true;
+					std::size_t count = 0;
+					for (FileData* game : games)
+					{
+						if (game->getType() == GAME)
+						{
+							collection->AddGame(*game);
+							++count;
+						}
+					}
+					ShowMessage(std::to_string(count) + " games added to \"" + collectionName + "\".", [ this ] () { LoadEntries(); });
+					m_gamelistNeedsReload = true;
+				});
 			}
 			else
 			{
-				ShowMessage("Error: could not get the current Game Collection.");
+				ShowMessage("Error: could not get the selected Game Collection.");
+			}
+		} break;
+		case GameCollectionOption::RemoveAll:
+		{
+			if (collection)
+			{
+				const std::string collectionName = selectedEntry.key;
+				const std::size_t count = collection->GetGameCount();
+				ShowQuestion("Remove " + std::to_string(count) + " games to \"" + collectionName + "\"?", 
+					[ this, collection, count, collectionName ] ()
+				{
+					collection->ClearAllGames();
+					ShowMessage(std::to_string(count) + " games removed from \"" + collectionName + "\".", [ this ] () { LoadEntries(); });
+					m_gamelistNeedsReload = true;
+				});
+			}
+			else
+			{
+				ShowMessage("Error: could not get the selected Game Collection.");
 			}
 		} break;
 		default:
