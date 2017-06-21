@@ -45,7 +45,7 @@ struct ComponentListRow
 class ComponentList : public IList<ComponentListRow, void*>
 {
 public:
-	ComponentList(Window* window);
+	ComponentList(Window* window, std::chrono::milliseconds scrollTierDelay = std::chrono::milliseconds(200));
 
 	void addRow(const ComponentListRow& row, bool setCursorHere = false);
 	std::size_t GetSize() const { return mEntries.size(); }
@@ -85,4 +85,5 @@ private:
 	float mCameraOffset;
 
 	std::function<void(CursorState state)> mCursorChangedCallback;
+
 };

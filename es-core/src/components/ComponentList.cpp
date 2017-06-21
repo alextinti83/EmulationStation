@@ -4,7 +4,10 @@
 
 #define TOTAL_HORIZONTAL_PADDING_PX 20
 
-ComponentList::ComponentList(Window* window) : IList<ComponentListRow, void*>(window, LIST_SCROLL_STYLE_SLOW, LIST_NEVER_LOOP)
+
+
+ComponentList::ComponentList(Window* window, std::chrono::milliseconds scrollTierDelay)
+	: IList<ComponentListRow, void*>(window, scrollTierDelay, LIST_NEVER_LOOP)
 {
 	mSelectorBarOffset = 0;
 	mCameraOffset = 0;

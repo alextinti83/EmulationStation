@@ -48,6 +48,8 @@ const ScrollTier SLOW_SCROLL_TIERS[] = {
 };
 const ScrollTierList LIST_SCROLL_STYLE_SLOW = { 2, SLOW_SCROLL_TIERS };
 
+
+
 template <typename EntryData, typename UserData>
 class IList : public GuiComponent
 {
@@ -77,24 +79,60 @@ protected:
 	const ListLoopType mLoopType;
 
 	std::vector<Entry> mEntries;
+	ScrollTier mSingleScrollTier[1];
+	const ScrollTierList mSingleScrollTierStyle;
 	
 public:
-	IList(Window* window, const ScrollTierList& tierList = LIST_SCROLL_STYLE_QUICK, const ListLoopType& loopType = LIST_PAUSE_AT_END) : GuiComponent(window), 
-		mGradient(window), mTierList(tierList), mLoopType(loopType)
+	void SetAutoScrollDelay(std::chrono::milliseconds scrollTierDelay)
+	{
+		if (scrollTierDelay > std::chrono::microseconds(0))
+		{
+			mSingleScrollTier->scrollDelay = static_cast< int >( scrollTierDelay.count() );
+		}
+	}
+
+	IList(
+		Window* window,
+		std::chrono::milliseconds scrollTierDelay,
+		const ListLoopType& loopType = LIST_PAUSE_AT_END
+	) : GuiComponent(window),
+		mGradient(window),
+		mTierList(mSingleScrollTierStyle),
+		mLoopType(loopType),
+		mSingleScrollTier{ { 0, 200 } },
+		mSingleScrollTierStyle{ 1, mSingleScrollTier }
+	{
+		SetAutoScrollDelay(scrollTierDelay);
+		Init();
+	}
+
+	IList(
+		Window* window, 
+		const ScrollTierList& tierList = LIST_SCROLL_STYLE_QUICK,
+		const ListLoopType& loopType = LIST_PAUSE_AT_END
+	) : GuiComponent(window), 
+		mGradient(window), 
+		mTierList(tierList), 
+		mLoopType(loopType),
+		mSingleScrollTier{ { 0, 200 } },
+		mSingleScrollTierStyle{ 1, mSingleScrollTier }
+	{
+		Init();
+	}
+	void Init()
 	{
 		mCursor = 0;
 		mScrollTier = 0;
 		mScrollVelocity = 0;
 		mScrollTierAccumulator = 0;
 		mScrollCursorAccumulator = 0;
-		
+
 		mTitleOverlayOpacity = 0x00;
 		mTitleOverlayColor = 0xFFFFFF00;
-		mGradient.setResize((float)Renderer::getScreenWidth(), (float)Renderer::getScreenHeight());
+		mGradient.setResize(( float ) Renderer::getScreenWidth(), ( float ) Renderer::getScreenHeight());
 		mGradient.setImage(":/scroll_gradient.png");
 		mTitleOverlayFont = Font::get(FONT_SIZE_LARGE);
 	}
-
 	void SetLoopType(const ListLoopType loopType)
 	{
 		mLoopType = loopType;

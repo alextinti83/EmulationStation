@@ -19,6 +19,7 @@ class MenuComponent : public GuiComponent
 public:
 	MenuComponent(Window* window, const char* title, const std::shared_ptr<Font>& titleFont = Font::get(FONT_SIZE_LARGE));
 
+	void SetAutoScrollDelay(std::chrono::milliseconds scrollTierDelay);
 	void onSizeChanged() override;
 	int GetCursor() const { return mList->getCursorId(); }
 	inline void addRow(const ComponentListRow& row, bool setCursorHere = false) { mList->addRow(row, setCursorHere); updateSize(); }
