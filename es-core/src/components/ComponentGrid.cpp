@@ -6,7 +6,7 @@
 using namespace GridFlags;
 
 ComponentGrid::ComponentGrid(Window* window, const Eigen::Vector2i& gridDimensions) : GuiComponent(window), 
-	mGridSize(gridDimensions), mCursor(0, 0)
+	mGridSize(gridDimensions), mCursor(0, 0), mScrollDelay(200), mTimeElapsedSinceLastCursorChange(0)
 {
 	assert(gridDimensions.x() > 0 && gridDimensions.y() > 0);
 
@@ -18,6 +18,7 @@ ComponentGrid::ComponentGrid(Window* window, const Eigen::Vector2i& gridDimensio
 		mColWidths[x] = 0;
 	for(int y = 0; y < gridDimensions.y(); y++)
 		mRowHeights[y] = 0;
+
 }
 
 ComponentGrid::~ComponentGrid()
@@ -230,24 +231,28 @@ bool ComponentGrid::input(InputConfig* config, Input input)
 	if(cursorEntry && cursorEntry->component->input(config, input))
 		return true;
 
-	if(!input.value)
-		return false;
-
-	if(config->isMappedTo("down", input))
+	if (input.value != 0)
 	{
-		return moveCursor(Eigen::Vector2i(0, 1));
+		if (config->isMappedTo("down", input))
+		{
+			return StartScrollingCursor(Eigen::Vector2i(0, 1));
+		}
+		if (config->isMappedTo("up", input))
+		{
+			return StartScrollingCursor(Eigen::Vector2i(0, -1));
+		}
+		if (config->isMappedTo("left", input))
+		{
+			return StartScrollingCursor(Eigen::Vector2i(-1, 0));
+		}
+		if (config->isMappedTo("right", input))
+		{
+			return StartScrollingCursor(Eigen::Vector2i(1, 0));
+		}
 	}
-	if(config->isMappedTo("up", input))
+	else
 	{
-		return moveCursor(Eigen::Vector2i(0, -1));
-	}
-	if(config->isMappedTo("left", input))
-	{
-		return moveCursor(Eigen::Vector2i(-1, 0));
-	}
-	if(config->isMappedTo("right", input))
-	{
-		return moveCursor(Eigen::Vector2i(1, 0));
+		StopScrollingCursor();
 	}
 
 	return false;
@@ -348,10 +353,24 @@ void ComponentGrid::update(int deltaTime)
 {
 	// update ALL THE THINGS
 	GridEntry* cursorEntry = getCellAt(mCursor);
-	for(auto it = mCells.begin(); it != mCells.end(); it++)
+	for (auto it = mCells.begin(); it != mCells.end(); it++)
 	{
-		if(it->updateType == UPDATE_ALWAYS || (it->updateType == UPDATE_WHEN_SELECTED && cursorEntry == &(*it)))
+		if (it->updateType == UPDATE_ALWAYS || ( it->updateType == UPDATE_WHEN_SELECTED && cursorEntry == &( *it ) ))
 			it->component->update(deltaTime);
+	}
+	updateScroll(std::chrono::milliseconds(deltaTime));
+}
+
+void ComponentGrid::updateScroll(std::chrono::milliseconds deltaTime)
+{
+	mTimeElapsedSinceLastCursorChange += deltaTime;
+	if ( mScrollDelay > std::chrono::milliseconds::zero() 
+	&& ( mScrollDirection[ 0 ] != 0 || mScrollDirection[ 1 ] != 0 ) )
+	{
+		if (mTimeElapsedSinceLastCursorChange > mScrollDelay)
+		{
+			moveCursor(mScrollDirection);
+		}
 	}
 }
 
@@ -391,6 +410,8 @@ void ComponentGrid::textInput(const char* text)
 
 void ComponentGrid::onCursorMoved(Eigen::Vector2i from, Eigen::Vector2i to)
 {
+	mTimeElapsedSinceLastCursorChange = std::chrono::milliseconds(0);
+
 	GridEntry* cell = getCellAt(from);
 	if(cell)
 		cell->component->onFocusLost();
@@ -452,4 +473,19 @@ std::vector<HelpPrompt> ComponentGrid::getHelpPrompts()
 		prompts.push_back(HelpPrompt("up/down", "choose"));
 
 	return prompts;
+}
+
+void ComponentGrid::SetScrollDelay(std::chrono::milliseconds scrollDelay)
+{
+	mScrollDelay = scrollDelay;
+}
+
+bool ComponentGrid::StartScrollingCursor(Eigen::Vector2i dir)
+{
+	mScrollDirection = dir;
+	return moveCursor(dir);
+}
+void ComponentGrid::StopScrollingCursor()
+{
+	mScrollDirection << 0, 0;
 }
