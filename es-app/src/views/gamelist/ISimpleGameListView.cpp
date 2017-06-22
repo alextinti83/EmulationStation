@@ -205,7 +205,14 @@ void ISimpleGameListView::AddOrRemoveGameFromCollection()
 
 		if (fileChangeType == FILE_ADDED)
 		{
-			setCursorIndex(cursorIndex + 1); //keep same file selected
+			if (cursor->GetActiveGameCollectionTag() == GameCollection::Tag::Highlight)
+			{
+				setCursorIndex(cursorIndex + 1); //keep same file selected
+			}
+			else
+			{
+				setCursorIndex(cursorIndex);
+			}
 		}
 		else
 		{

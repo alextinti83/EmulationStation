@@ -1,6 +1,7 @@
 #pragma once
 
 #include "GuiComponent.h"
+#include <chrono>
 
 namespace GridFlags
 {
@@ -68,6 +69,10 @@ public:
 
 	virtual std::vector<HelpPrompt> getHelpPrompts() override;
 
+	void SetScrollDelay(std::chrono::milliseconds scrollDelay);
+	bool StartScrollingCursor(Eigen::Vector2i dir);
+	void StopScrollingCursor();
+
 private:
 	class GridEntry
 	{
@@ -114,6 +119,7 @@ private:
 	// Update position & size
 	void updateCellComponent(const GridEntry& cell);
 	void updateSeparators();
+	void updateScroll(std::chrono::milliseconds deltaTime);
 
 	GridEntry* getCellAt(int x, int y);
 	inline GridEntry* getCellAt(const Eigen::Vector2i& pos) { return getCellAt(pos.x(), pos.y()); }
@@ -124,4 +130,8 @@ private:
 
 	void onCursorMoved(Eigen::Vector2i from, Eigen::Vector2i to);
 	Eigen::Vector2i mCursor;
+
+	std::chrono::milliseconds mScrollDelay;
+	std::chrono::milliseconds mTimeElapsedSinceLastCursorChange;
+	Eigen::Vector2i mScrollDirection;
 };

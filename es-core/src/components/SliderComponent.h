@@ -15,6 +15,10 @@ public:
 
 	void setValue(float val);
 	float getValue();
+	void SetOnValueChangeCallback(const std::function<void(float oldValue, float newValue)>& callback)
+	{
+		m_onValueChanged = callback;
+	}
 
 	bool input(InputConfig* config, Input input) override;
 	void update(int deltaTime) override;
@@ -38,4 +42,6 @@ private:
 	std::string mSuffix;
 	std::shared_ptr<Font> mFont;
 	std::shared_ptr<TextCache> mValueCache;
+
+	std::function<void(float oldValue, float newValue)> m_onValueChanged;
 };

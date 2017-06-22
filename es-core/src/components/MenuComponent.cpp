@@ -34,6 +34,11 @@ MenuComponent::MenuComponent(Window* window, const char* title, const std::share
 	mGrid.resetCursor();
 }
 
+void MenuComponent::SetScrollDelay(std::chrono::milliseconds scrollTierDelay)
+{
+	mList->SetScrollDelay(scrollTierDelay);
+}
+
 void MenuComponent::setTitle(const char* title, const std::shared_ptr<Font>& font)
 {
 	mTitle->setText(strToUpper(title));

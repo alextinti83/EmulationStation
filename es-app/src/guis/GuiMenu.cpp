@@ -32,8 +32,7 @@ GuiMenu::GuiMenu(Window* window) : GuiComponent(window), mMenu(window, "MAIN MEN
 
 	// [version]
 
-	
-
+	mMenu.SetScrollDelay(std::chrono::milliseconds(Settings::getInstance()->getInt("AutoScrollDelay")));
 
 #if 0
 	addEntry("CONFIGURE INPUT", 0x777777FF, true,
@@ -147,6 +146,18 @@ GuiMenu::GuiMenu(Window* window) : GuiComponent(window), mMenu(window, "MAIN MEN
 				});
 			}
 
+			
+			// screensaver time
+			auto autoScrollDelay = std::make_shared<SliderComponent>(mWindow, 1.f, 1000.f, 5.f, "ms");
+			autoScrollDelay->setValue(( float ) ( Settings::getInstance()->getInt("AutoScrollDelay")));
+			autoScrollDelay->SetOnValueChangeCallback([ this, autoScrollDelay, s ](float oldValue, float newValue)
+			{ 
+				const int delay = static_cast< int >( newValue );
+				Settings::getInstance()->setInt("AutoScrollDelay", delay);
+				mMenu.SetScrollDelay(std::chrono::milliseconds(delay));
+				s->SetScrollDelay(std::chrono::milliseconds(delay));
+			});
+			s->addWithLabel("AUTO SCROLL AFTER", autoScrollDelay);
 
 			// screensaver time
 			auto screensaver_time = std::make_shared<SliderComponent>(mWindow, 0.f, 30.f, 1.f, "m");
