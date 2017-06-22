@@ -2,6 +2,7 @@
 #include "components/MenuComponent.h"
 #include "Log.h"
 #include "Localization.h"
+#include "Settings.h"
 
 using namespace Eigen;
 
@@ -30,6 +31,9 @@ GuiTextEditPopupKeyboard::GuiTextEditPopupKeyboard(Window* window, const std::st
 	mKeyboardGrid = std::make_shared<ComponentGrid>(mWindow, 
 		GetKeyboardGridSize());
 	
+	auto scrollDelay = Settings::getInstance()->getInt("AutoScrollDelay");
+	mGrid.SetScrollDelay(std::chrono::milliseconds(scrollDelay));
+	mKeyboardGrid->SetScrollDelay(std::chrono::milliseconds(scrollDelay));
 	// Keyboard
 	// Case for if multiline is enabled, then don't create the keyboard.
 	if (!mMultiLine) {
@@ -241,6 +245,8 @@ GuiTextEditPopupKeyboard::GuiTextEditPopupKeyboard(Window* window, const std::st
 		setSize(Renderer::getScreenWidth() * 0.99f, mTitle->getFont()->getHeight() + textHeight + 40 + (Renderer::getScreenHeight() * 0.085f) * 6);
 		setPosition((Renderer::getScreenWidth() - mSize.x()) / 2, (Renderer::getScreenHeight() - mSize.y()) / 2);
 	}
+	mGrid.setCursorTo(mKeyboardGrid);
+	mKeyboardGrid->setCursorTo(hButtons.front());
 }
 
 
@@ -277,18 +283,19 @@ void GuiTextEditPopupKeyboard::onSizeChanged()
 
 bool GuiTextEditPopupKeyboard::input(InputConfig* config, Input input)
 {
-	if (GuiComponent::input(config, input))
-		return true;
+	if (GuiComponent::input(config, input)) { return true; }
+	if (!input.value) { return false; }
 
 	// pressing back when not text editing closes us
-	if (config->isMappedTo("a", input) && input.value)
+	if (config->isMappedTo("a", input) || config->isMappedTo("b", input))
 	{
 		delete this;
 		return true;
 	}
 
 	// For deleting a chara (Left Top Button)
-	if (config->isMappedTo("PageUp", input) && input.value) {
+	if (config->isMappedTo("PageUp", input))
+	{
 		mText->startEditing();
 		mText->textInput("\b");
 		mText->stopEditing();
@@ -296,14 +303,16 @@ bool GuiTextEditPopupKeyboard::input(InputConfig* config, Input input)
 	}
 
 	// For Adding a space (Right Top Button)
-	if (config->isMappedTo("PageDown", input) && input.value) {
+	if (config->isMappedTo("PageDown", input))
+	{
 		mText->startEditing();
 		mText->textInput(" ");
 		return true;
 	}
 
 	// For Shifting (Y)
-	if (config->isMappedTo("y", input) && input.value) {
+	if (config->isMappedTo("y", input))
+	{
 		if (mShift) mShift = false;
 		else mShift = true;
 		shiftKeys();
@@ -312,8 +321,9 @@ bool GuiTextEditPopupKeyboard::input(InputConfig* config, Input input)
 	return false;
 }
 
-void GuiTextEditPopupKeyboard::update(int deltatime) {
-
+void GuiTextEditPopupKeyboard::update(int deltatime)
+{
+	mGrid.update(deltatime);
 }
 
 // Shifts the keys when user hits the shift button.
