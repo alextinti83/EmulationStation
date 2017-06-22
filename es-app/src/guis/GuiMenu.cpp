@@ -31,7 +31,7 @@ GuiMenu::GuiMenu(Window* window) : GuiComponent(window), mMenu(window, "MAIN MEN
 
 	// [version]
 
-	mMenu.SetAutoScrollDelay(std::chrono::milliseconds(Settings::getInstance()->getInt("AutoScrollDelay")));
+	mMenu.SetScrollDelay(std::chrono::milliseconds(Settings::getInstance()->getInt("AutoScrollDelay")));
 
 #if 0
 	addEntry("CONFIGURE INPUT", 0x777777FF, true,
@@ -109,8 +109,8 @@ GuiMenu::GuiMenu(Window* window) : GuiComponent(window), mMenu(window, "MAIN MEN
 			{ 
 				const int delay = static_cast< int >( newValue );
 				Settings::getInstance()->setInt("AutoScrollDelay", delay);
-				mMenu.SetAutoScrollDelay(std::chrono::milliseconds(delay));
-				s->SetAutoScrollDelay(std::chrono::milliseconds(delay));
+				mMenu.SetScrollDelay(std::chrono::milliseconds(delay));
+				s->SetScrollDelay(std::chrono::milliseconds(delay));
 			});
 			s->addWithLabel("AUTO SCROLL AFTER", autoScrollDelay);
 

@@ -34,9 +34,9 @@ MenuComponent::MenuComponent(Window* window, const char* title, const std::share
 	mGrid.resetCursor();
 }
 
-void MenuComponent::SetAutoScrollDelay(std::chrono::milliseconds scrollTierDelay)
+void MenuComponent::SetScrollDelay(std::chrono::milliseconds scrollTierDelay)
 {
-	mList->SetAutoScrollDelay(scrollTierDelay);
+	mList->SetScrollDelay(scrollTierDelay);
 }
 
 void MenuComponent::setTitle(const char* title, const std::shared_ptr<Font>& font)

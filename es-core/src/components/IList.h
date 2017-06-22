@@ -83,7 +83,7 @@ protected:
 	const ScrollTierList mSingleScrollTierStyle;
 	
 public:
-	void SetAutoScrollDelay(std::chrono::milliseconds scrollTierDelay)
+	void SetScrollDelay(std::chrono::milliseconds scrollTierDelay)
 	{
 		if (scrollTierDelay > std::chrono::microseconds(0))
 		{
@@ -102,7 +102,7 @@ public:
 		mSingleScrollTier{ { 0, 200 } },
 		mSingleScrollTierStyle{ 1, mSingleScrollTier }
 	{
-		SetAutoScrollDelay(scrollTierDelay);
+		SetScrollDelay(scrollTierDelay);
 		Init();
 	}
 

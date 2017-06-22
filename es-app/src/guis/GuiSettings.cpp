@@ -12,7 +12,7 @@ GuiSettings::GuiSettings(Window* window, const char* title) : GuiComponent(windo
 	setSize((float)Renderer::getScreenWidth(), (float)Renderer::getScreenHeight());
 	mMenu.setPosition((mSize.x() - mMenu.getSize().x()) / 2, Renderer::getScreenHeight() * 0.15f);
 	
-	SetAutoScrollDelay(std::chrono::milliseconds(Settings::getInstance()->getInt("AutoScrollDelay")));
+	SetScrollDelay(std::chrono::milliseconds(Settings::getInstance()->getInt("AutoScrollDelay")));
 }
 
 GuiSettings::~GuiSettings()
@@ -21,9 +21,9 @@ GuiSettings::~GuiSettings()
 	save();
 }
 
-void GuiSettings::SetAutoScrollDelay(std::chrono::milliseconds scrollTierDelay)
+void GuiSettings::SetScrollDelay(std::chrono::milliseconds scrollTierDelay)
 {
-	mMenu.SetAutoScrollDelay(scrollTierDelay);
+	mMenu.SetScrollDelay(scrollTierDelay);
 }
 
 void GuiSettings::save()
