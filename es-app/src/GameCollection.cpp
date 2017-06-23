@@ -39,7 +39,8 @@ void GameCollection::Rename(const std::string& name)
 	{
 		m_name = name;
 		boost::filesystem::path newPath = GetFilePath(m_folderPath);
-		boost::filesystem::rename(oldPath, newPath);
+		boost::filesystem::copy(oldPath, newPath);
+		boost::filesystem::remove(oldPath);
 	}
 	else
 	{
