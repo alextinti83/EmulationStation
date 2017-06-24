@@ -4,6 +4,7 @@
 #include <memory>
 #include <Eigen/Dense>
 #include "HelpStyle.h"
+#include "INavigationElement.h"
 
 class Window;
 class Animation;
@@ -13,7 +14,7 @@ class Font;
 
 typedef std::pair<std::string, std::string> HelpPrompt;
 
-class GuiComponent
+class GuiComponent : public INavigationElement
 {
 public:
 	GuiComponent(Window* window);
@@ -111,6 +112,9 @@ public:
 	bool isEnabled() const { return mEnabled; }
 	bool isVisible() const { return mVisible; }
 
+public: //INavigation
+	bool SetFocusPosition(FocusPosition position, bool focus) override;
+
 protected:
 	virtual void OnEnabledChanged(bool oldValue, bool newValue) { }
 	virtual void OnVisibleChanged(bool oldValue, bool newValue) { }
@@ -142,4 +146,5 @@ public:
 private:
 	Eigen::Affine3f mTransform; //Don't access this directly! Use getTransform()!
 	AnimationController* mAnimationMap[MAX_ANIMATIONS];
+
 };
