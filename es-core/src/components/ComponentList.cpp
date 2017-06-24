@@ -344,7 +344,7 @@ bool ComponentList::moveCursor(int amt)
 	return ret;
 }
 
-bool ComponentList::SetFocusPosition(FocusPosition position, bool focus)
+bool ComponentList::SetFocus(FocusPosition position, bool focus)
 {
 	if (position == FocusPosition::Top)
 	{
@@ -358,7 +358,7 @@ bool ComponentList::SetFocusPosition(FocusPosition position, bool focus)
 	bool focusableFound = false;
 	for (ComponentListElement& elem : mEntries.at(mCursor).data.elements)
 	{
-		if (elem.component->SetFocusPosition(position, focus && focusableFound))
+		if (elem.component->SetFocus(position, focus && focusableFound))
 		{
 			focusableFound = true;
 		};

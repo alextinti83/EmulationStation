@@ -113,7 +113,7 @@ public:
 	bool isVisible() const { return mVisible; }
 
 public: //INavigation
-	bool SetFocusPosition(FocusPosition position, bool focus) override;
+	bool SetFocus(FocusPosition position, bool focus) override;
 
 protected:
 	virtual void OnEnabledChanged(bool oldValue, bool newValue) { }

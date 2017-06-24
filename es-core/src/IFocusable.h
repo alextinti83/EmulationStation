@@ -18,17 +18,17 @@ class IFocusable
 {
 public:
 	virtual ~IFocusable() { }
-	virtual bool SetFocusPosition(FocusPosition position, bool focus) = 0;
+	virtual bool SetFocus(FocusPosition position, bool focus) = 0;
 };
 
-namespace focus
+namespace focusable
 {
 	namespace helpers
 	{
-		class FocusableIt
+		class Iterator
 		{
 		public:
-			FocusableIt(FocusPosition pos, const Eigen::Vector2i& cursor, const Eigen::Vector2i& size)
+			Iterator(FocusPosition pos, const Eigen::Vector2i& cursor, const Eigen::Vector2i& size)
 				: pos(pos), cursor(cursor)
 			{
 				if (IsVertical())

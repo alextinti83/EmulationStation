@@ -11,19 +11,19 @@ void NavigationController::HandleNavigation(const InputData& inputData, IFocusab
 		const Input& input = inputData.input;
 		if (config.isMappedTo("up", input))
 		{
-			rootElement.SetFocusPosition(FocusPosition::Bottom, true);
+			rootElement.SetFocus(FocusPosition::Bottom, true);
 		}
 		else if (config.isMappedTo("down", input))
 		{
-			rootElement.SetFocusPosition(FocusPosition::Top, true);
+			rootElement.SetFocus(FocusPosition::Top, true);
 		}
 		else if (config.isMappedTo("left", input))
 		{
-			rootElement.SetFocusPosition(FocusPosition::RightMost, true);
+			rootElement.SetFocus(FocusPosition::RightMost, true);
 		}
 		else if (config.isMappedTo("right", input))
 		{
-			rootElement.SetFocusPosition(FocusPosition::LeftMost, true);
+			rootElement.SetFocus(FocusPosition::LeftMost, true);
 		}
 	}
 }
