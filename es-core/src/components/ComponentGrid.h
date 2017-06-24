@@ -73,6 +73,7 @@ public:
 	bool StartScrollingCursor(Eigen::Vector2i dir);
 	void StopScrollingCursor();
 
+
 private:
 	class GridEntry
 	{
@@ -123,11 +124,13 @@ private:
 
 	GridEntry* getCellAt(int x, int y);
 	inline GridEntry* getCellAt(const Eigen::Vector2i& pos) { return getCellAt(pos.x(), pos.y()); }
-	
+	bool SetFocusPosition(FocusPosition position, bool focus) override;
+
 	Eigen::Vector2i mGridSize;
 
 	std::vector<GridEntry> mCells;
 
+	bool TryToFocusEntry(const GridEntry* entry, FocusPosition position, bool focus);
 	void onCursorMoved(Eigen::Vector2i from, Eigen::Vector2i to);
 	Eigen::Vector2i mCursor;
 

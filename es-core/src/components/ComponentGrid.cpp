@@ -489,3 +489,42 @@ void ComponentGrid::StopScrollingCursor()
 {
 	mScrollDirection << 0, 0;
 }
+bool ComponentGrid::TryToFocusEntry(const GridEntry* entry, FocusPosition position, bool focus)
+{
+	if (entry && entry->CanFocus())
+	{
+		if (focus)
+		{
+			Eigen::Vector2i oldCursor = mCursor;
+			mCursor = entry->pos;
+			onCursorMoved(oldCursor, mCursor);
+		}
+		entry->component->SetFocusPosition(position, focus);
+		return focus;
+	}
+	return false;
+}
+
+bool ComponentGrid::SetFocusPosition(FocusPosition position, bool focus)
+{
+	if (position == FocusPosition::Top || position == FocusPosition::Bottom)
+	{
+		const int start = position == FocusPosition::Top ? 0 : mGridSize.y() - 1;
+		const int end = position == FocusPosition::Top ? mGridSize.y() : -1;
+		const int delta = position == FocusPosition::Top ? 1 : -1;
+		bool focusFound = false;
+		for (int y = start; y != end; y += delta)
+		{
+			const GridEntry* entry = getCellAt(mCursor.x(), y);
+			if (focus)
+			{
+				if (TryToFocusEntry(entry, position, !focusFound))
+				{
+					focusFound = true;
+					return false;
+				};
+			}
+		}
+	}
+	return true;
+}
