@@ -4,6 +4,7 @@
 #include <vector>
 #include "resources/Font.h"
 #include "InputManager.h"
+#include "NavigationController.h"
 
 class HelpComponent;
 class ImageComponent;
@@ -70,4 +71,5 @@ private:
 	unsigned int mTimeSinceLastInput;
 
 	bool mRenderedHelpPrompts;
+	NavigationController mNavigationController;
 };
