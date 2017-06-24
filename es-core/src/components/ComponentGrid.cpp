@@ -512,17 +512,32 @@ bool ComponentGrid::SetFocusPosition(FocusPosition position, bool focus)
 		const int start = position == FocusPosition::Top ? 0 : mGridSize.y() - 1;
 		const int end = position == FocusPosition::Top ? mGridSize.y() : -1;
 		const int delta = position == FocusPosition::Top ? 1 : -1;
-		bool focusFound = false;
+		bool focusableFound = false;
 		for (int y = start; y != end; y += delta)
 		{
 			const GridEntry* entry = getCellAt(mCursor.x(), y);
 			if (focus)
 			{
-				if (TryToFocusEntry(entry, position, !focusFound))
+				if (TryToFocusEntry(entry, position, !focusableFound))
 				{
-					focusFound = true;
-					return false;
+					focusableFound = true;
 				};
+			}
+			else
+			{
+				if (entry && entry->CanFocus())
+				{
+					if (!focusableFound)
+					{
+						Eigen::Vector2i oldCursor = mCursor;
+						mCursor = entry->pos;
+						onCursorMoved(oldCursor, mCursor);
+						onFocusLost();
+						focusableFound = true;
+					}
+					entry->component->SetFocusPosition(position, focus);
+					return false;
+				}
 			}
 		}
 	}

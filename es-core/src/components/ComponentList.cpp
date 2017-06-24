@@ -354,14 +354,14 @@ bool ComponentList::SetFocusPosition(FocusPosition position, bool focus)
 	{
 		mCursor = size() - 1;		
 	}
-	if (focus)
-	{
-		onCursorChanged(CURSOR_STOPPED);
-	}
-
+	onCursorChanged(CURSOR_STOPPED);
+	bool focusableFound = false;
 	for (ComponentListElement& elem : mEntries.at(mCursor).data.elements)
 	{
-		if (elem.component->SetFocusPosition(position, focus)) return true;
+		if (elem.component->SetFocusPosition(position, focus && focusableFound))
+		{
+			focusableFound = true;
+		};
 	}
 
 	mFocused = focus;
