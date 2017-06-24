@@ -4,7 +4,7 @@
 #include <memory>
 #include <Eigen/Dense>
 #include "HelpStyle.h"
-#include "INavigationElement.h"
+#include "IFocusable.h"
 
 class Window;
 class Animation;
@@ -14,7 +14,7 @@ class Font;
 
 typedef std::pair<std::string, std::string> HelpPrompt;
 
-class GuiComponent : public INavigationElement
+class GuiComponent : public IFocusable
 {
 public:
 	GuiComponent(Window* window);

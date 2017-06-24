@@ -512,9 +512,9 @@ bool ComponentGrid::TryToFocusEntry(const GridEntry* entry, FocusPosition positi
 
 bool ComponentGrid::SetFocusPosition(FocusPosition position, bool focus)
 {
-	const focus::iterator it(position, mCursor, mGridSize);
+	const focus::helpers::FocusableIt it(position, mCursor, mGridSize);
 	bool focusableFound = false;
-	for (int y = it.start; y != it.end; y += it.delta)
+	for (int y = it.begin(); y != it.end(); y += it.delta())
 	{
 		const Eigen::Vector2i pos = it.GetPos(y);
 		const GridEntry* entry = getCellAt(pos.x(), pos.y());

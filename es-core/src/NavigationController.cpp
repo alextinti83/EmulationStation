@@ -3,7 +3,7 @@
 #include "InputConfig.h"
 
 
-void NavigationController::HandleNavigation(const InputData& inputData, INavigationElement& rootElement)
+void NavigationController::HandleNavigation(const InputData& inputData, IFocusable& rootElement)
 {
 	if (inputData.input.value != 0)
 	{
