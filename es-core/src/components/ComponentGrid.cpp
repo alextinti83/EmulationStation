@@ -533,6 +533,7 @@ bool ComponentGrid::SetFocusPosition(FocusPosition position, bool focus)
 						mCursor = entry->pos;
 						onCursorMoved(oldCursor, mCursor);
 						onFocusLost();
+						StopScrollingCursor();
 						focusableFound = true;
 					}
 					entry->component->SetFocusPosition(position, focus);
