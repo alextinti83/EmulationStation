@@ -157,8 +157,11 @@ void Window::input(InputConfig* config, Input input)
 		{
 			if (!guiComponent->input(config, input))
 			{
-				const InputData inputData { *config, input };
-				mNavigationController.HandleNavigation(inputData, *guiComponent);
+				if (Settings::getInstance()->getBool("LoopMenuEntries"))
+				{
+					const InputData inputData { *config, input };
+					mNavigationController.HandleNavigation(inputData, *guiComponent);
+				}
 			}
 		}
 	}
