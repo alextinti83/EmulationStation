@@ -489,6 +489,10 @@ void ComponentGrid::StopScrollingCursor()
 {
 	mScrollDirection << 0, 0;
 }
+
+
+
+
 bool ComponentGrid::TryToFocusEntry(const GridEntry* entry, FocusPosition position, bool focus)
 {
 	if (entry && entry->CanFocus())
@@ -505,40 +509,37 @@ bool ComponentGrid::TryToFocusEntry(const GridEntry* entry, FocusPosition positi
 	return false;
 }
 
+
 bool ComponentGrid::SetFocusPosition(FocusPosition position, bool focus)
 {
-	if (position == FocusPosition::Top || position == FocusPosition::Bottom)
+	const focus::iterator it(position, mCursor, mGridSize);
+	bool focusableFound = false;
+	for (int y = it.start; y != it.end; y += it.delta)
 	{
-		const int start = position == FocusPosition::Top ? 0 : mGridSize.y() - 1;
-		const int end = position == FocusPosition::Top ? mGridSize.y() : -1;
-		const int delta = position == FocusPosition::Top ? 1 : -1;
-		bool focusableFound = false;
-		for (int y = start; y != end; y += delta)
+		const Eigen::Vector2i pos = it.GetPos(y);
+		const GridEntry* entry = getCellAt(pos.x(), pos.y());
+		if (focus)
 		{
-			const GridEntry* entry = getCellAt(mCursor.x(), y);
-			if (focus)
+			if (TryToFocusEntry(entry, position, !focusableFound))
 			{
-				if (TryToFocusEntry(entry, position, !focusableFound))
+				focusableFound = true;
+			};
+		}
+		else
+		{
+			if (entry && entry->CanFocus())
+			{
+				if (!focusableFound)
 				{
+					Eigen::Vector2i oldCursor = mCursor;
+					mCursor = entry->pos;
+					onCursorMoved(oldCursor, mCursor);
+					onFocusLost();
+					StopScrollingCursor();
 					focusableFound = true;
-				};
-			}
-			else
-			{
-				if (entry && entry->CanFocus())
-				{
-					if (!focusableFound)
-					{
-						Eigen::Vector2i oldCursor = mCursor;
-						mCursor = entry->pos;
-						onCursorMoved(oldCursor, mCursor);
-						onFocusLost();
-						StopScrollingCursor();
-						focusableFound = true;
-					}
-					entry->component->SetFocusPosition(position, focus);
-					return false;
 				}
+				entry->component->SetFocusPosition(position, focus);
+				return false;
 			}
 		}
 	}
