@@ -2,6 +2,7 @@
 #include "Log.h"
 #include "Renderer.h"
 #include "Settings.h"
+#include "helpers/IFocusableHelper.h"
 
 using namespace GridFlags;
 
@@ -488,4 +489,64 @@ bool ComponentGrid::StartScrollingCursor(Eigen::Vector2i dir)
 void ComponentGrid::StopScrollingCursor()
 {
 	mScrollDirection << 0, 0;
+}
+
+
+
+
+bool ComponentGrid::ResetFocusForEntry(const GridEntry* gridEntry, FocusPosition position, bool focus)
+{
+	if (gridEntry && gridEntry->CanFocus())
+	{
+		if (focus)
+		{
+			Eigen::Vector2i oldCursor = mCursor;
+			mCursor = gridEntry->pos;
+			onCursorMoved(oldCursor, mCursor);
+		}
+		gridEntry->component->SetFocus(position, focus);
+		return focus;
+	}
+	return false;
+}
+
+bool ComponentGrid::ResetFocusPosition(const GridEntry* gridEntry, FocusPosition position, bool setPosition)
+{
+	bool result = false;
+	if (gridEntry && gridEntry->CanFocus())
+	{
+		if (setPosition)
+		{
+			Eigen::Vector2i oldCursor = mCursor;
+			mCursor = gridEntry->pos;
+			onCursorMoved(oldCursor, mCursor);
+			onFocusLost();
+			StopScrollingCursor();
+			result = true;
+		}
+		gridEntry->component->SetFocus(position, false);
+	}
+	return result;
+}
+
+bool ComponentGrid::SetFocus(FocusPosition position, bool enableFocus)
+{
+	bool focusableFound = false;
+	focusable::helper::Iterator it(position, mCursor, mGridSize);
+	for (; it != it.end(); ++it)
+	{
+		const GridEntry* gridEntry = getCellAt(*it);
+		if (enableFocus)
+		{
+			if (ResetFocusForEntry(gridEntry, position, !focusableFound))
+			{
+				focusableFound = true;
+			};
+		}
+		else if(ResetFocusPosition(gridEntry, position, !focusableFound))
+		{
+			focusableFound = true;
+		}
+	}
+	return true;
 }

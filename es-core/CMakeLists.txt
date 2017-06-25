@@ -18,6 +18,9 @@ set(CORE_HEADERS
 	${CMAKE_CURRENT_SOURCE_DIR}/src/Util.h
 	${CMAKE_CURRENT_SOURCE_DIR}/src/Window.h
 	${CMAKE_CURRENT_SOURCE_DIR}/src/Localization.h
+	${CMAKE_CURRENT_SOURCE_DIR}/src/IFocusable.h
+	${CMAKE_CURRENT_SOURCE_DIR}/src/helpers/IFocusableHelper.h
+	${CMAKE_CURRENT_SOURCE_DIR}/src/NavigationController.h
 	
 	# utils
 	${CMAKE_CURRENT_SOURCE_DIR}/src/utils/Temperature.h
@@ -86,6 +89,8 @@ set(CORE_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/src/ThemeData.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/Util.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/Window.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/helpers/IFocusableHelper.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/NavigationController.cpp
 
 	# utils
 	${CMAKE_CURRENT_SOURCE_DIR}/src/utils/Temperature.cpp

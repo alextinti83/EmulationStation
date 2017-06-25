@@ -95,14 +95,14 @@ public:
 	inline const std::string& getDeviceGUIDString() { return mDeviceGUID; }
 
 	//Returns true if Input is mapped to this name, false otherwise.
-	bool isMappedTo(const std::string& name, Input input);
+	bool isMappedTo(const std::string& name, Input input) const;
+	bool getInputByName(const std::string& name, Input* result) const;
 
 	//Returns a list of names this input is mapped to.
 	std::vector<std::string> getMappedTo(Input input);
 
 	// Returns true if there is an Input mapped to this name, false otherwise.
 	// Writes Input mapped to this name to result if true.
-	bool getInputByName(const std::string& name, Input* result);
 
 	void loadFromXML(pugi::xml_node root);
 	void writeToXML(pugi::xml_node parent);

@@ -22,6 +22,7 @@ private:
 	void addTemperatureEntry(GuiSettings* s);
 	void addSystemsEntry(GuiSettings* s);
 	void openScreensaverOptions();
+	void addLoopMenuEntries(GuiSettings* s);
 	MenuComponent mMenu;
 	TextComponent mVersion;
 	std::vector<StrInputConfig*> mLoadedInput; // used to keep information about loaded devices in case there are unpluged between device window load and save

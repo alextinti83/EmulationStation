@@ -343,3 +343,28 @@ bool ComponentList::moveCursor(int amt)
 	listInput(0);
 	return ret;
 }
+
+bool ComponentList::SetFocus(FocusPosition position, bool enableFocus)
+{
+	if (position == FocusPosition::Top)
+	{
+		mCursor = 0;
+		
+	} else if (position == FocusPosition::Bottom)
+	{
+		mCursor = size() - 1;		
+	}
+	onCursorChanged(CURSOR_STOPPED);
+	bool focusableFound = false;
+	for (ComponentListElement& elem : mEntries.at(mCursor).data.elements)
+	{
+		if (elem.component->SetFocus(position, enableFocus && focusableFound))
+		{
+			focusableFound = true;
+		};
+	}
+
+	mFocused = enableFocus;
+	return true;
+}
+

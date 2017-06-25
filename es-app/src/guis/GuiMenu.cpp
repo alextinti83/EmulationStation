@@ -187,6 +187,8 @@ GuiMenu::GuiMenu(Window* window) : GuiComponent(window), mMenu(window, "MAIN MEN
 			ComponentListRow row;
 
 
+			addLoopMenuEntries(s);
+
 			addTemperatureEntry(s);
 			
 
@@ -841,4 +843,12 @@ void GuiMenu::addSystemsEntry(GuiSettings* s)
 	row.addElement(std::make_shared<TextComponent>(window, "SYSTEMS", Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
 	s->addRow(row);
 	row.elements.clear();
+}
+
+void GuiMenu::addLoopMenuEntries(GuiSettings* s)
+{
+	auto loop = std::make_shared<SwitchComponent>(mWindow);
+	loop->setState(Settings::getInstance()->getBool("LoopMenuEntries"));
+	s->addWithLabel("LOOP MENU ENTRIES", loop);
+	s->addSaveFunc([ loop ] { Settings::getInstance()->setBool("LoopMenuEntries", loop->getState()); });
 }
