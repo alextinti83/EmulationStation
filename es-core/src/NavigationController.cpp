@@ -22,19 +22,19 @@ void NavigationController::HandleNavigation(const InputData& inputData, IFocusab
 		const bool enableFocus = true;
 		if (config.isMappedTo("up", input))
 		{
-			rootElement.SetFocus(FocusPosition::Bottom, enableFocus);
+			rootElement.UpdateFocus(FocusPosition::Bottom, enableFocus);
 		}
 		else if (config.isMappedTo("down", input))
 		{
-			rootElement.SetFocus(FocusPosition::Top, enableFocus);
+			rootElement.UpdateFocus(FocusPosition::Top, enableFocus);
 		}
 		else if (config.isMappedTo("left", input))
 		{
-			rootElement.SetFocus(FocusPosition::RightMost, enableFocus);
+			rootElement.UpdateFocus(FocusPosition::RightMost, enableFocus);
 		}
 		else if (config.isMappedTo("right", input))
 		{
-			rootElement.SetFocus(FocusPosition::LeftMost, enableFocus);
+			rootElement.UpdateFocus(FocusPosition::LeftMost, enableFocus);
 		}
 	}
 }
