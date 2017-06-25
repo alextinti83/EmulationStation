@@ -20,7 +20,30 @@ namespace focusable
 				m_end = pos == FocusPosition::LeftMost ? size.x() : -1;
 				m_delta = pos == FocusPosition::LeftMost ? 1 : -1;
 			}
+			mCursorPos = m_begin;
 		}
+
+		Iterator& Iterator::operator++()
+		{
+			mCursorPos += delta();
+			return *this;
+		}
+
+		Eigen::Vector2i Iterator::operator*() const
+		{
+			return GetPos(mCursorPos);
+		}
+
+		bool Iterator::operator!=(int it) const
+		{
+			return !(*this == it);
+		}
+
+		bool Iterator::operator==(int it) const
+		{
+			return mCursorPos == it;
+		}
+
 		Eigen::Vector2i Iterator::GetPos(int i)  const
 		{
 			if (IsVertical())

@@ -9,12 +9,16 @@ namespace focusable
 		{
 		public:
 			Iterator(FocusPosition pos, const Eigen::Vector2i& cursor, const Eigen::Vector2i& size);
-			int begin() const { return m_begin; }
 			int end() const { return m_end; }
+			Iterator& operator++(); // ++it
+			bool operator!=(int it) const;
+			bool operator==(int it) const;
+			Eigen::Vector2i operator*() const;
 
-		public:
-			int delta() const { return m_delta; }
+		private:
 			Eigen::Vector2i GetPos(int i)  const;
+			int begin() const { return m_begin; }
+			int delta() const { return m_delta; }
 			bool IsVertical() const;
 
 		private:
@@ -23,8 +27,8 @@ namespace focusable
 			int m_begin;
 			int m_end;
 			int m_delta;
+			int mCursorPos;
 		};
-
 	}
 }
 
