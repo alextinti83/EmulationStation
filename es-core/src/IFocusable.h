@@ -17,5 +17,5 @@ class IFocusable
 {
 public:
 	virtual ~IFocusable() { }
-	virtual bool SetFocus(FocusPosition position, bool enableFocus) = 0;
+	virtual bool UpdateFocus(FocusPosition position, bool enableFocus) = 0;
 };

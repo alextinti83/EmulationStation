@@ -124,7 +124,7 @@ private:
 
 	GridEntry* getCellAt(int x, int y);
 	inline GridEntry* getCellAt(const Eigen::Vector2i& pos) { return getCellAt(pos.x(), pos.y()); }
-	bool SetFocus(FocusPosition position, bool focus) override;
+	bool UpdateFocus(FocusPosition position, bool focus) override;
 	bool ResetFocusPosition(const GridEntry* gridEntry, FocusPosition position, bool focusableFound);
 	bool ResetFocusForEntry(const GridEntry* entry, FocusPosition position, bool focus);
 
