@@ -1,7 +1,5 @@
-RetroStation
+EmulationStation
 ================
-
-Forked from RetroPie/EmulationStation.
 
 It contains some additional features/improvements including:
 
@@ -27,6 +25,7 @@ Here is the [full closed issues list](https://github.com/talex-tnt/RetroStation/
 
 Thanks to [Aloshi](https://github.com/Aloshi/EmulationStation) for building ES
 and to all the [RetroPie](https://github.com/RetroPie/EmulationStation) contributors as well of course.
+
 Not to forget [zigurana](https://github.com/zigurana) and the [RecalBox](https://github.com/recalbox/recalbox-os) project
 from which I borrowed some feature/code.
 
