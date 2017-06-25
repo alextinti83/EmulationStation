@@ -1,3 +1,36 @@
+RetroStation
+================
+
+Forked from RetroPie/EmulationStation.
+
+It contains some additional features/improvements including:
+
+* [User Game Collections](https://github.com/talex-tnt/RetroStation/issues/18) (favorites)
+
+* [Hidden Games](https://github.com/talex-tnt/RetroStation/issues/22) 
+
+* [Change Player/Controller](https://github.com/talex-tnt/RetroStation/issues/7) 
+
+* [Virtual/OnScreen Keyboard](https://github.com/talex-tnt/RetroStation/issues/5) 
+
+* [UI to add/edit retroarch .cfg files](https://github.com/talex-tnt/RetroStation/issues/16) 
+
+* [UI to Show/Hide Game Systems](https://github.com/talex-tnt/RetroStation/issues/19) 
+
+* [Onscreen Temperature](https://github.com/talex-tnt/RetroStation/issues/15) 
+
+* [Cycle Menu Entries](https://github.com/talex-tnt/RetroStation/issues/8) 
+
+* [Keep moving focus cursor by holding dpad pressed](https://github.com/talex-tnt/RetroStation/issues/23) 
+
+Here is the [full closed issues list](https://github.com/talex-tnt/RetroStation/issues?utf8=%E2%9C%93&q=is%3Aissue%20is%3Aclosed)
+
+Thanks to [Aloshi](https://github.com/Aloshi/EmulationStation) for building ES
+and to all the [RetroPie](https://github.com/RetroPie/EmulationStation) contributors as well of course.
+Not to forget [zigurana](https://github.com/zigurana) and the [RecalBox](https://github.com/recalbox/recalbox-os) project
+from which I borrowed some feature/code.
+
+
 EmulationStation
 ================
 
