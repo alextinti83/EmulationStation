@@ -21,6 +21,7 @@ private:
 	void addEntry(const char* name, unsigned int color, bool add_arrow, const std::function<void()>& func);
 	void addTemperatureEntry(GuiSettings* s);
 	void addSystemsEntry(GuiSettings* s);
+	void openScreensaverOptions();
 	void addLoopMenuEntries(GuiSettings* s);
 	MenuComponent mMenu;
 	TextComponent mVersion;

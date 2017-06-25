@@ -26,6 +26,7 @@ public:
 	virtual uint32_t getHighlightCount() const = 0;
 
 	virtual bool input(InputConfig* config, Input input) override;
+	virtual void launch(FileData* game) = 0;
 
 	std::vector<HelpPrompt> getHelpPrompts() override;
 protected:
@@ -33,7 +34,6 @@ protected:
 	void ShowQuestion(const std::string& mgs, const std::function<void()>& func);
 
 	virtual void populateList(const std::vector<FileData*>& files) = 0;
-	virtual void launch(FileData* game) = 0;
 
 	TextComponent mHeaderText;
 	ImageComponent mHeaderImage;

@@ -74,6 +74,8 @@ public:
 			it->data.textCache.reset();
 	}
 
+	inline void setSelectorHeight(float selectorScale) { mSelectorHeight = selectorScale; }
+	inline void setSelectorOffsetY(float selectorOffsetY) { mSelectorOffsetY = selectorOffsetY; }
 	inline void setSelectorColor(unsigned int color) { mSelectorColor = color; }
 	inline void setSelectedColor(unsigned int color) { mSelectedColor = color; }
 	inline void setScrollSound(const std::shared_ptr<Sound>& sound) { mScrollSound = sound; }
@@ -117,13 +119,15 @@ private:
 	std::shared_ptr<Font> mFont;
 	bool mUppercase;
 	float mLineSpacing;
+	float mSelectorHeight;
+	float mSelectorOffsetY;
 	unsigned int mSelectorColor;
 	unsigned int mSelectedColor;
 	std::shared_ptr<Sound> mScrollSound;
 	static const unsigned int COLOR_ID_COUNT = 3;
 	unsigned int mColors[COLOR_ID_COUNT];
 
+	ImageComponent mSelectorImage;
 	ImageComponent m_gameCollectionImage;
 	float mGameCollectionImageScale;
 };
-
