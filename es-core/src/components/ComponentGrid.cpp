@@ -494,23 +494,23 @@ void ComponentGrid::StopScrollingCursor()
 
 
 
-bool ComponentGrid::CheckFocusForEntry(const GridEntry* entry, FocusPosition position, bool focus)
+bool ComponentGrid::ResetFocusForEntry(const GridEntry* gridEntry, FocusPosition position, bool focus)
 {
-	if (entry && entry->CanFocus())
+	if (gridEntry && gridEntry->CanFocus())
 	{
 		if (focus)
 		{
 			Eigen::Vector2i oldCursor = mCursor;
-			mCursor = entry->pos;
+			mCursor = gridEntry->pos;
 			onCursorMoved(oldCursor, mCursor);
 		}
-		entry->component->SetFocus(position, focus);
+		gridEntry->component->SetFocus(position, focus);
 		return focus;
 	}
 	return false;
 }
 
-bool ComponentGrid::CheckFocusPosition(const GridEntry* gridEntry, FocusPosition position, bool setPosition)
+bool ComponentGrid::ResetFocusPosition(const GridEntry* gridEntry, FocusPosition position, bool setPosition)
 {
 	bool result = false;
 	if (gridEntry && gridEntry->CanFocus())
@@ -531,20 +531,19 @@ bool ComponentGrid::CheckFocusPosition(const GridEntry* gridEntry, FocusPosition
 
 bool ComponentGrid::SetFocus(FocusPosition position, bool enableFocus)
 {
-	const focusable::helper::Iterator it(position, mCursor, mGridSize);
 	bool focusableFound = false;
-	for (int y = it.begin(); y != it.end(); y += it.delta())
+	focusable::helper::Iterator it(position, mCursor, mGridSize);
+	for (; it != it.end(); ++it)
 	{
-		const Eigen::Vector2i pos = it.GetPos(y);
-		const GridEntry* gridEntry = getCellAt(pos.x(), pos.y());
+		const GridEntry* gridEntry = getCellAt(*it);
 		if (enableFocus)
 		{
-			if (CheckFocusForEntry(gridEntry, position, !focusableFound))
+			if (ResetFocusForEntry(gridEntry, position, !focusableFound))
 			{
 				focusableFound = true;
 			};
 		}
-		else if(CheckFocusPosition(gridEntry, position, !focusableFound))
+		else if(ResetFocusPosition(gridEntry, position, !focusableFound))
 		{
 			focusableFound = true;
 		}
