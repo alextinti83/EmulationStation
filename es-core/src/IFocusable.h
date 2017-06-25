@@ -18,7 +18,7 @@ class IFocusable
 {
 public:
 	virtual ~IFocusable() { }
-	virtual bool SetFocus(FocusPosition position, bool focus) = 0;
+	virtual bool SetFocus(FocusPosition position, bool enableFocus) = 0;
 };
 
 namespace focusable
