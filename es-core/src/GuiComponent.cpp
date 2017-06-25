@@ -434,3 +434,13 @@ void GuiComponent::topWindow(bool isTop)
 	for(unsigned int i = 0; i < getChildCount(); i++)
 		getChild(i)->topWindow(isTop);
 }
+
+bool GuiComponent::SetFocus(FocusPosition position, bool enableFocus)
+{
+	for (GuiComponent* child : mChildren)
+	{
+		child->SetFocus(position, enableFocus);
+	}
+	return false;
+}
+

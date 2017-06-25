@@ -69,6 +69,8 @@ public:
 	inline void setCursorChangedCallback(const std::function<void(CursorState state)>& callback) { mCursorChangedCallback = callback; };
 	inline const std::function<void(CursorState state)>& getCursorChangedCallback() const { return mCursorChangedCallback; };
 
+	bool SetFocus(FocusPosition position, bool focus) override;
+
 protected:
 	void onCursorChanged(const CursorState& state) override;
 

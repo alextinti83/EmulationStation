@@ -155,7 +155,14 @@ void Window::input(InputConfig* config, Input input)
 		GuiComponent* guiComponent = peekGui();
 		if ( guiComponent )
 		{
-			guiComponent->input(config, input);
+			if (!guiComponent->input(config, input))
+			{
+				if (Settings::getInstance()->getBool("LoopMenuEntries"))
+				{
+					const InputData inputData { *config, input };
+					mNavigationController.HandleNavigation(inputData, *guiComponent);
+				}
+			}
 		}
 	}
 }
