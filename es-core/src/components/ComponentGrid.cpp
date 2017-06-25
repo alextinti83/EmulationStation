@@ -2,6 +2,7 @@
 #include "Log.h"
 #include "Renderer.h"
 #include "Settings.h"
+#include "helpers/IFocusableHelper.h"
 
 using namespace GridFlags;
 
@@ -530,7 +531,7 @@ bool ComponentGrid::CheckFocusPosition(const GridEntry* gridEntry, FocusPosition
 
 bool ComponentGrid::SetFocus(FocusPosition position, bool enableFocus)
 {
-	const focusable::helpers::Iterator it(position, mCursor, mGridSize);
+	const focusable::helper::Iterator it(position, mCursor, mGridSize);
 	bool focusableFound = false;
 	for (int y = it.begin(); y != it.end(); y += it.delta())
 	{
