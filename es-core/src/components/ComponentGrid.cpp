@@ -504,7 +504,7 @@ bool ComponentGrid::ResetFocusForEntry(const GridEntry* gridEntry, FocusPosition
 			mCursor = gridEntry->pos;
 			onCursorMoved(oldCursor, mCursor);
 		}
-		gridEntry->component->SetFocus(position, focus);
+		gridEntry->component->UpdateFocus(position, focus);
 		return focus;
 	}
 	return false;
@@ -524,12 +524,12 @@ bool ComponentGrid::ResetFocusPosition(const GridEntry* gridEntry, FocusPosition
 			StopScrollingCursor();
 			result = true;
 		}
-		gridEntry->component->SetFocus(position, false);
+		gridEntry->component->UpdateFocus(position, false);
 	}
 	return result;
 }
 
-bool ComponentGrid::SetFocus(FocusPosition position, bool enableFocus)
+bool ComponentGrid::UpdateFocus(FocusPosition position, bool enableFocus)
 {
 	bool focusableFound = false;
 	focusable::helper::Iterator it(position, mCursor, mGridSize);
