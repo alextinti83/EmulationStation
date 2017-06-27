@@ -44,6 +44,9 @@ GuiMsgBox::GuiMsgBox(Window* window, const std::string& text,
 
 	// put the buttons into a ComponentGrid
 	mButtonGrid = makeButtonGrid(mWindow, mButtons);
+	mButtonGrid->setCursorTo(mButtons.back());
+
+
 	mGrid.setEntry(mButtonGrid, Eigen::Vector2i(0, 1), true, false, Eigen::Vector2i(1, 1), GridFlags::BORDER_TOP);
 
 	// decide final width
