@@ -21,10 +21,13 @@ It contains some additional features/improvements including:
 
 * [Keep moving focus cursor by holding dpad pressed](https://github.com/talex-tnt/RetroStation/issues/23) 
 
+
 Here is the [full closed issues list](https://github.com/talex-tnt/RetroStation/issues?utf8=%E2%9C%93&q=is%3Aissue%20is%3Aclosed)
 
+
 Thanks to [Aloshi](https://github.com/Aloshi/EmulationStation) for building ES
-and to all the [RetroPie](https://github.com/RetroPie/EmulationStation) contributors as well of course.
+and to all the [RetroPie](https://github.com/RetroPie/EmulationStation) contributors.
+
 
 Not to forget [zigurana](https://github.com/zigurana) and the [RecalBox](https://github.com/recalbox/recalbox-os) project
 from which I borrowed some feature/code.
