@@ -350,6 +350,7 @@ int main(int argc, char* argv[])
 
 	SystemData::SaveConfig();
 	SystemData::deleteSystems();
+	Settings::getInstance()->saveFile();
 
 	LOG(LogInfo) << "EmulationStation cleanly shutting down.";
 

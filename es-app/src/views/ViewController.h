@@ -28,6 +28,7 @@ public:
 	void goToNextGameList();
 	void goToPrevGameList();
 	void goToGameList(SystemData* system);
+	void goToSystemView(SystemData* system, const std::string transition_style);
 	void goToSystemView(SystemData* system);
 	void goToStart();
 	void goToRandomGame();
@@ -82,7 +83,7 @@ private:
 	ViewController(Window* window);
 	static ViewController* sInstance;
 
-	void playViewTransition();
+	void playViewTransition(const std::string& transition);
 	int getSystemId(SystemData* system);
 	
 	std::shared_ptr<GuiComponent> mCurrentView;

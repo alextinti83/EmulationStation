@@ -46,7 +46,16 @@ void ViewController::goToStart()
 	/* mState.viewing = START_SCREEN;
 	mCurrentView.reset();
 	playViewTransition(); */
-	goToSystemView(SystemData::GetSystems().front());
+	const std::string lastSystemSelectedName = Settings::getInstance()->getString("LastSystemSelected");
+	SystemData* system = SystemData::GetSystemByName(lastSystemSelectedName);
+	if (system && system->IsEnabled())
+	{
+		goToSystemView(system, "fade");
+	}
+	else
+	{
+		goToSystemView(SystemData::GetSystems().front());
+	}
 }
 
 int ViewController::getSystemId(SystemData* system)
@@ -56,6 +65,12 @@ int ViewController::getSystemId(SystemData* system)
 }
 
 void ViewController::goToSystemView(SystemData* system)
+{
+	const std::string transition_style = Settings::getInstance()->getString("TransitionStyle");
+	goToSystemView(system, transition_style);
+}
+
+void ViewController::goToSystemView(SystemData* system, const std::string transition_style)
 {
 	// Tell any current view it's about to be hidden
 	if (mCurrentView)
@@ -72,7 +87,7 @@ void ViewController::goToSystemView(SystemData* system)
 	systemList->goToSystem(system, false);
 	mCurrentView = systemList;
 
-	playViewTransition();
+	playViewTransition(transition_style);
 }
 
 void ViewController::goToNextGameList()
@@ -116,7 +131,8 @@ void ViewController::goToGameList(SystemData* system)
 	{
 		mCurrentView->onShow();
 	}
-	playViewTransition();
+	const std::string transition_style = Settings::getInstance()->getString("TransitionStyle");
+	playViewTransition(transition_style);
 }
 
 void ViewController::goToRandomGame()
@@ -149,7 +165,7 @@ void ViewController::goToRandomGame()
 	}
 }
 
-void ViewController::playViewTransition()
+void ViewController::playViewTransition(const std::string& transition_style)
 {
 	Eigen::Vector3f target(Eigen::Vector3f::Identity());
 	if(mCurrentView)
@@ -159,7 +175,6 @@ void ViewController::playViewTransition()
 	if(target == -mCamera.translation() && !isAnimationPlaying(0))
 		return;
 
-	std::string transition_style = Settings::getInstance()->getString("TransitionStyle");
 	if(transition_style == "fade")
 	{
 		// fade

@@ -94,6 +94,7 @@ void SystemView::populate()
 
 void SystemView::goToSystem(SystemData* system, bool animate)
 {
+	Settings::getInstance()->setString("LastSystemSelected", system->getName());
 	setCursor(system);
 
 	if(!animate)
@@ -117,11 +118,13 @@ bool SystemView::input(InputConfig* config, Input input)
 			if (config->isMappedTo("up", input))
 			{
 				listInput(-1);
+				Settings::getInstance()->setString("LastSystemSelected", getSelected()->getName());
 				return true;
 			}
 			if (config->isMappedTo("down", input))
 			{
 				listInput(1);
+				Settings::getInstance()->setString("LastSystemSelected", getSelected()->getName());
 				return true;
 			}
 			break;
@@ -130,11 +133,13 @@ bool SystemView::input(InputConfig* config, Input input)
 			if (config->isMappedTo("left", input))
 			{
 				listInput(-1);
+				Settings::getInstance()->setString("LastSystemSelected", getSelected()->getName());
 				return true;
 			}
 			if (config->isMappedTo("right", input))
 			{
 				listInput(1);
+				Settings::getInstance()->setString("LastSystemSelected", getSelected()->getName());
 				return true;
 			}
 			break;

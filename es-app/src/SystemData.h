@@ -98,6 +98,7 @@ public:
 	void SetEnabled(const bool enabled);
 	bool IsEnabled() const;
 
+	static SystemData* GetSystemByName(const std::string& name);
 	static std::vector<SystemData*> GetSystems();
 	static std::vector<SystemData*> GetAllSystems(); //disable ones too
 

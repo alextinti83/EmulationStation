@@ -26,6 +26,7 @@ Settings::Settings()
 	loadFile();
 }
 
+
 Settings* Settings::getInstance()
 {
 	if(sInstance == NULL)
@@ -80,7 +81,7 @@ void Settings::setDefaults()
 	mStringMap["Scraper"] = "TheGamesDB";
 	mStringMap["GamelistViewStyle"] = "automatic";
 	mStringMap[ "ShowTemperature" ] = "never";
-
+	mStringMap[ "LastSystemSelected" ] = "";
 	mBoolMap["ScreenSaverControls"] = true;
 	mStringMap["ScreenSaverGameInfo"] = "never";
 	mBoolMap["StretchVideoOnScreenSaver"] = false;
