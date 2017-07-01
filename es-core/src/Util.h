@@ -12,6 +12,8 @@ std::string strToUpper(const char* from);
 std::string& strToUpper(std::string& str);
 std::string strToUpper(const std::string& str);
 
+std::string strToLower(std::string str);
+
 Eigen::Affine3f& roundMatrix(Eigen::Affine3f& mat);
 Eigen::Affine3f roundMatrix(const Eigen::Affine3f& mat);
 
