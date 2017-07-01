@@ -99,56 +99,18 @@ void TextListComponent::render(const Eigen::Affine3f& parentTrans)
 
 	std::shared_ptr<Font>& font = mFont;
 
-	if ( size() == 0 )
+	if (size() == 0)
+	{
 		return;
-
-	//const float entrySize = round(font->getHeight(mLineSpacing));
-	const float entrySize = font->getSize() * mLineSpacing;
-
-	int startEntry = 0;
-
-	//number of entries that can fit on the screen simultaniously
-	int screenCount = ( int ) ( mSize.y() / entrySize + 0.5f );
-
-	if ( size() >= screenCount )
-	{
-		startEntry = mCursor - screenCount / 2;
-		if ( startEntry < 0 )
-			startEntry = 0;
-		if ( startEntry >= size() - screenCount )
-			startEntry = size() - screenCount;
 	}
-
-
-	int listCutoff = startEntry + screenCount;
-	if ( listCutoff > size() )
-		listCutoff = size();
-	const float fontHeight = font->getHeight();
-	// draw selector bar
-	if ( startEntry < listCutoff )
-	{
-		if (mSelectorImage.hasImage())
-		{
-			const Eigen::Vector2f imgSize = mSelectorImage.getSize();
-			const float verticalCenterShift = ( fontHeight - imgSize.y() ) * 0.5f;
-			mSelectorImage.setPosition(
-				-mSelectorImage.getSize().x(), 
-				( mCursor - startEntry )*entrySize + verticalCenterShift + mSelectorOffsetY, 0.f);
-			mSelectorImage.render(trans);
-
-		}
-		else
-		{
-			Renderer::setMatrix(trans);
-			Renderer::drawRect(0.f, ( mCursor - startEntry )*entrySize + mSelectorOffsetY, mSize.x(), mSelectorHeight, mSelectorColor);
-		}
-	}
-
+	std::pair<int, int> edges = ComputeListEdgeIndexes();
+	RenderSelectorImage(trans, edges.first, edges.second);
 
 	PushClipRect(trans);
 
+	const float entrySize = mFont->getSize() * mLineSpacing;
 	float y = 0;
-	for ( int i = startEntry; i < listCutoff; i++ )
+	for ( int i = edges.first; i < edges.second; i++ )
 	{
 		BaseT::Entry& entry = mEntries.at(( unsigned int ) i);
 
@@ -260,6 +222,31 @@ void TextListComponent::RenderText(Eigen::Affine3f textTrans, Eigen::Vector3f of
 	mFont->renderTextCache(textCache);
 }
 
+void TextListComponent::RenderSelectorImage(Eigen::Affine3f trans, int startEntry, int listCutoff)
+{
+	if (startEntry < listCutoff)
+	{
+		const float entrySize = mFont->getSize() * mLineSpacing;
+
+		if (mSelectorImage.hasImage())
+		{
+			const float fontHeight = mFont->getHeight();
+			const Eigen::Vector2f imgSize = mSelectorImage.getSize();
+			const float verticalCenterShift = ( fontHeight - imgSize.y() ) * 0.5f;
+			mSelectorImage.setPosition(
+				-mSelectorImage.getSize().x(),
+				( mCursor - startEntry )*entrySize + verticalCenterShift + mSelectorOffsetY, 0.f);
+			mSelectorImage.render(trans);
+
+		}
+		else
+		{
+			Renderer::setMatrix(trans);
+			Renderer::drawRect(0.f, ( mCursor - startEntry )*entrySize + mSelectorOffsetY, mSize.x(), mSelectorHeight, mSelectorColor);
+		}
+	}
+}
+
 uint32_t TextListComponent::GetColor(int i, uint32_t defaultColorId) const
 {
 	if (mCursor == i && mSelectedColor)
@@ -275,6 +262,30 @@ void TextListComponent::BuildTextCache(BaseT::Entry& entry, uint32_t color)
 		entry.data.textCache = std::unique_ptr<TextCache>(mFont->buildTextCache(mUppercase ? strToUpper(entry.name) : entry.name, 0, 0, 0x000000FF));
 
 	entry.data.textCache->setColor(color);
+}
+
+std::pair<int, int> TextListComponent::ComputeListEdgeIndexes() const
+{
+	int startEntry = 0;
+	const float entrySize = mFont->getSize() * mLineSpacing;
+
+	//number of entries that can fit on the screen simultaniously
+	int screenCount = ( int ) ( mSize.y() / entrySize + 0.5f );
+
+	if (size() >= screenCount)
+	{
+		startEntry = mCursor - screenCount / 2;
+		if (startEntry < 0)
+			startEntry = 0;
+		if (startEntry >= size() - screenCount)
+			startEntry = size() - screenCount;
+	}
+
+
+	int listCutoff = startEntry + screenCount;
+	if (listCutoff > size())
+		listCutoff = size();
+	return std::make_pair(startEntry, listCutoff);
 }
 
 bool TextListComponent::input(InputConfig* config, Input input)
