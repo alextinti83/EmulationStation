@@ -117,7 +117,7 @@ GuiMenu::GuiMenu(Window* window) : GuiComponent(window), mMenu(window, "MAIN MEN
 	addEntry("UI SETTINGS", 0x777777FF, true,
 		[this] {
 			auto s = new GuiSettings(mWindow, "UI SETTINGS");
-
+			addSystemsEntry(s);
 			// theme set
 			auto themeSets = ThemeData::getThemeSets();
 
