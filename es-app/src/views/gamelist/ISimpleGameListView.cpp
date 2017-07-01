@@ -144,7 +144,10 @@ bool ISimpleGameListView::input(InputConfig* config, Input input)
 			}
 
 		}
-		else if (config->isMappedTo("x", input))  // add/remove to current game collection
+	}
+	else //release
+	{
+		if (config->isMappedTo("x", input))  // add/remove to current game collection
 		{
 			FileData* cursor = getCursor();
 			const GameCollections* gc = mRoot->getSystem()->GetGameCollections();
