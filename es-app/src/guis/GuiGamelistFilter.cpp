@@ -20,13 +20,14 @@ void GuiGamelistFilter::initializeMenu()
 	ComponentListRow row;
 
 	// show filtered menu
+	addFiltersToMenu();
+
 	row.elements.clear();
 	row.addElement(std::make_shared<TextComponent>(mWindow, "RESET ALL FILTERS", Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
 	row.makeAcceptInputHandler(std::bind(&GuiGamelistFilter::resetAllFilters, this));
 	mMenu.addRow(row);
 	row.elements.clear();
 
-	addFiltersToMenu();
 
 	mMenu.addButton("BACK", "back", std::bind(&GuiGamelistFilter::applyFilters, this));
 
