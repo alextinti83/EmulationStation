@@ -87,6 +87,20 @@ protected:
 	virtual void onScroll(int amt) { if(mScrollSound) mScrollSound->play(); }
 	virtual void onCursorChanged(const CursorState& state);
 
+	struct OffsetData
+	{
+		float horizMargin;
+		float gcHorizPos;
+		float extraLeftMargin;
+		float verticalCenterShift;
+	};
+	OffsetData ComputeOffsetData(Eigen::Affine3f trans, int i, bool isInAnyGC);
+	Eigen::Vector3f ComputeOffset(float y, int i, Eigen::Vector2f textSize, OffsetData& offsetData);
+	void RenderGCImage(uint32_t imageColorId, Eigen::Affine3f gcTrans, float gcHorizPos, float verticalShift);
+	void RenderText(Eigen::Affine3f trans, Eigen::Vector3f offset, TextCache* textCache);
+	uint32_t GetColor(int i, uint32_t defaultColorId) const;
+	void BuildTextCache(BaseT::Entry& entry, uint32_t color);
+
 	bool IsInGameCollection(unsigned int entryIndex)
 	{
 		const Entry& selectedEntry = mEntries.at(entryIndex);
