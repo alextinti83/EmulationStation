@@ -26,7 +26,6 @@ public:
 	virtual void launch(FileData* game) override;
 
 	bool input(InputConfig* config, Input input) override;
-	void update(int deltaTime) override;
 
 protected:
 	virtual void populateList(const std::vector<FileData*>& files) override;
@@ -39,7 +38,5 @@ protected:
 	TextListComponent mList;
 	uint32_t mHighlightCount = 0;
 	std::string mFilterKey;
-	bool mHeldPressed;
-	bool mPressEventConsumed;
-	std::chrono::milliseconds mPressTime;
+
 };

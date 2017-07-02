@@ -11,6 +11,8 @@ public:
 	ISimpleGameListView(Window* window, FileData* root);
 	virtual ~ISimpleGameListView() {}
 
+	void update(int deltaTime) override;
+
 	// Called when a new file is added, a file is removed, a file's metadata changes, or a file's children are sorted.
 	// NOTE: FILE_SORTED is only reported for the topmost FileData, where the sort started.
 	//       Since sorts are recursive, that FileData's children probably changed too.
@@ -30,6 +32,7 @@ public:
 
 	std::vector<HelpPrompt> getHelpPrompts() override;
 protected:
+	void ShowAddGameCollectionUI();
 	void AddOrRemoveGameFromCollection();
 	void ShowQuestion(const std::string& mgs, const std::function<void()>& func);
 
@@ -43,4 +46,8 @@ protected:
 
 	std::stack<FileData*> mCursorStack;
 	Window* m_window;
+
+	bool mHeldPressed;
+	bool mPressEventConsumed;
+	std::chrono::milliseconds mPressTime;
 };

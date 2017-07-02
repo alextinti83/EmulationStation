@@ -9,7 +9,7 @@
 #include "guis/GuiTextEditPopupKeyboard.h"
 
 BasicGameListView::BasicGameListView(Window* window, FileData* root)
-	: ISimpleGameListView(window, root), mList(window), mHeldPressed(false), mPressEventConsumed(false), 
+	: ISimpleGameListView(window, root), mList(window), 
 	mFilterKey()
 {
 	mList.setSize(mSize.x(), mSize.y() * 0.8f);
@@ -177,50 +177,20 @@ void BasicGameListView::remove(FileData *game)
 std::vector<HelpPrompt> BasicGameListView::getHelpPrompts()
 {
 	std::vector<HelpPrompt> prompts = ISimpleGameListView::getHelpPrompts();
+	prompts.push_back(HelpPrompt("x", "filter"));
 	return prompts;
 }
 
 bool BasicGameListView::input(InputConfig* config, Input input)
 {
-	if (input.value != 0)
+	if (input.value != 0 && config->isMappedTo("x", input))
 	{
-		if (config->isMappedTo("x", input))
-		{
-			mPressTime = std::chrono::milliseconds(0);
-			mHeldPressed = true;
-			mPressEventConsumed = false;
-			return true;
-		}
-	}
-	else
-	{
-		if (config->isMappedTo("x", input))
-		{
-			mHeldPressed = false;
-			if (mPressEventConsumed)
-			{
-				return true;
-			}
-		}
+		mWindow->pushGui(new GuiTextEditPopupKeyboard(mWindow, "Filter games by name",
+			mFilterKey,
+			std::bind(&BasicGameListView::onFilterChanged, this, std::placeholders::_1), false));
+		return true;
 	}
 	return ISimpleGameListView::input(config, input);
-}
-
-void BasicGameListView::update(int deltaTime)
-{
-	ISimpleGameListView::update(deltaTime);
-	if (mHeldPressed)
-	{
-		mPressTime += std::chrono::milliseconds(deltaTime);
-		if (!mPressEventConsumed && mPressTime > std::chrono::milliseconds(500))
-		{
-			mPressEventConsumed = true;
-			mWindow->pushGui(new GuiTextEditPopupKeyboard(mWindow, "Filter games by name",
-				mFilterKey,
-				std::bind(&BasicGameListView::onFilterChanged, this, std::placeholders::_1), false));
-		}
-	}
-
 }
 
 void BasicGameListView::onFilterChanged(const std::string& filter)
