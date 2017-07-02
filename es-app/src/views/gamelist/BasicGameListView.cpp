@@ -225,14 +225,24 @@ void BasicGameListView::update(int deltaTime)
 
 void BasicGameListView::onFilterChanged(const std::string& filter)
 {
-
 	if (filter != mFilterKey)
 	{
 		mFilterKey = filter;
 		std::transform(mFilterKey.begin(), mFilterKey.end(), mFilterKey.begin(), std::tolower);
 		populateList(mRoot->getChildrenListToDisplay());
-
 	}
+}
+
+void Tokenize(const std::string& i_text, const std::string& i_delimiter, std::vector<std::string>& o_tokens)
+{
+	std::size_t start = 0;
+	std::size_t end = 0;
+	while (end != std::string::npos)
+	{
+		end = i_text.find(i_delimiter, start);
+		o_tokens.emplace_back(i_text.substr(start, end));
+		start = std::min(end + i_delimiter.length(), i_text.length());
+	};
 }
 
 bool BasicGameListView::acceptFilter(const std::string& name) const
@@ -241,10 +251,20 @@ bool BasicGameListView::acceptFilter(const std::string& name) const
 	{
 		return true;
 	}
-	if (strToLower(name).find(mFilterKey) != std::string::npos)
+	const std::string lowerText = mFilterKey;
+	const std::string lowerName = strToLower(name);
+	std::vector<std::string> tokens;
+	Tokenize(lowerText, " ", tokens);
+	std::size_t pos = 0;
+	for (std::string& token : tokens)
 	{
-		return true;
+		pos = lowerName.find(token, pos);
+		if  (pos == std::string::npos)
+		{
+			return false;
+		}
+		pos = std::min(pos + token.length(), lowerName.length());
 	}
-	return false;
+	return true;
 }
 
