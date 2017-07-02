@@ -1,4 +1,3 @@
-#pragma once
 #include "IFocusableHelper.h"
 
 namespace focusable
