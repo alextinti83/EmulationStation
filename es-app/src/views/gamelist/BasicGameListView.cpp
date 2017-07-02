@@ -200,7 +200,7 @@ void BasicGameListView::onFilterChanged(const std::string& filter)
 	if (filter != mFilterKey)
 	{
 		mFilterKey = filter;
-		std::transform(mFilterKey.begin(), mFilterKey.end(), mFilterKey.begin(), std::tolower);
+		std::transform(mFilterKey.begin(), mFilterKey.end(), mFilterKey.begin(), ::tolower);
 		populateList(mRoot->getChildrenListToDisplay());
 	}
 }
