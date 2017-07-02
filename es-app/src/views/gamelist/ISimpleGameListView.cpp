@@ -163,7 +163,7 @@ bool ISimpleGameListView::input(InputConfig* config, Input input)
 	}
 	else //release
 	{
-		if (config->isMappedTo("y", input))  // add/remove to current game collection
+		if (config->isMappedTo("y", input) && mHeldPressed)  // add/remove to current game collection
 		{
 			mHeldPressed = false;
 			if (!mPressEventConsumed)
@@ -191,6 +191,21 @@ std::vector<HelpPrompt> ISimpleGameListView::getHelpPrompts()
 	return prompts;
 }
 
+void ISimpleGameListView::ShowAddGameCollectionUI()
+{
+	FileData* cursor = getCursor();
+	const GameCollections* gc = mRoot->getSystem()->GetGameCollections();
+	if (cursor->getType() == GAME && gc)
+	{
+		const bool isInActiveGameCollection = cursor->isInActiveGameCollection();
+		const std::string gameName = cursor->getName();
+		const std::string collectionName = gc->GetActiveGameCollection()->GetName();
+		std::string msg = isInActiveGameCollection
+			? "Remove " + gameName + " from your \"" + collectionName + "\" collection?"
+			: "Add " + gameName + " to your \"" + collectionName + "\" collection?";
+		ShowQuestion(msg, [ this ] { AddOrRemoveGameFromCollection(); }, "y");
+	}
+}
 
 void ISimpleGameListView::AddOrRemoveGameFromCollection()
 {
@@ -236,23 +251,10 @@ void ISimpleGameListView::AddOrRemoveGameFromCollection()
 	}
 }
 
-void ISimpleGameListView::ShowQuestion(const std::string& mgs, const std::function<void()>& func)
+void ISimpleGameListView::ShowQuestion(const std::string& mgs, const std::function<void()>& func, const std::string& backButton)
 {
-	m_window->pushGui(new GuiMsgBox(mWindow, mgs, "YES", func, "NO", nullptr));
+	auto msgBox = new GuiMsgBox(mWindow, mgs, "YES", func, "NO", nullptr);
+	msgBox->SetBackButton(backButton);
+	m_window->pushGui(msgBox);
 }
 
-void ISimpleGameListView::ShowAddGameCollectionUI()
-{
-	FileData* cursor = getCursor();
-	const GameCollections* gc = mRoot->getSystem()->GetGameCollections();
-	if (cursor->getType() == GAME && gc)
-	{
-		const bool isInActiveGameCollection = cursor->isInActiveGameCollection();
-		const std::string gameName = cursor->getName();
-		const std::string collectionName = gc->GetActiveGameCollection()->GetName();
-		std::string msg = isInActiveGameCollection
-			? "Remove " + gameName + " from your \"" + collectionName + "\" collection?"
-			: "Add " + gameName + " to your \"" + collectionName + "\" collection?";
-		ShowQuestion(msg, [ this ] { AddOrRemoveGameFromCollection(); });
-	}
-}

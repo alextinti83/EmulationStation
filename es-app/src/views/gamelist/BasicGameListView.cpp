@@ -185,9 +185,11 @@ bool BasicGameListView::input(InputConfig* config, Input input)
 {
 	if (input.value != 0 && config->isMappedTo("x", input))
 	{
-		mWindow->pushGui(new GuiTextEditPopupKeyboard(mWindow, "Filter games by name",
+		auto keyboard = new GuiTextEditPopupKeyboard(mWindow, "Filter games by name",
 			mFilterKey,
-			std::bind(&BasicGameListView::onFilterChanged, this, std::placeholders::_1), false));
+			std::bind(&BasicGameListView::onFilterChanged, this, std::placeholders::_1), false);
+		keyboard->SetBackButton("x");
+		mWindow->pushGui(keyboard);
 		return true;
 	}
 	return ISimpleGameListView::input(config, input);

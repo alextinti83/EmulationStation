@@ -34,7 +34,7 @@ public:
 protected:
 	void ShowAddGameCollectionUI();
 	void AddOrRemoveGameFromCollection();
-	void ShowQuestion(const std::string& mgs, const std::function<void()>& func);
+	void ShowQuestion(const std::string& mgs, const std::function<void()>& func, const std::string& backButton);
 
 	virtual void populateList(const std::vector<FileData*>& files) = 0;
 
