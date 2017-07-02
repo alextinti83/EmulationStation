@@ -108,10 +108,13 @@ public:
 	// Returns true if the component is busy doing background processing (e.g. HTTP downloads)
 	bool isProcessing() const;
 
+	void SetBackButton(const std::string& buttonName);
+
 	void setEnabled(bool enabled);
 	void setVisible(bool visible);
 	bool isEnabled() const { return mEnabled; }
 	bool isVisible() const { return mVisible; }
+
 
 public: //INavigation
 	bool UpdateFocus(FocusPosition position, bool enableFocus) override;
@@ -147,5 +150,7 @@ public:
 private:
 	Eigen::Affine3f mTransform; //Don't access this directly! Use getTransform()!
 	AnimationController* mAnimationMap[MAX_ANIMATIONS];
+	std::string mBackButton;
+
 
 };
