@@ -8,7 +8,7 @@ using namespace Eigen;
 
 GuiTextEditPopupKeyboard::GuiTextEditPopupKeyboard(Window* window, const std::string& title, const std::string& initValue,
 	const std::function<void(const std::string&)>& okCallback, bool multiLine, const std::string acceptBtnText)
-	: GuiComponent(window), mBackground(window, ":/frame.png"), mGrid(window, Vector2i(1, 7)), mMultiLine(multiLine)
+	: GuiComponent(window), mBackground(window, ":/frame.png"), mGrid(window, Vector2i(1, 7)), mMultiLine(multiLine), mOkCallback(okCallback)
 {
 	addChild(&mBackground);
 	addChild(&mGrid);
@@ -223,7 +223,13 @@ GuiTextEditPopupKeyboard::GuiTextEditPopupKeyboard(Window* window, const std::st
 		mText->textInput("\b");
 		mText->stopEditing();
 	}));
-	buttons.push_back(std::make_shared<ButtonComponent>(mWindow, _("CANCEL"), _("DISCARD CHANGES"), [this] { delete this; }));
+	buttons.push_back(std::make_shared<ButtonComponent>(mWindow, _("CLEAR"), _("CLEAR TEXT"), [ this ]
+	{
+		mText->startEditing();
+		mText->setValue("");
+		mText->stopEditing();
+	}));
+	buttons.push_back(std::make_shared<ButtonComponent>(mWindow, _("CANCEL"), _("DISCARD CHANGES"), [ this ] { delete this; }));
 
 	// Add buttons
 	mButtons = makeButtonGrid(mWindow, buttons);
@@ -318,6 +324,24 @@ bool GuiTextEditPopupKeyboard::input(InputConfig* config, Input input)
 		shiftKeys();
 		return true;
 	}
+	if (config->isMappedTo("start", input))
+	{
+		if (mOkCallback)
+		{
+			const std::string& text = mText->getValue();
+			mOkCallback(text);
+			delete this;
+			return true;
+		}
+	}
+
+	if (config->isMappedTo("select", input))
+	{
+		mText->startEditing();
+		mText->setValue("");
+		mText->stopEditing();
+		return true;
+	}
 	return false;
 }
 
@@ -401,6 +425,9 @@ Eigen::Vector2f GuiTextEditPopupKeyboard::GetKeyboardKeySize() const
 std::vector<HelpPrompt> GuiTextEditPopupKeyboard::getHelpPrompts()
 {
 	std::vector<HelpPrompt> prompts = mGrid.getHelpPrompts();
+	prompts.push_back(HelpPrompt("start", _("ACCEPT").c_str()));
+	prompts.push_back(HelpPrompt("select", _("CLEAR").c_str()));
+
 	prompts.push_back(HelpPrompt("y", _("SHIFT").c_str()));
 	prompts.push_back(HelpPrompt("a", _("BACK").c_str()));
 	prompts.push_back(HelpPrompt("r", _("SPACE").c_str()));
