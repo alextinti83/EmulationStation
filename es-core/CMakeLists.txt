@@ -22,6 +22,9 @@ set(CORE_HEADERS
 	${CMAKE_CURRENT_SOURCE_DIR}/src/helpers/IFocusableHelper.h
 	${CMAKE_CURRENT_SOURCE_DIR}/src/NavigationController.h
 	
+	# mediaplayer
+	${CMAKE_CURRENT_SOURCE_DIR}/src/mediaplayer/vlc/AudioPlayer.h
+
 	# utils
 	${CMAKE_CURRENT_SOURCE_DIR}/src/utils/Temperature.h
 
@@ -91,6 +94,9 @@ set(CORE_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/src/Window.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/helpers/IFocusableHelper.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/NavigationController.cpp
+
+	# mediaplayer
+	${CMAKE_CURRENT_SOURCE_DIR}/src/mediaplayer/vlc/AudioPlayer.cpp
 
 	# utils
 	${CMAKE_CURRENT_SOURCE_DIR}/src/utils/Temperature.cpp
