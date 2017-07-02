@@ -345,6 +345,21 @@ bool GuiTextEditPopupKeyboard::input(InputConfig* config, Input input)
 	return false;
 }
 
+std::vector<HelpPrompt> GuiTextEditPopupKeyboard::getHelpPrompts()
+{
+	std::vector<HelpPrompt> prompts = mGrid.getHelpPrompts();
+	prompts.push_back(HelpPrompt("start", _("ACCEPT").c_str()));
+	prompts.push_back(HelpPrompt("select", _("CLEAR").c_str()));
+
+	prompts.push_back(HelpPrompt("y", _("SHIFT").c_str()));
+	prompts.push_back(HelpPrompt("a", _("BACK").c_str()));
+	prompts.push_back(HelpPrompt("b", _("BACK").c_str()));
+	prompts.push_back(HelpPrompt("r", _("SPACE").c_str()));
+	prompts.push_back(HelpPrompt("l", _("DELETE").c_str()));
+	return prompts;
+}
+
+
 void GuiTextEditPopupKeyboard::update(int deltatime)
 {
 	mGrid.update(deltatime);
@@ -422,16 +437,4 @@ Eigen::Vector2f GuiTextEditPopupKeyboard::GetKeyboardKeySize() const
 	return Vector2f(width, height);
 }
 
-std::vector<HelpPrompt> GuiTextEditPopupKeyboard::getHelpPrompts()
-{
-	std::vector<HelpPrompt> prompts = mGrid.getHelpPrompts();
-	prompts.push_back(HelpPrompt("start", _("ACCEPT").c_str()));
-	prompts.push_back(HelpPrompt("select", _("CLEAR").c_str()));
-
-	prompts.push_back(HelpPrompt("y", _("SHIFT").c_str()));
-	prompts.push_back(HelpPrompt("a", _("BACK").c_str()));
-	prompts.push_back(HelpPrompt("r", _("SPACE").c_str()));
-	prompts.push_back(HelpPrompt("l", _("DELETE").c_str()));
-	return prompts;
-}
 
