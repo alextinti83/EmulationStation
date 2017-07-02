@@ -14,6 +14,7 @@ It contains some additional features/improvements including:
 * [UI to add/edit retroarch .cfg files](https://github.com/talex-tnt/RetroStation/issues/16) 
 
 * [UI to Show/Hide Game Systems](https://github.com/talex-tnt/RetroStation/issues/19) 
+* [Filter Games by Name](https://github.com/talex-tnt/RetroStation/issues/28)
 
 * [Onscreen Temperature](https://github.com/talex-tnt/RetroStation/issues/15) 
 
