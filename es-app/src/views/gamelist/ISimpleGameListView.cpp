@@ -11,7 +11,7 @@
 #include "GameCollections.h"
 
 ISimpleGameListView::ISimpleGameListView(Window* window, FileData* root) : IGameListView(window, root),
-	mHeaderText(window), mHeaderImage(window), mBackground(window), m_window(window)
+	mHeaderText(window), mHeaderImage(window), mBackground(window), m_window(window), mHeldPressed(false), mPressEventConsumed(false)
 {
 	mHeaderText.setText("Logo Text");
 	mHeaderText.setSize(mSize.x(), 0);
@@ -29,6 +29,25 @@ ISimpleGameListView::ISimpleGameListView(Window* window, FileData* root) : IGame
 
 	addChild(&mHeaderText);
 	addChild(&mBackground);
+}
+
+void ISimpleGameListView::update(int deltaTime)
+{
+	IGameListView::update(deltaTime);
+	if (mHeldPressed)
+	{
+		mPressTime += std::chrono::milliseconds(deltaTime);
+		if (!mPressEventConsumed && mPressTime > std::chrono::milliseconds(500))
+		{
+			mPressEventConsumed = true;
+			GameCollections* gc = mRoot->getSystem()->GetGameCollections();
+			if (gc)
+			{
+				m_window->pushGui(new GuiGameCollectionsSettings(m_window, *mRoot->getSystem(), *gc));
+			}
+		}
+	}
+
 }
 
 void ISimpleGameListView::onThemeChanged(const std::shared_ptr<ThemeData>& theme)
@@ -136,34 +155,27 @@ bool ISimpleGameListView::input(InputConfig* config, Input input)
 		}
 		else if (config->isMappedTo("y", input))
 		{
-			GameCollections* gc = mRoot->getSystem()->GetGameCollections();
-			if (gc)
-			{
-				m_window->pushGui(new GuiGameCollectionsSettings(m_window, *mRoot->getSystem(), *gc));
-				return true;
-			}
-
+			mPressTime = std::chrono::milliseconds(0);
+			mHeldPressed = true;
+			mPressEventConsumed = false;
+			return true;
 		}
-		else if (config->isMappedTo("x", input))  // add/remove to current game collection
+	}
+	else //release
+	{
+		if (config->isMappedTo("y", input) && mHeldPressed)  // add/remove to current game collection
 		{
-			FileData* cursor = getCursor();
-			const GameCollections* gc = mRoot->getSystem()->GetGameCollections();
-			if (cursor->getType() == GAME && gc)
+			mHeldPressed = false;
+			if (!mPressEventConsumed)
 			{
-				const bool isInActiveGameCollection = cursor->isInActiveGameCollection();
-				const std::string gameName = cursor->getName();
-				const std::string collectionName = gc->GetActiveGameCollection()->GetName();
-				std::string msg = isInActiveGameCollection
-					? "Remove " + gameName + " from your \"" + collectionName + "\" collection?"
-					: "Add " + gameName + " to your \"" + collectionName + "\" collection?";
-				ShowQuestion(msg, [ this ] { AddOrRemoveGameFromCollection(); });
+				ShowAddGameCollectionUI();
 			}
 			return true;
 		}
 	}
-
 	return IGameListView::input(config, input);
 }
+
 std::vector<HelpPrompt> ISimpleGameListView::getHelpPrompts()
 {
 	std::vector<HelpPrompt> prompts;
@@ -173,13 +185,27 @@ std::vector<HelpPrompt> ISimpleGameListView::getHelpPrompts()
 	prompts.push_back(HelpPrompt("up/down", "choose"));
 	prompts.push_back(HelpPrompt("a", "launch"));
 	prompts.push_back(HelpPrompt("b", "back"));
-	prompts.push_back(HelpPrompt("y", "game collect. options"));
-	prompts.push_back(HelpPrompt("x", "+/- game collect."));
+	prompts.push_back(HelpPrompt("y", "game collections"));
 	prompts.push_back(HelpPrompt("select", "options"));
 
 	return prompts;
 }
 
+void ISimpleGameListView::ShowAddGameCollectionUI()
+{
+	FileData* cursor = getCursor();
+	const GameCollections* gc = mRoot->getSystem()->GetGameCollections();
+	if (cursor->getType() == GAME && gc)
+	{
+		const bool isInActiveGameCollection = cursor->isInActiveGameCollection();
+		const std::string gameName = cursor->getName();
+		const std::string collectionName = gc->GetActiveGameCollection()->GetName();
+		std::string msg = isInActiveGameCollection
+			? "Remove " + gameName + " from your \"" + collectionName + "\" collection?"
+			: "Add " + gameName + " to your \"" + collectionName + "\" collection?";
+		ShowQuestion(msg, [ this ] { AddOrRemoveGameFromCollection(); }, "y");
+	}
+}
 
 void ISimpleGameListView::AddOrRemoveGameFromCollection()
 {
@@ -225,7 +251,10 @@ void ISimpleGameListView::AddOrRemoveGameFromCollection()
 	}
 }
 
-void ISimpleGameListView::ShowQuestion(const std::string& mgs, const std::function<void()>& func)
+void ISimpleGameListView::ShowQuestion(const std::string& mgs, const std::function<void()>& func, const std::string& backButton)
 {
-	m_window->pushGui(new GuiMsgBox(mWindow, mgs, "YES", func, "NO", nullptr));
+	auto msgBox = new GuiMsgBox(mWindow, mgs, "YES", func, "NO", nullptr);
+	msgBox->SetBackButton(backButton);
+	m_window->pushGui(msgBox);
 }
+

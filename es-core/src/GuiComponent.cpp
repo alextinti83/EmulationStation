@@ -28,6 +28,14 @@ GuiComponent::~GuiComponent()
 
 bool GuiComponent::input(InputConfig* config, Input input)
 {
+	if (input.value != 0 && !mBackButton.empty())
+	{
+		if (config->isMappedTo(mBackButton, input))
+		{
+			delete this;
+			return true;
+		}
+	}
 	for ( GuiComponent* child : mChildren )
 	{
 		if ( child->input(config, input) )
@@ -370,6 +378,10 @@ void GuiComponent::updateHelpPrompts()
 	}
 
 	std::vector<HelpPrompt> prompts = getHelpPrompts();
+	if (!mBackButton.empty())
+	{
+		prompts.push_back(HelpPrompt(mBackButton, "BACK"));
+	}
 
 	if(mWindow->peekGui() == this)
 		mWindow->setHelpPrompts(prompts, getHelpStyle());
@@ -433,6 +445,11 @@ void GuiComponent::topWindow(bool isTop)
 {
 	for(unsigned int i = 0; i < getChildCount(); i++)
 		getChild(i)->topWindow(isTop);
+}
+
+void GuiComponent::SetBackButton(const std::string& buttonName)
+{
+	mBackButton = buttonName;
 }
 
 bool GuiComponent::UpdateFocus(FocusPosition position, bool enableFocus)

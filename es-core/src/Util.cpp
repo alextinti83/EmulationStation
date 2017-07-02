@@ -49,6 +49,12 @@ std::string& strToUpper(std::string& str)
 	return str;
 }
 
+std::string strToLower(std::string str)
+{
+	std::transform(str.begin(), str.end(), str.begin(), ::tolower);
+	return str;
+}
+
 std::string strToUpper(const std::string& str)
 {
 	return strToUpper(str.c_str());

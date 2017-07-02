@@ -25,10 +25,18 @@ public:
 	virtual std::vector<HelpPrompt> getHelpPrompts() override;
 	virtual void launch(FileData* game) override;
 
+	bool input(InputConfig* config, Input input) override;
+
 protected:
 	virtual void populateList(const std::vector<FileData*>& files) override;
 	virtual void remove(FileData* game) override;
 
+	void onFilterChanged(const std::string& filter);
+	bool acceptFilter(const std::string& name) const;
+
+
 	TextListComponent mList;
 	uint32_t mHighlightCount = 0;
+	std::string mFilterKey;
+
 };
