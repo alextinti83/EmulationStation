@@ -4,114 +4,210 @@
 
 #include <vlc/vlc.h>
 #include <map>
+#include <vector>
+#include <functional>
+#include <iostream>
 
-namespace detail
-{
-	class audioplayer
-	{
-		class mp_handle
-		{
-		public:
-			mp_handle(const std::string& path, libvlc_instance_t* vlcInstance)
-			{
-				libvlc_media_t *m = libvlc_media_new_path(vlcInstance, path.c_str());
-				m_mediaplayer = libvlc_media_player_new_from_media(m);
-				libvlc_media_release(m);
-			}
-			~mp_handle()
-			{
-				libvlc_media_player_release(m_mediaplayer);
-			}
-			libvlc_media_player_t& get_mediaplayer() { return *m_mediaplayer; }
-			const libvlc_media_player_t& get_mediaplayer() const { return *m_mediaplayer; }
-
-		private:
-			const std::string m_path;
-			libvlc_media_player_t *m_mediaplayer;
-		};
-
-	public:
-		audioplayer();
-		~audioplayer();
-
-		void play(const std::string& path);
-		void stop(const std::string& path);
-
-		libvlc_media_player_t& init_handle(const std::string& path);
-		libvlc_media_player_t* get_handle(const std::string& path);
-
-	private:
-		void stop(libvlc_media_player_t& mp);
-		void play(libvlc_media_player_t& mp);
-
-	private:
-		libvlc_instance_t *m_vlcInstance;
-		std::map<std::string, std::unique_ptr<mp_handle>> m_handles;
-	};
-
-	audioplayer::audioplayer()
-	{
-		m_vlcInstance = libvlc_new(0, NULL);
-	}
-
-	audioplayer::~audioplayer()
-	{
-		libvlc_release(m_vlcInstance);
-	}
-
-	libvlc_media_player_t& audioplayer::init_handle(const std::string& path)
-	{
-		auto mp = m_handles.find(path);
-		if (mp == m_handles.cend())
-		{
-			auto mp_h = std::unique_ptr<mp_handle>(new mp_handle(path, m_vlcInstance));
-			auto result = m_handles.emplace(path, std::move(mp_h));
-			return result.first->second->get_mediaplayer();
-		}
-		else
-		{
-			return mp->second->get_mediaplayer();
-		}
-	}
-
-	libvlc_media_player_t* audioplayer::get_handle(const std::string& path)
-	{
-		auto mp = m_handles.find(path);
-		if (mp != m_handles.cend())
-		{
-			return &(mp->second->get_mediaplayer());
-		}
-		return nullptr;
-	}
-
-	void audioplayer::play(const std::string& path)
-	{
-		libvlc_media_player_t& mp = init_handle(path);
-		play(mp);
-	}
-
-	void audioplayer::stop(const std::string& path)
-	{
-		libvlc_media_player_t* mp = get_handle(path);
-		if (mp) { stop(*mp); }
-	}
-
-	void audioplayer::play(libvlc_media_player_t& mp)
-	{
-		libvlc_media_player_play(&mp);
-	}
-
-	void audioplayer::stop(libvlc_media_player_t& mp)
-	{
-		libvlc_media_player_stop(&mp);
-	}
-
-}
 
 namespace mediaplayer
 {
 	namespace vlc
 	{
+		enum class event_t
+		{
+			k_mediaPlayerMediaChanged = libvlc_MediaPlayerMediaChanged,
+			k_mediaPlayerOpening = libvlc_MediaPlayerOpening,
+			k_mediaPlayerPlaying = libvlc_MediaPlayerPlaying,
+			k_mediaPlayerPaused = libvlc_MediaPlayerPaused,
+			k_mediaPlayerStopped = libvlc_MediaPlayerStopped,
+			k_mediaPlayerForward = libvlc_MediaPlayerForward,
+			k_mediaPlayerBackward = libvlc_MediaPlayerBackward,
+			k_mediaPlayerEndReached = libvlc_MediaPlayerEndReached,
+			k_mediaPlayerEncounteredError = libvlc_MediaPlayerEncounteredError,
+		};
+
+		namespace detail
+		{
+			static const std::vector<event_t> event_list = {
+			 event_t::k_mediaPlayerMediaChanged,
+			 event_t::k_mediaPlayerOpening,
+			 event_t::k_mediaPlayerPlaying,
+			 event_t::k_mediaPlayerPaused,
+			 event_t::k_mediaPlayerStopped,
+			 event_t::k_mediaPlayerForward,
+			 event_t::k_mediaPlayerBackward,
+			 event_t::k_mediaPlayerEndReached,
+			 event_t::k_mediaPlayerEncounteredError,
+			};
+
+			class audioplayer
+			{
+			public:
+				using on_event_callback_t = std::function<void(event_t)>;
+				audioplayer(libvlc_instance_t* vlcInstance = nullptr);
+				~audioplayer();
+
+				libvlc_media_t* play(const std::string& path);
+				void set_media(libvlc_media_t& media);
+				void play();
+				void stop();
+				void pause();
+				void togglePause();
+
+				libvlc_state_t get_state();
+				libvlc_media_t* get_current_media();
+
+				void set_on_event_callback(on_event_callback_t callback);
+
+			private:
+				static void event_proxy(const libvlc_event_t*, void*);
+				void on_event(const libvlc_event_t* e);
+				void attach_events(bool attach);
+
+			private:
+				libvlc_instance_t *m_vlcInstance;
+				libvlc_media_player_t *m_mediaplayer;
+				on_event_callback_t m_on_event_callback;
+			};
+
+			audioplayer::audioplayer(libvlc_instance_t* vlcInstance)
+				: m_vlcInstance(nullptr), m_mediaplayer(nullptr)
+			{
+				m_vlcInstance = vlcInstance ? vlcInstance : libvlc_new(0, NULL);
+			}
+
+			audioplayer::~audioplayer()
+			{
+				attach_events(false);
+				libvlc_release(m_vlcInstance);
+			}
+
+			void audioplayer::set_on_event_callback(on_event_callback_t callback)
+			{
+				m_on_event_callback = callback;
+				if (callback)
+				{
+					attach_events(true);
+				}
+			}
+
+			libvlc_media_t* audioplayer::play(const std::string& path)
+			{
+				libvlc_media_t *m = libvlc_media_new_path(m_vlcInstance, path.c_str());
+				if (m)
+				{
+					if (m_mediaplayer == nullptr)
+					{
+						m_mediaplayer = libvlc_media_player_new_from_media(m);
+						libvlc_media_release(m);
+					}
+					else
+					{
+						set_media(*m);
+					}
+					libvlc_media_player_play(m_mediaplayer);
+					return m;
+				}
+				return nullptr;
+			}
+
+			libvlc_state_t audioplayer::get_state()
+			{
+				if (m_mediaplayer == nullptr)
+				{
+					return libvlc_NothingSpecial;
+				}
+
+				return libvlc_media_player_get_state(m_mediaplayer);
+			}
+
+			void audioplayer::play()
+			{
+				if (m_mediaplayer)
+				{
+					libvlc_media_player_play(m_mediaplayer);
+				}
+			}
+
+			void audioplayer::stop()
+			{
+				if (m_mediaplayer)
+				{
+					libvlc_media_player_stop(m_mediaplayer);
+				}
+			}
+
+			libvlc_media_t* audioplayer::get_current_media()
+			{
+				if (m_mediaplayer)
+				{
+					return libvlc_media_player_get_media(m_mediaplayer);
+				}
+				return nullptr;
+			}
+
+			void audioplayer::set_media(libvlc_media_t& media)
+			{
+				if (m_mediaplayer)
+				{
+					libvlc_media_player_set_media(m_mediaplayer, &media);
+				}
+			}
+
+			void audioplayer::pause()
+			{
+				if (m_mediaplayer)
+				{
+					libvlc_media_player_set_pause(m_mediaplayer, true);
+				}
+			}
+
+			void audioplayer::togglePause()
+			{
+				if (m_mediaplayer)
+				{
+					libvlc_media_player_pause(m_mediaplayer);
+				}
+			}
+
+			void audioplayer::event_proxy(const libvlc_event_t* e, void* param)
+			{
+				if (param)
+				{
+					static_cast< audioplayer* >( param )->on_event(e);
+				}
+			}
+
+			void audioplayer::on_event(const libvlc_event_t* e)
+			{
+				if (m_on_event_callback && e)
+				{
+					m_on_event_callback(static_cast< event_t >( e->type ));
+				}
+			}
+
+			void audioplayer::attach_events(bool attach)
+			{
+				libvlc_event_manager_t* em = libvlc_media_player_event_manager(m_mediaplayer);
+				if (em)
+				{
+					for (event_t e : event_list)
+					{
+						if (attach)
+						{
+							libvlc_event_attach(em, static_cast< libvlc_event_e >( e ), event_proxy, this);
+						}
+						else
+						{
+							libvlc_event_detach(em, static_cast< libvlc_event_e >( e ), event_proxy, this);
+						}
+					}
+				}
+			}
+
+		}
+
+
 
 		AudioPlayer::AudioPlayer()
 			: m_impl(new detail::audioplayer())
@@ -123,12 +219,18 @@ namespace mediaplayer
 		void AudioPlayer::Play(const std::string& path)
 		{
 			m_impl->play(path);
+			m_impl->set_on_event_callback([] (event_t e)
+			{
+				if (e == event_t::k_mediaPlayerEndReached)
+				{
+					std::cout << "" << std::endl;
+				}
+			});
 		}
 
-		void AudioPlayer::Stop(const std::string& path)
+		void AudioPlayer::Stop()
 		{
-			m_impl->stop(path);
+			m_impl->stop();
 		}
-
 	}
 }

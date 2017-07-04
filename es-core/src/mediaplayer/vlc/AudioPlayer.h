@@ -2,15 +2,17 @@
 #include <memory>
 #include <string>
 
-namespace detail
-{
-	class audioplayer;
-}
+
 
 namespace mediaplayer
 {
 	namespace vlc
 	{
+		namespace detail
+		{
+			class audioplayer;
+		}
+
 		class AudioPlayer
 		{
 
@@ -18,7 +20,7 @@ namespace mediaplayer
 			AudioPlayer();
 			~AudioPlayer();
 			void Play(const std::string& path);
-			void Stop(const std::string& path);
+			void Stop();
 		private:
 			std::unique_ptr<detail::audioplayer> m_impl;
 
