@@ -1,4 +1,4 @@
-#include "AudioPlayer.h"
+#include "BasicAudioPlayer.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -209,14 +209,14 @@ namespace mediaplayer
 
 
 
-		AudioPlayer::AudioPlayer()
+		BasicAudioPlayer::BasicAudioPlayer()
 			: m_impl(new detail::audioplayer())
 		{
 		}
 
-		AudioPlayer::~AudioPlayer() { }
+		BasicAudioPlayer::~BasicAudioPlayer() { }
 
-		void AudioPlayer::Play(const std::string& path)
+		void BasicAudioPlayer::Play(const std::string& path)
 		{
 			m_impl->play(path);
 			m_impl->set_on_event_callback([] (event_t e)
@@ -228,7 +228,7 @@ namespace mediaplayer
 			});
 		}
 
-		void AudioPlayer::Stop()
+		void BasicAudioPlayer::Stop()
 		{
 			m_impl->stop();
 		}

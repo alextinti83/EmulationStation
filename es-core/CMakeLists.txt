@@ -23,7 +23,9 @@ set(CORE_HEADERS
 	${CMAKE_CURRENT_SOURCE_DIR}/src/NavigationController.h
 	
 	# mediaplayer
-	${CMAKE_CURRENT_SOURCE_DIR}/src/mediaplayer/vlc/AudioPlayer.h
+	${CMAKE_CURRENT_SOURCE_DIR}/src/mediaplayer/MusicPlayer.h
+	${CMAKE_CURRENT_SOURCE_DIR}/src/mediaplayer/IBasicAudioPlayer.h
+	${CMAKE_CURRENT_SOURCE_DIR}/src/mediaplayer/vlc/BasicAudioPlayer.h
 
 	# utils
 	${CMAKE_CURRENT_SOURCE_DIR}/src/utils/Temperature.h
@@ -96,7 +98,8 @@ set(CORE_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/src/NavigationController.cpp
 
 	# mediaplayer
-	${CMAKE_CURRENT_SOURCE_DIR}/src/mediaplayer/vlc/AudioPlayer.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/mediaplayer/MusicPlayer.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/mediaplayer/vlc/BasicAudioPlayer.cpp
 
 	# utils
 	${CMAKE_CURRENT_SOURCE_DIR}/src/utils/Temperature.cpp
