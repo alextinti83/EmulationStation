@@ -60,6 +60,7 @@ set(CORE_HEADERS
 	${CMAKE_CURRENT_SOURCE_DIR}/src/components/VideoVlcComponent.h
 
 	# Guis
+	${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiContext.h
 	${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiDetectDevice.h
 	${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiInputConfig.h
 	${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiMsgBox.h
