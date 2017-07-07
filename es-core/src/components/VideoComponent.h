@@ -12,8 +12,7 @@
 #include <SDL_mutex.h>
 #include <boost/filesystem.hpp>
 
-std::string	getTitlePath();
-std::string	getTitleFolder();
+
 void writeSubtitle(const char* gameName, const char* systemName, bool always);
 
 class VideoComponent : public GuiComponent
