@@ -20,6 +20,7 @@ set(CORE_HEADERS
 	${CMAKE_CURRENT_SOURCE_DIR}/src/Localization.h
 	${CMAKE_CURRENT_SOURCE_DIR}/src/IFocusable.h
 	${CMAKE_CURRENT_SOURCE_DIR}/src/helpers/IFocusableHelper.h
+	${CMAKE_CURRENT_SOURCE_DIR}/src/helpers/VlcHelper.h
 	${CMAKE_CURRENT_SOURCE_DIR}/src/NavigationController.h
 	
 	# mediaplayer
@@ -96,6 +97,7 @@ set(CORE_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/src/Util.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/Window.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/helpers/IFocusableHelper.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/helpers/VlcHelper.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/NavigationController.cpp
 
 	# mediaplayer
