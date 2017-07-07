@@ -80,7 +80,7 @@ void SystemScreenSaver::startScreenSaver()
 
 #ifdef _RPI_
 			if (Settings::getInstance()->getBool("ScreenSaverOmxPlayer"))
-				mVideoScreensaver = new VideoPlayerComponent(m_context, getVideoTitlePath());
+				mVideoScreensaver = new VideoPlayerComponent(m_context.GetWindow(), getVideoTitlePath());
 			else
 				mVideoScreensaver = new VideoVlcComponent(m_context);
 #else
