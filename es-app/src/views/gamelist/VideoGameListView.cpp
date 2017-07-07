@@ -54,7 +54,7 @@ void VideoGameListView::initialize()
 	// Create the correct type of video window
 #ifdef _RPI_
 	if (Settings::getInstance()->getBool("VideoOmxPlayer"))
-		mVideo = new VideoPlayerComponent(*m_context, "");
+		mVideo = new VideoPlayerComponent(m_context->GetWindow(), "");
 	else
 		mVideo = new VideoVlcComponent(*m_context);
 #else
