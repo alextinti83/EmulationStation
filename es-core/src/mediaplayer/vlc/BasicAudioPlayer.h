@@ -4,6 +4,7 @@
 #include "../IBasicAudioPlayer.h"
 
 
+struct libvlc_instance_t;
 
 namespace mediaplayer
 {
@@ -18,6 +19,7 @@ namespace mediaplayer
 		{
 		public:
 			BasicAudioPlayer();
+			BasicAudioPlayer(libvlc_instance_t& vlcInstance);
 			~BasicAudioPlayer() override;
 
 			void Play(const std::string& path) override;

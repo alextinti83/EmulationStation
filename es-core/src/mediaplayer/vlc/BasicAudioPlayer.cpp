@@ -208,10 +208,15 @@ namespace mediaplayer
 		}
 
 
-
 		BasicAudioPlayer::BasicAudioPlayer()
 			: m_impl(new detail::audioplayer())
 		{
+			// nothing to do
+		}
+		BasicAudioPlayer::BasicAudioPlayer(libvlc_instance_t& vlcInstance)
+			: m_impl(new detail::audioplayer(&vlcInstance))
+		{
+			// nothing to do
 		}
 
 		BasicAudioPlayer::~BasicAudioPlayer() { }
