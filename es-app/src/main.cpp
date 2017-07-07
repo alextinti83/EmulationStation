@@ -24,6 +24,9 @@
 #ifdef WIN32
 #include <Windows.h>
 #endif
+#include "mediaplayer/MusicPlayer.h"
+#include "mediaplayer/vlc/BasicAudioPlayer.h"
+#include "helpers/VlcHelper.h"
 
 namespace fs = boost::filesystem;
 
@@ -222,9 +225,23 @@ int main(int argc, char* argv[])
 	//always close the log on exit
 	atexit(&onExit);
 
+
+	libvlc_instance_t* vlcInstance;
+	vlc::helper::InitVLC(&vlcInstance);
+
+	using BasicAudioPlayer = mediaplayer::vlc::BasicAudioPlayer;
+	using BasicAudioPlayerPtr = std::unique_ptr<BasicAudioPlayer>;
+	mediaplayer::MusicPlayer musicPlayer(BasicAudioPlayerPtr(new BasicAudioPlayer(*vlcInstance)));
+
 	Window window;
-	SystemScreenSaver screensaver(&window);
-	ViewController::init(&window);
+	gui::Context guiContext(
+		&window,
+		vlcInstance,
+		&musicPlayer
+	);
+
+	SystemScreenSaver screensaver(guiContext);
+	ViewController::init(guiContext);
 	window.pushGui(ViewController::get());
 
 	if(!scrape_cmdline)

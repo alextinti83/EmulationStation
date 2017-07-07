@@ -10,6 +10,8 @@ class VideoGameListView : public BasicGameListView
 {
 public:
 	VideoGameListView(Window* window, FileData* root);
+	VideoGameListView(gui::Context& guiContext, FileData* root);
+
 	virtual ~VideoGameListView();
 
 	virtual void onShow() override;
@@ -23,6 +25,7 @@ protected:
 	virtual void update(int deltaTime) override;
 
 private:
+	void initialize();
 	void updateInfoPanel();
 
 	void initMDLabels();

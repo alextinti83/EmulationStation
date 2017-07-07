@@ -16,9 +16,9 @@
 #define FADE_TIME 			300
 #define SWAP_VIDEO_TIMEOUT	30000
 
-SystemScreenSaver::SystemScreenSaver(Window* window) :
+SystemScreenSaver::SystemScreenSaver(gui::Context&	context) :
 	mVideoScreensaver(NULL),
-	mWindow(window),
+	mWindow(context.GetWindow()),
 	mCounted(false),
 	mVideoCount(0),
 	mState(STATE_INACTIVE),
@@ -26,10 +26,11 @@ SystemScreenSaver::SystemScreenSaver(Window* window) :
 	mTimer(0),
 	mSystemName(""),
 	mGameName(""),
-	mCurrentGame(NULL)
+	mCurrentGame(NULL),
+	m_context(context)
 {
-	mWindow->setScreenSaver(this);
-	std::string path = getTitleFolder();
+	context.GetWindow()->setScreenSaver(this);
+	std::string path = getVideoTitleFolder();
 	if(!boost::filesystem::exists(path))
 		boost::filesystem::create_directory(path);
 	srand((unsigned int)time(NULL));
@@ -38,7 +39,7 @@ SystemScreenSaver::SystemScreenSaver(Window* window) :
 SystemScreenSaver::~SystemScreenSaver()
 {
 	// Delete subtitle file, if existing
-	remove(getTitlePath().c_str());
+	remove(getVideoTitlePath().c_str());
 	mCurrentGame = NULL;
 	delete mVideoScreensaver;
 }
@@ -79,11 +80,11 @@ void SystemScreenSaver::startScreenSaver()
 
 #ifdef _RPI_
 			if (Settings::getInstance()->getBool("ScreenSaverOmxPlayer"))
-				mVideoScreensaver = new VideoPlayerComponent(mWindow, getTitlePath());
+				mVideoScreensaver = new VideoPlayerComponent(m_context, getTitlePath());
 			else
-				mVideoScreensaver = new VideoVlcComponent(mWindow, getTitlePath());
+				mVideoScreensaver = new VideoVlcComponent(m_context,);
 #else
-			mVideoScreensaver = new VideoVlcComponent(mWindow, getTitlePath());
+			mVideoScreensaver = new VideoVlcComponent(m_context);
 #endif
 
 			mVideoScreensaver->setOrigin(0.5f, 0.5f);

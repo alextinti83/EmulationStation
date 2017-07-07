@@ -8,7 +8,7 @@ class VideoComponent;
 class SystemScreenSaver : public Window::ScreenSaver
 {
 public:
-	SystemScreenSaver(Window* window);
+	SystemScreenSaver(gui::Context&	context);
 	virtual ~SystemScreenSaver();
 
 	virtual void startScreenSaver();
@@ -46,4 +46,5 @@ private:
 	FileData*		mCurrentGame;
 	std::string		mGameName;
 	std::string		mSystemName;	
+	gui::Context&	m_context;
 };

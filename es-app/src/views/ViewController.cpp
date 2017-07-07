@@ -13,6 +13,8 @@
 #include "animations/MoveCameraAnimation.h"
 #include "animations/LambdaAnimation.h"
 #include <SDL.h>
+#include "mediaplayer/vlc/BasicAudioPlayer.h"
+#include "guis/GuiContext.h"
 
 ViewController* ViewController::sInstance = NULL;
 
@@ -28,8 +30,30 @@ void ViewController::init(Window* window)
 	sInstance = new ViewController(window);
 }
 
+void ViewController::init(gui::Context& guiContext)
+{
+	assert(!sInstance);
+	sInstance = new ViewController(guiContext);
+}
+
 ViewController::ViewController(Window* window)
-	: GuiComponent(window), mCurrentView(nullptr), mCamera(Eigen::Affine3f::Identity()), mFadeOpacity(0), mLockInput(false)
+	: GuiComponent(window), 
+	mCurrentView(nullptr), 
+	mCamera(Eigen::Affine3f::Identity()), 
+	mFadeOpacity(0), 
+	mLockInput(false),
+	m_guiContext(nullptr)
+{
+	mState.viewing = NOTHING;
+}
+
+ViewController::ViewController(gui::Context& guiContext)
+	: GuiComponent(guiContext.GetWindow()),
+	mCurrentView(nullptr),
+	mCamera(Eigen::Affine3f::Identity()),
+	mFadeOpacity(0),
+	mLockInput(false),
+	m_guiContext(&guiContext)
 {
 	mState.viewing = NOTHING;
 }
@@ -327,7 +351,7 @@ std::shared_ptr<IGameListView> ViewController::getGameListView(SystemData* syste
 	switch (selectedViewType)
 	{
 		case VIDEO:
-			view = std::shared_ptr<IGameListView>(new VideoGameListView(mWindow, system->getRootFolder()));
+			view = std::shared_ptr<IGameListView>(new VideoGameListView(*m_guiContext, system->getRootFolder()));
 			break;
 		case DETAILED:
 			view = std::shared_ptr<IGameListView>(new DetailedGameListView(mWindow, system->getRootFolder()));

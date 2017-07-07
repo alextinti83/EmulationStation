@@ -9,6 +9,7 @@
 #include "Settings.h"
 #endif
 #include "components/VideoVlcComponent.h"
+#include "guis/GuiContext.h"
 
 VideoGameListView::VideoGameListView(Window* window, FileData* root) :
 	BasicGameListView(window, root),
@@ -24,16 +25,40 @@ VideoGameListView::VideoGameListView(Window* window, FileData* root) :
 	mRating(window), mReleaseDate(window), mDeveloper(window), mPublisher(window),
 	mGenre(window), mPlayers(window), mLastPlayed(window), mPlayCount(window)
 {
+	initialize();
+}
+
+
+VideoGameListView::VideoGameListView(gui::Context& guiContext, FileData* root) :
+	BasicGameListView(guiContext.GetWindow(), root),
+	mDescContainer(guiContext.GetWindow()), mDescription(guiContext.GetWindow()),
+	mMarquee(guiContext.GetWindow()),
+	mImage(guiContext.GetWindow()),
+	mVideo(nullptr),
+	mVideoPlaying(false),
+
+	mLblRating(guiContext.GetWindow()), mLblReleaseDate(guiContext.GetWindow()), mLblDeveloper(guiContext.GetWindow()), mLblPublisher(guiContext.GetWindow()),
+	mLblGenre(guiContext.GetWindow()), mLblPlayers(guiContext.GetWindow()), mLblLastPlayed(guiContext.GetWindow()), mLblPlayCount(guiContext.GetWindow()),
+
+	mRating(guiContext.GetWindow()), mReleaseDate(guiContext.GetWindow()), mDeveloper(guiContext.GetWindow()), mPublisher(guiContext.GetWindow()),
+	mGenre(guiContext.GetWindow()), mPlayers(guiContext.GetWindow()), mLastPlayed(guiContext.GetWindow()), mPlayCount(guiContext.GetWindow())
+{
+	m_context = &guiContext;
+	initialize();
+}
+
+void VideoGameListView::initialize()
+{
 	const float padding = 0.01f;
 
 	// Create the correct type of video window
 #ifdef _RPI_
 	if (Settings::getInstance()->getBool("VideoOmxPlayer"))
-		mVideo = new VideoPlayerComponent(window, "");
+		mVideo = new VideoPlayerComponent(*m_context, "");
 	else
-		mVideo = new VideoVlcComponent(window, getTitlePath());
+		mVideo = new VideoVlcComponent(*m_context);
 #else
-	mVideo = new VideoVlcComponent(window, getTitlePath());
+	mVideo = new VideoVlcComponent(*m_context);
 #endif
 
 	mList.setPosition(mSize.x() * (0.50f + padding), mList.getPosition().y());
@@ -227,7 +252,7 @@ void VideoGameListView::updateInfoPanel()
 {
 	FileData* file = (mList.size() == 0 || mList.isScrolling()) ? NULL : mList.getSelected();
 
-	boost::filesystem::remove(getTitlePath().c_str());
+	boost::filesystem::remove(getVideoTitlePath().c_str());
 
 	bool fadingOut;
 	if(file == NULL)
