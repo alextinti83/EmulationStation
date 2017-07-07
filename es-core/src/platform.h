@@ -18,6 +18,8 @@
 #include <string>
 
 std::string getHomePath();
+std::string getVideoTitlePath();
+std::string getVideoTitleFolder();
 
 
 int runShutdownCommand(); // shut down the system (returns 0 if successful)
