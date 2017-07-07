@@ -2,13 +2,20 @@
 
 #include "views/gamelist/IGameListView.h"
 #include "views/SystemView.h"
+#include "mediaplayer/MusicPlayer.h"
 
 class SystemData;
+
+namespace gui
+{
+	class Context;
+}
 
 // Used to smoothly transition the camera between multiple views (e.g. from system to system, from gamelist to gamelist).
 class ViewController : public GuiComponent
 {
 public:
+	static void init(gui::Context& guiContext);
 	static void init(Window* window);
 	static ViewController* get();
 
@@ -81,6 +88,8 @@ public:
 
 private:
 	ViewController(Window* window);
+	ViewController(gui::Context& guiContext);
+
 	static ViewController* sInstance;
 
 	void playViewTransition(const std::string& transition);
@@ -95,4 +104,5 @@ private:
 	bool mLockInput;
 
 	State mState;
+	gui::Context* m_guiContext;
 };
