@@ -82,7 +82,7 @@ void SystemScreenSaver::startScreenSaver()
 			if (Settings::getInstance()->getBool("ScreenSaverOmxPlayer"))
 				mVideoScreensaver = new VideoPlayerComponent(m_context, getVideoTitlePath());
 			else
-				mVideoScreensaver = new VideoVlcComponent(m_context,);
+				mVideoScreensaver = new VideoVlcComponent(m_context);
 #else
 			mVideoScreensaver = new VideoVlcComponent(m_context);
 #endif
