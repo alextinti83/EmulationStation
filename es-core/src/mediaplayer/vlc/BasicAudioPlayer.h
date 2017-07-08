@@ -24,8 +24,10 @@ namespace mediaplayer
 
 			void Play(const std::string& path) override;
 			void Stop() override;
+			void SetOnEventCallback(const OnEventCallback& c) override;
 		private:
 			std::unique_ptr<detail::audioplayer> m_impl;
+			std::string m_path;
 		};
 	}
 }

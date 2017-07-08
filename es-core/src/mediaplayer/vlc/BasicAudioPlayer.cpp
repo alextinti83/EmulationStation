@@ -73,7 +73,7 @@ namespace mediaplayer
 			audioplayer::audioplayer(libvlc_instance_t* vlcInstance)
 				: m_vlcInstance(nullptr), m_mediaplayer(nullptr)
 			{
-				m_vlcInstance = vlcInstance ? vlcInstance : libvlc_new(0, NULL);
+     				m_vlcInstance = vlcInstance ? vlcInstance : libvlc_new(0, NULL);
 			}
 
 			audioplayer::~audioplayer()
@@ -85,10 +85,7 @@ namespace mediaplayer
 			void audioplayer::set_on_event_callback(on_event_callback_t callback)
 			{
 				m_on_event_callback = callback;
-				if (callback)
-				{
-					attach_events(true);
-				}
+				
 			}
 
 			libvlc_media_t* audioplayer::play(const std::string& path)
@@ -106,7 +103,19 @@ namespace mediaplayer
 						set_media(*m);
 					}
 					libvlc_media_player_play(m_mediaplayer);
+					if (m_on_event_callback)
+					{
+						attach_events(true);
+					}
 					return m;
+				}
+				else
+				{
+					std::cerr << __FUNCTION__ << ": Could not play " << path << std::endl;
+					if (m_on_event_callback)
+					{
+						m_on_event_callback(event_t::k_mediaPlayerEncounteredError);
+					}
 				}
 				return nullptr;
 			}
@@ -223,19 +232,57 @@ namespace mediaplayer
 
 		void BasicAudioPlayer::Play(const std::string& path)
 		{
+			m_path = path;
 			m_impl->play(path);
-			m_impl->set_on_event_callback([] (event_t e)
-			{
-				if (e == event_t::k_mediaPlayerEndReached)
-				{
-					std::cout << "" << std::endl;
-				}
-			});
 		}
 
 		void BasicAudioPlayer::Stop()
 		{
 			m_impl->stop();
 		}
+
+		void BasicAudioPlayer::SetOnEventCallback(const OnEventCallback& c)
+		{
+			m_impl->set_on_event_callback([this, c] (event_t e)
+			{
+				mediaplayer::event_t event(mediaplayer::event_t::k_undefined);
+				switch (e)
+				{
+				case mediaplayer::vlc::event_t::k_mediaPlayerMediaChanged: 
+					event = mediaplayer::event_t::k_mediaChanged;
+					break;
+				case mediaplayer::vlc::event_t::k_mediaPlayerOpening:
+					event = mediaplayer::event_t::k_opening;
+					break;
+				case mediaplayer::vlc::event_t::k_mediaPlayerPlaying:
+					event = mediaplayer::event_t::k_playing;
+					break;
+				case mediaplayer::vlc::event_t::k_mediaPlayerPaused:
+					event = mediaplayer::event_t::k_paused;
+					break;
+				case mediaplayer::vlc::event_t::k_mediaPlayerStopped:
+					event = mediaplayer::event_t::k_stopped;
+					break;
+				case mediaplayer::vlc::event_t::k_mediaPlayerForward:
+					event = mediaplayer::event_t::k_forward;
+					break;
+				case mediaplayer::vlc::event_t::k_mediaPlayerBackward:
+					event = mediaplayer::event_t::k_backward;
+					break;
+				case mediaplayer::vlc::event_t::k_mediaPlayerEndReached:
+					event = mediaplayer::event_t::k_endReached;
+					break;
+				case mediaplayer::vlc::event_t::k_mediaPlayerEncounteredError:
+					event = mediaplayer::event_t::k_encounteredError;
+					break;
+				default:
+					break;
+				}
+
+				c(event, m_path);
+
+			});
+		}
+
 	}
 }
