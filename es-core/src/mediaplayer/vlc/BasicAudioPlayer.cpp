@@ -13,32 +13,90 @@ namespace mediaplayer
 {
 	namespace vlc
 	{
-		enum class event_t
-		{
-			k_mediaPlayerMediaChanged = libvlc_MediaPlayerMediaChanged,
-			k_mediaPlayerOpening = libvlc_MediaPlayerOpening,
-			k_mediaPlayerPlaying = libvlc_MediaPlayerPlaying,
-			k_mediaPlayerPaused = libvlc_MediaPlayerPaused,
-			k_mediaPlayerStopped = libvlc_MediaPlayerStopped,
-			k_mediaPlayerForward = libvlc_MediaPlayerForward,
-			k_mediaPlayerBackward = libvlc_MediaPlayerBackward,
-			k_mediaPlayerEndReached = libvlc_MediaPlayerEndReached,
-			k_mediaPlayerEncounteredError = libvlc_MediaPlayerEncounteredError,
+		enum class event_t {
+			/* Append new event types at the end of a category.
+			* Do not remove, insert or re-order any entry.
+			* Keep this in sync with lib/event.c:libvlc_event_type_name(). */
+			libvlc_MediaMetaChanged = 0,
+			libvlc_MediaSubItemAdded,
+			libvlc_MediaDurationChanged,
+			libvlc_MediaParsedChanged,
+			libvlc_MediaFreed,
+			libvlc_MediaStateChanged,
+			libvlc_MediaSubItemTreeAdded,
+
+			libvlc_MediaPlayerMediaChanged = 0x100,
+			libvlc_MediaPlayerNothingSpecial,
+			libvlc_MediaPlayerOpening,
+			libvlc_MediaPlayerBuffering,
+			libvlc_MediaPlayerPlaying,
+			libvlc_MediaPlayerPaused,
+			libvlc_MediaPlayerStopped,
+			libvlc_MediaPlayerForward,
+			libvlc_MediaPlayerBackward,
+			libvlc_MediaPlayerEndReached,
+			libvlc_MediaPlayerEncounteredError,
+			libvlc_MediaPlayerTimeChanged,
+			libvlc_MediaPlayerPositionChanged,
+			libvlc_MediaPlayerSeekableChanged,
+			libvlc_MediaPlayerPausableChanged,
+			libvlc_MediaPlayerTitleChanged,
+			libvlc_MediaPlayerSnapshotTaken,
+			libvlc_MediaPlayerLengthChanged,
+			libvlc_MediaPlayerVout,
+			libvlc_MediaPlayerScrambledChanged,
+			libvlc_MediaPlayerCorked = libvlc_MediaPlayerScrambledChanged + 3 + 1,
+			libvlc_MediaPlayerUncorked,
+			libvlc_MediaPlayerMuted,
+			libvlc_MediaPlayerUnmuted,
+			libvlc_MediaPlayerAudioVolume,
+
+			libvlc_MediaListItemAdded = 0x200,
+			libvlc_MediaListWillAddItem,
+			libvlc_MediaListItemDeleted,
+			libvlc_MediaListWillDeleteItem,
+
+			libvlc_MediaListViewItemAdded = 0x300,
+			libvlc_MediaListViewWillAddItem,
+			libvlc_MediaListViewItemDeleted,
+			libvlc_MediaListViewWillDeleteItem,
+
+			libvlc_MediaListPlayerPlayed = 0x400,
+			libvlc_MediaListPlayerNextItemSet,
+			libvlc_MediaListPlayerStopped,
+
+			libvlc_MediaDiscovererStarted = 0x500,
+			libvlc_MediaDiscovererEnded,
+
+			libvlc_VlmMediaAdded = 0x600,
+			libvlc_VlmMediaRemoved,
+			libvlc_VlmMediaChanged,
+			libvlc_VlmMediaInstanceStarted,
+			libvlc_VlmMediaInstanceStopped,
+			libvlc_VlmMediaInstanceStatusInit,
+			libvlc_VlmMediaInstanceStatusOpening,
+			libvlc_VlmMediaInstanceStatusPlaying,
+			libvlc_VlmMediaInstanceStatusPause,
+			libvlc_VlmMediaInstanceStatusEnd,
+			libvlc_VlmMediaInstanceStatusError
 		};
+
+
 
 		namespace detail
 		{
 			static const std::vector<event_t> event_list = {
-			 event_t::k_mediaPlayerMediaChanged,
-			 event_t::k_mediaPlayerOpening,
-			 event_t::k_mediaPlayerPlaying,
-			 event_t::k_mediaPlayerPaused,
-			 event_t::k_mediaPlayerStopped,
-			 event_t::k_mediaPlayerForward,
-			 event_t::k_mediaPlayerBackward,
-			 event_t::k_mediaPlayerEndReached,
-			 event_t::k_mediaPlayerEncounteredError,
+			 event_t::libvlc_MediaPlayerMediaChanged,
+			 event_t::libvlc_MediaPlayerOpening,
+			 event_t::libvlc_MediaPlayerPlaying,
+			 event_t::libvlc_MediaPlayerPaused,
+			 event_t::libvlc_MediaPlayerStopped,
+			 event_t::libvlc_MediaPlayerForward,
+			 event_t::libvlc_MediaPlayerBackward,
+			 event_t::libvlc_MediaPlayerEndReached,
+			 event_t::libvlc_MediaPlayerEncounteredError,
 			};
+
 
 			class audioplayer
 			{
@@ -47,7 +105,7 @@ namespace mediaplayer
 				audioplayer(libvlc_instance_t* vlcInstance = nullptr);
 				~audioplayer();
 
-				libvlc_media_t* play(const std::string& path);
+				void play(const std::string& path);
 				void set_media(libvlc_media_t& media);
 				void play();
 				void stop();
@@ -60,6 +118,7 @@ namespace mediaplayer
 				void set_on_event_callback(on_event_callback_t callback);
 
 			private:
+				void error(const std::string& errorMsg);
 				static void event_proxy(const libvlc_event_t*, void*);
 				void on_event(const libvlc_event_t* e);
 				void attach_events(bool attach);
@@ -73,22 +132,33 @@ namespace mediaplayer
 			audioplayer::audioplayer(libvlc_instance_t* vlcInstance)
 				: m_vlcInstance(nullptr), m_mediaplayer(nullptr)
 			{
-     				m_vlcInstance = vlcInstance ? vlcInstance : libvlc_new(0, NULL);
+				m_vlcInstance = vlcInstance ? vlcInstance : libvlc_new(0, NULL);
 			}
 
 			audioplayer::~audioplayer()
 			{
 				attach_events(false);
 				libvlc_release(m_vlcInstance);
+				libvlc_media_player_release(m_mediaplayer);
+
 			}
 
 			void audioplayer::set_on_event_callback(on_event_callback_t callback)
 			{
 				m_on_event_callback = callback;
-				
+
 			}
 
-			libvlc_media_t* audioplayer::play(const std::string& path)
+			void audioplayer::error(const std::string& errorMsg)
+			{
+				std::cerr << __FUNCTION__ << " " << errorMsg << std::endl;
+				if (m_on_event_callback)
+				{
+					m_on_event_callback(event_t::libvlc_MediaPlayerEncounteredError);
+				}
+			}
+
+			void audioplayer::play(const std::string& path)
 			{
 				libvlc_media_t *m = libvlc_media_new_path(m_vlcInstance, path.c_str());
 				if (m)
@@ -96,28 +166,24 @@ namespace mediaplayer
 					if (m_mediaplayer == nullptr)
 					{
 						m_mediaplayer = libvlc_media_player_new_from_media(m);
-						libvlc_media_release(m);
 					}
 					else
 					{
 						set_media(*m);
 					}
-					libvlc_media_player_play(m_mediaplayer);
+
+					play();
+
 					if (m_on_event_callback)
 					{
 						attach_events(true);
 					}
-					return m;
+					libvlc_media_release(m);
 				}
 				else
 				{
-					std::cerr << __FUNCTION__ << ": Could not play " << path << std::endl;
-					if (m_on_event_callback)
-					{
-						m_on_event_callback(event_t::k_mediaPlayerEncounteredError);
-					}
+					error("Could not play " + path);
 				}
-				return nullptr;
 			}
 
 			libvlc_state_t audioplayer::get_state()
@@ -134,7 +200,10 @@ namespace mediaplayer
 			{
 				if (m_mediaplayer)
 				{
-					libvlc_media_player_play(m_mediaplayer);
+					if (libvlc_media_player_play(m_mediaplayer) == -1)
+					{
+						error("Could not play ");
+					}
 				}
 			}
 
@@ -191,7 +260,8 @@ namespace mediaplayer
 			{
 				if (m_on_event_callback && e)
 				{
-					m_on_event_callback(static_cast< event_t >( e->type ));
+					auto dbe = static_cast< event_t >( e->type );
+					m_on_event_callback(dbe);
 				}
 			}
 
@@ -243,36 +313,36 @@ namespace mediaplayer
 
 		void BasicAudioPlayer::SetOnEventCallback(const OnEventCallback& c)
 		{
-			m_impl->set_on_event_callback([this, c] (event_t e)
+			m_impl->set_on_event_callback([ this, c ] (event_t e)
 			{
 				mediaplayer::event_t event(mediaplayer::event_t::k_undefined);
 				switch (e)
 				{
-				case mediaplayer::vlc::event_t::k_mediaPlayerMediaChanged: 
+				case mediaplayer::vlc::event_t::libvlc_MediaPlayerMediaChanged:
 					event = mediaplayer::event_t::k_mediaChanged;
 					break;
-				case mediaplayer::vlc::event_t::k_mediaPlayerOpening:
+				case mediaplayer::vlc::event_t::libvlc_MediaPlayerOpening:
 					event = mediaplayer::event_t::k_opening;
 					break;
-				case mediaplayer::vlc::event_t::k_mediaPlayerPlaying:
+				case mediaplayer::vlc::event_t::libvlc_MediaPlayerPlaying:
 					event = mediaplayer::event_t::k_playing;
 					break;
-				case mediaplayer::vlc::event_t::k_mediaPlayerPaused:
+				case mediaplayer::vlc::event_t::libvlc_MediaPlayerPaused:
 					event = mediaplayer::event_t::k_paused;
 					break;
-				case mediaplayer::vlc::event_t::k_mediaPlayerStopped:
+				case mediaplayer::vlc::event_t::libvlc_MediaPlayerStopped:
 					event = mediaplayer::event_t::k_stopped;
 					break;
-				case mediaplayer::vlc::event_t::k_mediaPlayerForward:
+				case mediaplayer::vlc::event_t::libvlc_MediaPlayerForward:
 					event = mediaplayer::event_t::k_forward;
 					break;
-				case mediaplayer::vlc::event_t::k_mediaPlayerBackward:
+				case mediaplayer::vlc::event_t::libvlc_MediaPlayerBackward:
 					event = mediaplayer::event_t::k_backward;
 					break;
-				case mediaplayer::vlc::event_t::k_mediaPlayerEndReached:
+				case mediaplayer::vlc::event_t::libvlc_MediaPlayerEndReached:
 					event = mediaplayer::event_t::k_endReached;
 					break;
-				case mediaplayer::vlc::event_t::k_mediaPlayerEncounteredError:
+				case mediaplayer::vlc::event_t::libvlc_MediaPlayerEncounteredError:
 					event = mediaplayer::event_t::k_encounteredError;
 					break;
 				default:
