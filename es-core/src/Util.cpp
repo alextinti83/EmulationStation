@@ -2,8 +2,40 @@
 #include "resources/ResourceManager.h"
 #include "platform.h"
 #include "Log.h"
+#include <codecvt>
 
 namespace fs = boost::filesystem;
+std::string ws2s(const std::string& str)
+{
+	return std::string(str);
+}
+std::string ws2s(const std::wstring& wstr)
+{
+	using convert_typeX = std::codecvt_utf8<wchar_t>;
+	std::wstring_convert<convert_typeX, wchar_t> converterX;
+
+	return converterX.to_bytes(wstr);
+}
+
+void GetFilesInFolder(const std::string i_folderPath, std::vector<std::string>& o_filePaths)
+{
+	if (boost::filesystem::exists(i_folderPath))
+	{
+		uint32_t count = 0;
+		using fsIt = boost::filesystem::recursive_directory_iterator;
+		fsIt end;
+		for (fsIt i(i_folderPath); i != end; ++i)
+		{
+			++count;
+			boost::filesystem::path cp = ( *i );
+			if (!boost::filesystem::is_directory(cp))
+			{
+				cp.make_preferred();
+				o_filePaths.emplace_back(ws2s(cp.native()));
+			}
+		}
+	}
+}
 
 bool CheckWritePermission(const std::string& path)
 {
