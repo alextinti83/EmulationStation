@@ -13,7 +13,7 @@
 #include "animations/MoveCameraAnimation.h"
 #include "animations/LambdaAnimation.h"
 #include <SDL.h>
-#include "mediaplayer/vlc/BasicAudioPlayer.h"
+#include "mediaplayer/IAudioPlayer.h"
 #include "guis/GuiContext.h"
 
 ViewController* ViewController::sInstance = NULL;
@@ -80,7 +80,23 @@ void ViewController::goToStart()
 	{
 		goToSystemView(SystemData::GetSystems().front());
 	}
+
+	InitBackgroundMusic();
 }
+
+void ViewController::InitBackgroundMusic()
+{
+	if (m_guiContext && m_guiContext->GetAudioPlayer())
+	{
+		const std::string musicFolder = getHomePath() + "/.emulationstation/music";
+		std::vector<std::string> files;
+		GetFilesInFolder(musicFolder, files);
+		m_guiContext->GetAudioPlayer()->AddToPlaylist(files, mediaplayer::ShuffleE::k_yes);
+		m_guiContext->GetAudioPlayer()->SetPlaybacktMode(mediaplayer::PlaybackModeE::k_loop);
+		m_guiContext->GetAudioPlayer()->StartPlaylist();
+	}
+}
+
 
 int ViewController::getSystemId(SystemData* system)
 {

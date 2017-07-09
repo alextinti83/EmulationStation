@@ -2,7 +2,6 @@
 
 #include "views/gamelist/IGameListView.h"
 #include "views/SystemView.h"
-#include "mediaplayer/MusicPlayer.h"
 
 class SystemData;
 
@@ -92,6 +91,7 @@ private:
 
 	static ViewController* sInstance;
 
+	void InitBackgroundMusic();
 	void playViewTransition(const std::string& transition);
 	int getSystemId(SystemData* system);
 	
