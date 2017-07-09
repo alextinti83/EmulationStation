@@ -1,7 +1,7 @@
 #pragma once
 #include <memory>
 #include <string>
-#include "../IBasicAudioPlayer.h"
+#include "../IAudioPlayer.h"
 
 
 struct libvlc_instance_t;
@@ -15,12 +15,12 @@ namespace mediaplayer
 			class audioplayer;
 		}
 
-		class BasicAudioPlayer : public IBasicAudioPlayer
+		class AudioPlayer : public IAudioPlayer
 		{
 		public:
-			BasicAudioPlayer();
-			BasicAudioPlayer(libvlc_instance_t& vlcInstance);
-			~BasicAudioPlayer() override;
+			AudioPlayer();
+			AudioPlayer(libvlc_instance_t& vlcInstance);
+			~AudioPlayer() override;
 
 			void Play(const std::string& path) override;
 			void Stop() override;

@@ -18,11 +18,11 @@ namespace mediaplayer
 		k_encounteredError
 	};
 
-	class IBasicAudioPlayer
+	class IAudioPlayer
 	{
 	public:
 		using OnEventCallback = std::function<void(event_t, const std::string& path)>;
-		virtual ~IBasicAudioPlayer() { };
+		virtual ~IAudioPlayer() { };
 		virtual void Play(const std::string& path) = 0;
 		virtual void Stop() = 0;
 		virtual void SetOnEventCallback(const OnEventCallback& c) = 0;
