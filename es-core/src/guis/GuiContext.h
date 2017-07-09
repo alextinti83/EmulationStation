@@ -5,7 +5,7 @@ class Window;
 
 namespace mediaplayer
 {
-class MusicPlayer;
+class IAudioPlayer;
 }
 namespace gui
 {
@@ -15,19 +15,19 @@ public:
 	Context(
 		Window* window, 
 		libvlc_instance_t* vlcInstance, 
-		mediaplayer::MusicPlayer* musicPlayer
+		mediaplayer::IAudioPlayer* audioPlayer
 	)
 		: m_window(window)
 		, m_vlcInstance(vlcInstance)
-		, m_musicPlayer(musicPlayer) 
+		, m_audioPlayer(audioPlayer)
 	{ }
 	libvlc_instance_t* GetVlcInstance() { return m_vlcInstance; }
-	mediaplayer::MusicPlayer* GetMusicPlayer() { return m_musicPlayer; }
+	mediaplayer::IAudioPlayer* GetAudioPlayer() { return m_audioPlayer; }
 	Window* GetWindow() { return m_window; }
 
 private:
 	libvlc_instance_t* m_vlcInstance;
-	mediaplayer::MusicPlayer* m_musicPlayer;
+	mediaplayer::IAudioPlayer* m_audioPlayer;
 	Window* m_window;
 };
 }

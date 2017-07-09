@@ -24,7 +24,6 @@ set(CORE_HEADERS
 	${CMAKE_CURRENT_SOURCE_DIR}/src/NavigationController.h
 	
 	# mediaplayer
-	${CMAKE_CURRENT_SOURCE_DIR}/src/mediaplayer/MusicPlayer.h
 	${CMAKE_CURRENT_SOURCE_DIR}/src/mediaplayer/IAudioPlayer.h
 	${CMAKE_CURRENT_SOURCE_DIR}/src/mediaplayer/vlc/AudioPlayer.h
 	${CMAKE_CURRENT_SOURCE_DIR}/src/mediaplayer/vlc/detail/vlc_audioplayer.h
@@ -104,7 +103,6 @@ set(CORE_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/src/NavigationController.cpp
 
 	# mediaplayer
-	${CMAKE_CURRENT_SOURCE_DIR}/src/mediaplayer/MusicPlayer.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/mediaplayer/vlc/AudioPlayer.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/mediaplayer/vlc/detail/vlc_audioplayer.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/mediaplayer/vlc/detail/vlc_playlist.cpp
