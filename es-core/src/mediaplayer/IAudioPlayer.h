@@ -44,5 +44,7 @@ namespace mediaplayer
 		virtual void AddToPlaylist(std::vector<std::string>& paths, ShuffleE shuffle) = 0;
 		virtual void SetPlaybacktMode(PlaybackModeE mode) = 0;
 		virtual void ClearPlaylist() = 0;
+
+		virtual bool IsPlaying() const = 0;
 	};
 }
