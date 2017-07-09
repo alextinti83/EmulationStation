@@ -151,8 +151,13 @@ namespace mediaplayer
 
 		void AudioPlayer::Shuffle(std::vector<std::string>& list)
 		{
-			unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+			long long seed = std::chrono::system_clock::now().time_since_epoch().count();
 			shuffle(list.begin(), list.end(), std::default_random_engine(seed));
+		}
+
+		bool AudioPlayer::IsPlaying() const
+		{
+			return m_impl->get_state() == libvlc_Playing;
 		}
 
 	}

@@ -33,6 +33,7 @@ namespace mediaplayer
 			void AddToPlaylist(std::vector<std::string>& paths, ShuffleE shuffle) override;
 			void ClearPlaylist() override;
 			void SetPlaybacktMode(PlaybackModeE mode);
+			bool IsPlaying() const;
 
 			static void Shuffle(std::vector<std::string>& list);
 		private:
