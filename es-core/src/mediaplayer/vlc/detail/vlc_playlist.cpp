@@ -98,6 +98,11 @@ namespace mediaplayer
 				return idx;
 			}
 
+			bool playlist::is_valid() const
+			{
+				return m_media_list != nullptr && m_media_list_player != nullptr;
+			}
+
 			void playlist::play()
 			{
 				if (is_valid())

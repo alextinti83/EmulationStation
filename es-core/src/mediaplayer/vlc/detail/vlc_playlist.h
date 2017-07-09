@@ -1,5 +1,6 @@
 #pragma once
 #include <vlc/vlc.h>
+#include <string>
 
 
 namespace mediaplayer
@@ -27,7 +28,7 @@ namespace mediaplayer
 				bool delete_item(unsigned idx);
 				void clear_items();
 				int add_media(libvlc_media_t& media);
-				bool is_valid() const { return m_media_list != nullptr && m_media_list != nullptr; }
+				bool is_valid() const;
 				void set_playback_mode(playback_mode_t m);
 				playback_mode_t get_playback_mode() const;
 
@@ -40,8 +41,6 @@ namespace mediaplayer
 				libvlc_media_list_t* m_media_list;
 				playback_mode_t m_mode;
 			};
-
-
 		}
 	}
 }
