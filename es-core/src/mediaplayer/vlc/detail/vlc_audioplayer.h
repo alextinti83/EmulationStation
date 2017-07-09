@@ -103,10 +103,11 @@ namespace mediaplayer
 
 				void play(const std::string& path);
 				void set_media(libvlc_media_t& media);
+				void add_media_to_playlist(const std::string& path);
 				void play();
 				void stop();
 				void pause();
-				void togglePause();
+				void toggle_pause();
 
 				libvlc_state_t get_state();
 				libvlc_media_t* get_current_media();

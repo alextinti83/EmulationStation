@@ -14,9 +14,13 @@ namespace mediaplayer
 				: m_vlc_instance(nullptr), m_mediaplayer(nullptr), m_playlist()
 			{
 				m_vlc_instance = vlcInstance ? vlcInstance : libvlc_new(0, NULL);
-				if (m_mediaplayer && m_vlc_instance)
+				if (m_vlc_instance)
 				{
-					m_playlist.reset(new playlist(m_vlc_instance, m_mediaplayer));
+					m_mediaplayer = libvlc_media_player_new(m_vlc_instance);
+					if (m_mediaplayer)
+					{
+						m_playlist.reset(new playlist(m_vlc_instance, m_mediaplayer));
+					}
 				}
 			}
 
@@ -57,16 +61,11 @@ namespace mediaplayer
 				libvlc_media_t *m = libvlc_media_new_path(m_vlc_instance, path.c_str());
 				if (m)
 				{
-					if (m_mediaplayer == nullptr)
-					{
-						m_mediaplayer = libvlc_media_player_new_from_media(m);
-					}
-					else
+					if (m_mediaplayer)
 					{
 						set_media(*m);
+						play();
 					}
-
-					play();
 
 					if (m_on_event_callback)
 					{
@@ -134,11 +133,25 @@ namespace mediaplayer
 				}
 			}
 
-			void audioplayer::togglePause()
+			void audioplayer::toggle_pause()
 			{
 				if (m_mediaplayer)
 				{
 					libvlc_media_player_pause(m_mediaplayer);
+				}
+			}
+
+			void audioplayer::add_media_to_playlist(const std::string& path)
+			{
+				libvlc_media_t *m = libvlc_media_new_path(m_vlc_instance, path.c_str());
+				if (m)
+				{
+					get_playlist().add_media(*m);
+					libvlc_media_release(m);
+				}
+				else
+				{
+					error("Could not add media " + path);
 				}
 			}
 
