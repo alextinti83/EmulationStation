@@ -1,4 +1,3 @@
-#pragma once
 #include "VlcHelper.h"
 #include <vlc/vlc.h>
 #include "platform.h"
