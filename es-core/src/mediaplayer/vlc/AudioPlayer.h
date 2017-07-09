@@ -23,8 +23,18 @@ namespace mediaplayer
 			~AudioPlayer() override;
 
 			void Play(const std::string& path) override;
+			void Pause() override;
+			void Resume() override;
 			void Stop() override;
 			void SetOnEventCallback(const OnEventCallback& c) override;
+			void StartPlaylist() override;
+			void AddToPlaylist(const std::string path) override;
+			void AddToPlaylist(const std::vector<std::string>& paths) override;
+			void AddToPlaylist(std::vector<std::string>& paths, ShuffleE shuffle) override;
+			void ClearPlaylist() override;
+			void SetPlaybacktMode(PlaybackModeE mode);
+
+			static void Shuffle(std::vector<std::string>& list);
 		private:
 			std::unique_ptr<detail::audioplayer> m_impl;
 			std::string m_path;
