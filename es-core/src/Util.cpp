@@ -2,13 +2,11 @@
 #include "resources/ResourceManager.h"
 #include "platform.h"
 #include "Log.h"
-#include <codecvt>
 
 namespace fs = boost::filesystem;
-std::string ws2s(const std::string& str)
-{
-	return std::string(str);
-}
+
+#ifdef BOOST_WINDOWS_API
+#include <codecvt>
 std::string ws2s(const std::wstring& wstr)
 {
 	using convert_typeX = std::codecvt_utf8<wchar_t>;
@@ -16,6 +14,7 @@ std::string ws2s(const std::wstring& wstr)
 
 	return converterX.to_bytes(wstr);
 }
+#endif
 
 void GetFilesInFolder(const std::string i_folderPath, std::vector<std::string>& o_filePaths)
 {
@@ -31,7 +30,12 @@ void GetFilesInFolder(const std::string i_folderPath, std::vector<std::string>& 
 			if (!boost::filesystem::is_directory(cp))
 			{
 				cp.make_preferred();
-				o_filePaths.emplace_back(ws2s(cp.native()));
+#ifdef BOOST_WINDOWS_API
+				std::string path = ws2s(cp.native());
+#else
+				std::string path = cp.generic_string();
+#endif
+				o_filePaths.emplace_back(path);
 			}
 		}
 	}
