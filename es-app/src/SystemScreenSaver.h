@@ -47,4 +47,5 @@ private:
 	std::string		mGameName;
 	std::string		mSystemName;	
 	gui::Context&	m_context;
+	bool			m_wasBackgroundMusicPlaying;
 };

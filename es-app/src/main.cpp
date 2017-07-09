@@ -24,8 +24,7 @@
 #ifdef WIN32
 #include <Windows.h>
 #endif
-#include "mediaplayer/MusicPlayer.h"
-#include "mediaplayer/vlc/BasicAudioPlayer.h"
+#include "mediaplayer/vlc/AudioPlayer.h"
 #include "helpers/VlcHelper.h"
 
 namespace fs = boost::filesystem;
@@ -229,15 +228,14 @@ int main(int argc, char* argv[])
 	libvlc_instance_t* vlcInstance;
 	vlc::helper::InitVLC(&vlcInstance);
 
-	using BasicAudioPlayer = mediaplayer::vlc::BasicAudioPlayer;
-	using BasicAudioPlayerPtr = std::unique_ptr<BasicAudioPlayer>;
-	mediaplayer::MusicPlayer musicPlayer(BasicAudioPlayerPtr(new BasicAudioPlayer(*vlcInstance)));
+	using AudioPlayer = mediaplayer::vlc::AudioPlayer;
+	AudioPlayer audioPlayer(*vlcInstance);
 
 	Window window;
 	gui::Context guiContext(
 		&window,
 		vlcInstance,
-		&musicPlayer
+		&audioPlayer
 	);
 
 	SystemScreenSaver screensaver(guiContext);

@@ -7,6 +7,9 @@
 #ifdef WIN32
 #include <codecvt>
 #endif
+#include "GuiComponent.h"
+#include "guis/GuiContext.h"
+#include "mediaplayer/IAudioPlayer.h"
 
 #define FADE_TIME_MS	200
 
@@ -340,12 +343,20 @@ void VideoComponent::onShow()
 {
 	mShowing = true;
 	manageState();
+	if (m_context && m_context->GetAudioPlayer())
+	{
+		m_context->GetAudioPlayer()->Pause();
+	}
 }
 
 void VideoComponent::onHide()
 {
 	mShowing = false;
 	manageState();
+	if (m_context && m_context->GetAudioPlayer())
+	{
+		m_context->GetAudioPlayer()->Resume();
+	}
 }
 
 void VideoComponent::onScreenSaverActivate()

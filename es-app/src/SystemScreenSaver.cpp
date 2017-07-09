@@ -13,6 +13,9 @@
 #include "views/gamelist/IGameListView.h"
 #include <stdio.h>
 
+#include "guis/GuiContext.h"
+#include "mediaplayer/IAudioPlayer.h"
+
 #define FADE_TIME 			300
 #define SWAP_VIDEO_TIMEOUT	30000
 
@@ -27,7 +30,8 @@ SystemScreenSaver::SystemScreenSaver(gui::Context&	context) :
 	mSystemName(""),
 	mGameName(""),
 	mCurrentGame(NULL),
-	m_context(context)
+	m_context(context),
+	m_wasBackgroundMusicPlaying(false)
 {
 	context.GetWindow()->setScreenSaver(this);
 	std::string path = getVideoTitleFolder();
@@ -59,6 +63,15 @@ void SystemScreenSaver::startScreenSaver()
 {
 	if (!mVideoScreensaver && (Settings::getInstance()->getString("ScreenSaverBehavior") == "random video"))
 	{
+		if (m_context.GetAudioPlayer())
+		{
+			m_wasBackgroundMusicPlaying = m_context.GetAudioPlayer()->IsPlaying();
+			if (m_wasBackgroundMusicPlaying)
+			{
+				m_context.GetAudioPlayer()->Pause();
+			}
+		}
+
 		// Configure to fade out the windows
 		mState = STATE_FADE_OUT_WINDOW;
 		mOpacity = 0.0f;
@@ -115,6 +128,11 @@ void SystemScreenSaver::stopScreenSaver()
 	delete mVideoScreensaver;
 	mVideoScreensaver = NULL;
 	mState = STATE_INACTIVE;
+
+	if (m_context.GetAudioPlayer() && m_wasBackgroundMusicPlaying)
+	{
+		m_context.GetAudioPlayer()->Resume();
+	}
 }
 
 void SystemScreenSaver::renderScreenSaver()
