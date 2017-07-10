@@ -37,6 +37,8 @@ namespace mediaplayer
 			void SetPlaybacktMode(PlaybackModeE mode);
 			bool IsPlaying() const;
 			std::size_t PlaylistSize() const override;
+			void SetVolume(unsigned v) override;
+			unsigned GetVolume() const override;
 
 			static void Shuffle(std::vector<std::string>& list);
 

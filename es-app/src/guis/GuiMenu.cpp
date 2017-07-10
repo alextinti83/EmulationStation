@@ -780,7 +780,6 @@ void GuiMenu::addTemperatureEntry(GuiSettings* s)
 			());
 		});
 
-		// volume
 		auto slider = std::make_shared<SliderComponent>(window, 0.f, 100.f, 1.f, " C");
 		slider->setValue(static_cast<float>(Settings::getInstance()->getInt("HiTemperature")));
 		s->addWithLabel("SET HI-TEMP", slider);
@@ -873,4 +872,11 @@ void GuiMenu::addBackgroundMusicEntries(GuiSettings* s)
 			m_context->GetAudioPlayer()->Stop();
 		}
 	});
+
+	// volume
+	auto volume = std::make_shared<SliderComponent>(mWindow, 0.f, 100.f, 1.f, "%");
+	unsigned v = m_context->GetAudioPlayer()->GetVolume();
+	volume->setValue(static_cast<float>(v));
+	s->addWithLabel("BACKGROUND MUSIC VOLUME", volume);
+	s->addSaveFunc([ volume, this ] { m_context->GetAudioPlayer()->SetVolume(( int ) round(volume->getValue())); });
 }

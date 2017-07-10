@@ -155,6 +155,24 @@ namespace mediaplayer
 				}
 			}
 
+			unsigned audioplayer::get_volume()
+			{
+				int v = 0;
+				if (m_mediaplayer)
+				{
+					v = libvlc_audio_get_volume(m_mediaplayer);
+				}
+				return v < 0 ? 0u : v;
+			}
+
+			void audioplayer::set_volume(unsigned volume)
+			{
+				if (m_mediaplayer)
+				{
+					libvlc_audio_set_volume(m_mediaplayer, volume);
+				}
+			}
+
 			void audioplayer::event_proxy(const libvlc_event_t* e, void* param)
 			{
 				if (param)

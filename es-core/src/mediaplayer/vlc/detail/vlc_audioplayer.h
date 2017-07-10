@@ -104,6 +104,8 @@ namespace mediaplayer
 				void play(const std::string& path);
 				void set_media(libvlc_media_t& media);
 				void add_media_to_playlist(const std::string& path);
+				unsigned get_volume();
+				void set_volume(unsigned volume);
 				void play();
 				void stop();
 				void pause();

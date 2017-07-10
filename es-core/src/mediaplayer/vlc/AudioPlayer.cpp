@@ -175,5 +175,15 @@ namespace mediaplayer
 			return m_impl->get_playlist().get_item_count();
 		}
 
+		void AudioPlayer::SetVolume(unsigned v)
+		{
+			m_impl->set_volume(v);
+		}
+
+		unsigned AudioPlayer::GetVolume() const
+		{
+			return m_impl->get_volume();
+		}
+
 	}
 }
