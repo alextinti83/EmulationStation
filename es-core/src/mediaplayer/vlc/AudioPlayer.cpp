@@ -40,7 +40,10 @@ namespace mediaplayer
 
 		void AudioPlayer::Pause()
 		{
-			m_impl->pause();
+			if (m_impl->get_state() == libvlc_Playing)
+			{
+				m_impl->pause();
+			}
 		}
 
 		void AudioPlayer::Resume()
