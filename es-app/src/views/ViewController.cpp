@@ -24,27 +24,10 @@ ViewController* ViewController::get()
 	return sInstance;
 }
 
-void ViewController::init(Window* window)
-{
-	assert(!sInstance);
-	sInstance = new ViewController(window);
-}
-
 void ViewController::init(gui::Context& guiContext)
 {
 	assert(!sInstance);
 	sInstance = new ViewController(guiContext);
-}
-
-ViewController::ViewController(Window* window)
-	: GuiComponent(window), 
-	mCurrentView(nullptr), 
-	mCamera(Eigen::Affine3f::Identity()), 
-	mFadeOpacity(0), 
-	mLockInput(false),
-	m_guiContext(nullptr)
-{
-	mState.viewing = NOTHING;
 }
 
 ViewController::ViewController(gui::Context& guiContext)
@@ -399,7 +382,7 @@ std::shared_ptr<SystemView> ViewController::getSystemListView()
 	if(mSystemListView)
 		return mSystemListView;
 
-	mSystemListView = std::shared_ptr<SystemView>(new SystemView(mWindow));
+	mSystemListView = std::shared_ptr<SystemView>(new SystemView(*m_guiContext));
 	addChild(mSystemListView.get());
 	mSystemListView->setPosition(0, (float)Renderer::getScreenHeight());
 	return mSystemListView;

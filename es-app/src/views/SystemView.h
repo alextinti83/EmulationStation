@@ -39,7 +39,8 @@ struct SystemViewCarousel
 class SystemView : public IList<SystemViewData, SystemData*>
 {
 public:
-	SystemView(Window* window);
+	SystemView(gui::Context& context);
+	SystemView(Window* window) = delete;
 
 	void goToSystem(SystemData* system, bool animate);
 

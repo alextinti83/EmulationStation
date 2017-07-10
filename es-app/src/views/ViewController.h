@@ -86,7 +86,6 @@ public:
 	std::shared_ptr<SystemView> getSystemListView();
 
 private:
-	ViewController(Window* window);
 	ViewController(gui::Context& guiContext);
 
 	static ViewController* sInstance;

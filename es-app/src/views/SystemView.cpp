@@ -8,19 +8,24 @@
 #include "SystemData.h"
 #include "Settings.h"
 #include "Util.h"
+#include "guis/GuiContext.h"
+#include "mediaplayer/IAudioPlayer.h"
 
 // buffer values for scrolling velocity (left, stopped, right)
 const int logoBuffersLeft[] = { -5, -2, -1 };
 const int logoBuffersRight[] = { 1, 2, 5 };
 
-SystemView::SystemView(Window* window) : IList<SystemViewData, SystemData*>(window, LIST_SCROLL_STYLE_SLOW, LIST_ALWAYS_LOOP),
-										 mViewNeedsReload(true),
-										 mSystemInfo(window, "SYSTEM INFO", Font::get(FONT_SIZE_SMALL), 0x33333300, ALIGN_CENTER)
+SystemView::SystemView(gui::Context& context) 
+	: 
+	IList<SystemViewData, SystemData*>(context.GetWindow(),	LIST_SCROLL_STYLE_SLOW, LIST_ALWAYS_LOOP),
+	mViewNeedsReload(true),
+	mSystemInfo(context.GetWindow(), "SYSTEM INFO", Font::get(FONT_SIZE_SMALL), 0x33333300, ALIGN_CENTER)
 {
+	m_context = &context;
 	mCamOffset = 0;
 	mExtrasCamOffset = 0;
 	mExtrasFadeOpacity = 0.0f;
-
+	
 	setSize((float)Renderer::getScreenWidth(), (float)Renderer::getScreenHeight());
 	populate();
 }
@@ -155,6 +160,19 @@ bool SystemView::input(InputConfig* config, Input input)
 		{
 			ViewController::get()->goToRandomGame();
 			return true;
+		}
+		if (m_context->GetAudioPlayer()->PlaylistSize() > 1)
+		{
+			if (config->isMappedTo("pageup", input))
+			{
+				m_context->GetAudioPlayer()->Next();
+				return true;
+			}
+			if (config->isMappedTo("pagedown", input))
+			{
+				m_context->GetAudioPlayer()->Prev();
+				return true;
+			}
 		}
 	}else{
 		if(config->isMappedTo("left", input) ||
@@ -358,6 +376,12 @@ std::vector<HelpPrompt> SystemView::getHelpPrompts()
 		prompts.push_back(HelpPrompt("left/right", "choose"));
 	prompts.push_back(HelpPrompt("a", "select"));
 	prompts.push_back(HelpPrompt("x", "random"));
+
+	if (m_context->GetAudioPlayer()->PlaylistSize() > 1)
+	{
+		prompts.push_back(HelpPrompt("l", "prev track"));
+		prompts.push_back(HelpPrompt("r", "next track"));
+	}
 
 	if (Settings::getInstance()->getBool("ScreenSaverControls"))
 		prompts.push_back(HelpPrompt("select", "launch screensaver"));
