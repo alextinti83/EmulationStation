@@ -104,6 +104,11 @@ void ViewController::goToSystemView(SystemData* system, const std::string transi
 		mCurrentView->onHide();
 	}
 
+	if (m_context && m_context->GetAudioPlayer() && Settings::getInstance()->getBool("BackgroundMusicEnabled"))
+	{
+		m_context->GetAudioPlayer()->Resume();
+	}
+
 	mState.viewing = SYSTEM_SELECT;
 	mState.system = system;
 
@@ -134,6 +139,15 @@ void ViewController::goToPrevGameList()
 
 void ViewController::goToGameList(SystemData* system)
 {
+
+	if (m_context &&
+		m_context->GetAudioPlayer() &&
+		Settings::getInstance()->getBool("BackgroundMusicEnabled") &&
+		Settings::getInstance()->getBool("VideoPreviewPauseBGMusic"))
+	{
+		m_context->GetAudioPlayer()->Pause();
+	}
+
 	if (mState.viewing == SYSTEM_SELECT)
 	{
 		// move system list
@@ -267,6 +281,22 @@ void ViewController::launch(FileData* game, Eigen::Vector3f center)
 		return;
 	}
 
+	const bool wasBGMusicPlaying = m_context->GetAudioPlayer()->IsPlaying();
+	if (m_context->GetAudioPlayer() &&
+		Settings::getInstance()->getBool("BackgroundMusicEnabled"))
+	{
+		m_context->GetAudioPlayer()->Pause();
+	}
+
+	auto resumeAudio = [ wasBGMusicPlaying, this]
+	{
+		if (wasBGMusicPlaying && m_context->GetAudioPlayer() &&
+			Settings::getInstance()->getBool("BackgroundMusicEnabled"))
+		{
+			m_context->GetAudioPlayer()->Resume();
+		}
+	};
+
 	// Hide the current view
 	if (mCurrentView)
 		mCurrentView->onHide();
@@ -288,35 +318,38 @@ void ViewController::launch(FileData* game, Eigen::Vector3f center)
 			//mFadeOpacity = lerp<float>(0.0f, 1.0f, t*t*t + 1);
 			mFadeOpacity = lerp<float>(0.0f, 1.0f, t);
 		};
-		setAnimation(new LambdaAnimation(fadeFunc, 800), 0, [ this, game, fadeFunc ]
+		setAnimation(new LambdaAnimation(fadeFunc, 800), 0, [ this, game, fadeFunc, resumeAudio ]
 		{
-			game->getSystem()->launchGame(mWindow, game);
+			game->getSystem()->launchGame(m_context->GetWindow(), game);
 			mLockInput = false;
 			setAnimation(new LambdaAnimation(fadeFunc, 800), 0, nullptr, true);
 			this->onFileChanged(game, FILE_METADATA_CHANGED);
+			resumeAudio();
 		});
 	}
 	else if (transition_style == "slide" || transition_style == "simple slide")
 	{
 		// move camera to zoom in on center + fade out, launch game, come back in
-		setAnimation(new LaunchAnimation(mCamera, mFadeOpacity, center, 1500), 0, [ this, origCamera, center, game ]
+		setAnimation(new LaunchAnimation(mCamera, mFadeOpacity, center, 1500), 0, [ this, origCamera, center, game, resumeAudio ]
 		{
-			game->getSystem()->launchGame(mWindow, game);
+			game->getSystem()->launchGame(m_context->GetWindow(), game);
 			mCamera = origCamera;
 			mLockInput = false;
 			setAnimation(new LaunchAnimation(mCamera, mFadeOpacity, center, 600), 0, nullptr, true);
 			this->onFileChanged(game, FILE_METADATA_CHANGED);
+			resumeAudio();
 		});
 	}
 	else
 	{
-		setAnimation(new LaunchAnimation(mCamera, mFadeOpacity, center, 10), 0, [ this, origCamera, center, game ]
+		setAnimation(new LaunchAnimation(mCamera, mFadeOpacity, center, 10), 0, [ this, origCamera, center, game, resumeAudio ]
 		{
-			game->getSystem()->launchGame(mWindow, game);
+			game->getSystem()->launchGame(m_context->GetWindow(), game);
 			mCamera = origCamera;
 			mLockInput = false;
 			setAnimation(new LaunchAnimation(mCamera, mFadeOpacity, center, 10), 0, nullptr, true);
 			this->onFileChanged(game, FILE_METADATA_CHANGED);
+			resumeAudio();
 		});
 	}
 }

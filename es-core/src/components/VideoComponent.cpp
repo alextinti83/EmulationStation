@@ -9,7 +9,6 @@
 #endif
 #include "GuiComponent.h"
 #include "guis/GuiContext.h"
-#include "mediaplayer/IAudioPlayer.h"
 #include "Settings.h"
 
 #define FADE_TIME_MS	200
@@ -341,24 +340,13 @@ void VideoComponent::manageState()
 void VideoComponent::onShow()
 {
 	mShowing = true;
-	manageState();
-	if (m_context && 
-		m_context->GetAudioPlayer() && 
-		Settings::getInstance()->getBool("BackgroundMusicEnabled") &&
-		Settings::getInstance()->getBool("VideoPreviewPauseBGMusic"))
-	{
-		m_context->GetAudioPlayer()->Pause();
-	}
+	manageState();	
 }
 
 void VideoComponent::onHide()
 {
 	mShowing = false;
 	manageState();
-	if (m_context && m_context->GetAudioPlayer() && Settings::getInstance()->getBool("BackgroundMusicEnabled"))
-	{
-		m_context->GetAudioPlayer()->Resume();
-	}
 }
 
 void VideoComponent::onScreenSaverActivate()
