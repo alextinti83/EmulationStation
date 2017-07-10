@@ -857,26 +857,39 @@ void GuiMenu::addLoopMenuEntries(GuiSettings* s)
 
 void GuiMenu::addBackgroundMusicEntries(GuiSettings* s)
 {
-	auto enabled = std::make_shared<SwitchComponent>(mWindow);
-	enabled->setState(Settings::getInstance()->getBool("BackgroundMusicEnabled"));
-	s->addWithLabel("BACKGROUND MUSIC", enabled);
-	s->addSaveFunc([ enabled, this ] { 
-		const bool state = enabled->getState();
-		Settings::getInstance()->setBool("BackgroundMusicEnabled", state); 
-		if (state)
+	{
+		auto enabled = std::make_shared<SwitchComponent>(mWindow);
+		enabled->setState(Settings::getInstance()->getBool("BackgroundMusicEnabled"));
+		s->addWithLabel("BACKGROUND MUSIC", enabled);
+		s->addSaveFunc([ enabled, this ]
 		{
-			m_context->GetAudioPlayer()->StartPlaylist();
-		}
-		else
-		{
-			m_context->GetAudioPlayer()->Stop();
-		}
-	});
+			const bool state = enabled->getState();
+			Settings::getInstance()->setBool("BackgroundMusicEnabled", state);
+			if (state)
+			{
+				m_context->GetAudioPlayer()->StartPlaylist();
+			}
+			else
+			{
+				m_context->GetAudioPlayer()->Stop();
+			}
+		});
 
-	// volume
-	auto volume = std::make_shared<SliderComponent>(mWindow, 0.f, 100.f, 1.f, "%");
-	unsigned v = m_context->GetAudioPlayer()->GetVolume();
-	volume->setValue(static_cast<float>(v));
-	s->addWithLabel("BACKGROUND MUSIC VOLUME", volume);
-	s->addSaveFunc([ volume, this ] { m_context->GetAudioPlayer()->SetVolume(( int ) round(volume->getValue())); });
+	}
+	{
+		auto volume = std::make_shared<SliderComponent>(mWindow, 0.f, 100.f, 1.f, "%");
+		unsigned v = m_context->GetAudioPlayer()->GetVolume();
+		volume->setValue(static_cast< float >( v ));
+		s->addWithLabel("BACKGROUND MUSIC VOLUME", volume);
+		s->addSaveFunc([ volume, this ] { m_context->GetAudioPlayer()->SetVolume(( int ) round(volume->getValue())); });
+	}
+	{
+		auto enabled = std::make_shared<SwitchComponent>(mWindow);
+		enabled->setState(Settings::getInstance()->getBool("VideoPreviewPauseBGMusic"));
+		s->addWithLabel("VIDEO PREVIEW PAUSES BG MUSIC", enabled);
+		s->addSaveFunc([ enabled, this ]
+		{
+			Settings::getInstance()->setBool("VideoPreviewPauseBGMusic", enabled->getState());
+		});
+	}
 }

@@ -342,7 +342,10 @@ void VideoComponent::onShow()
 {
 	mShowing = true;
 	manageState();
-	if (m_context && m_context->GetAudioPlayer() && Settings::getInstance()->getBool("BackgroundMusicEnabled"))
+	if (m_context && 
+		m_context->GetAudioPlayer() && 
+		Settings::getInstance()->getBool("BackgroundMusicEnabled") &&
+		Settings::getInstance()->getBool("VideoPreviewPauseBGMusic"))
 	{
 		m_context->GetAudioPlayer()->Pause();
 	}

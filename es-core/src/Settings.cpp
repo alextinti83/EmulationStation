@@ -48,6 +48,7 @@ void Settings::setDefaults()
 	mBoolMap["SplashScreen"] = true;
 	mBoolMap["LoopMenuEntries"] = true;
 	mBoolMap[ "BackgroundMusicEnabled" ] = true;
+	mBoolMap[ "VideoPreviewPauseBGMusic" ] = true;
 
 
 #ifdef _RPI_
