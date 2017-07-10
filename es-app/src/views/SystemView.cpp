@@ -381,12 +381,12 @@ std::vector<HelpPrompt> SystemView::getHelpPrompts()
 	if (Settings::getInstance()->getBool("BackgroundMusicEnabled") &&
 		m_context->GetAudioPlayer()->PlaylistSize() > 1)
 	{
-		prompts.push_back(HelpPrompt("l", "prev track"));
-		prompts.push_back(HelpPrompt("r", "next track"));
+		prompts.push_back(HelpPrompt("l", "<< track"));
+		prompts.push_back(HelpPrompt("r", ">> track"));
 	}
 
 	if (Settings::getInstance()->getBool("ScreenSaverControls"))
-		prompts.push_back(HelpPrompt("select", "launch screensaver"));
+		prompts.push_back(HelpPrompt("select", "screensaver"));
 
 	return prompts;
 }
