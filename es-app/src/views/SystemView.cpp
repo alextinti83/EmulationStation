@@ -161,7 +161,8 @@ bool SystemView::input(InputConfig* config, Input input)
 			ViewController::get()->goToRandomGame();
 			return true;
 		}
-		if (m_context->GetAudioPlayer()->PlaylistSize() > 1)
+		if (Settings::getInstance()->getBool("BackgroundMusicEnabled") && 
+			m_context->GetAudioPlayer()->PlaylistSize() > 1)
 		{
 			if (config->isMappedTo("pageup", input))
 			{
@@ -377,7 +378,8 @@ std::vector<HelpPrompt> SystemView::getHelpPrompts()
 	prompts.push_back(HelpPrompt("a", "select"));
 	prompts.push_back(HelpPrompt("x", "random"));
 
-	if (m_context->GetAudioPlayer()->PlaylistSize() > 1)
+	if (Settings::getInstance()->getBool("BackgroundMusicEnabled") &&
+		m_context->GetAudioPlayer()->PlaylistSize() > 1)
 	{
 		prompts.push_back(HelpPrompt("l", "prev track"));
 		prompts.push_back(HelpPrompt("r", "next track"));

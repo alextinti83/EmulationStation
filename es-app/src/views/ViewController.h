@@ -103,5 +103,4 @@ private:
 	bool mLockInput;
 
 	State mState;
-	gui::Context* m_guiContext;
 };

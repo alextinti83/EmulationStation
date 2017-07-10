@@ -8,7 +8,8 @@ class GuiSettings;
 class GuiMenu : public GuiComponent
 {
 public:
-	GuiMenu(Window* window);
+	GuiMenu(Window* window) = delete;
+	GuiMenu(gui::Context& context);
 
 	bool input(InputConfig* config, Input input) override;
 	void onSizeChanged() override;
@@ -23,6 +24,7 @@ private:
 	void addSystemsEntry(GuiSettings* s);
 	void openScreensaverOptions();
 	void addLoopMenuEntries(GuiSettings* s);
+	void addBackgroundMusicEntries(GuiSettings* s);
 	MenuComponent mMenu;
 	TextComponent mVersion;
 	std::vector<StrInputConfig*> mLoadedInput; // used to keep information about loaded devices in case there are unpluged between device window load and save

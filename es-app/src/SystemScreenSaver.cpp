@@ -63,7 +63,7 @@ void SystemScreenSaver::startScreenSaver()
 {
 	if (!mVideoScreensaver && (Settings::getInstance()->getString("ScreenSaverBehavior") == "random video"))
 	{
-		if (m_context.GetAudioPlayer())
+		if (m_context.GetAudioPlayer() && Settings::getInstance()->getBool("BackgroundMusicEnabled"))
 		{
 			m_wasBackgroundMusicPlaying = m_context.GetAudioPlayer()->IsPlaying();
 			if (m_wasBackgroundMusicPlaying)
@@ -129,7 +129,9 @@ void SystemScreenSaver::stopScreenSaver()
 	mVideoScreensaver = NULL;
 	mState = STATE_INACTIVE;
 
-	if (m_context.GetAudioPlayer() && m_wasBackgroundMusicPlaying)
+	if (Settings::getInstance()->getBool("BackgroundMusicEnabled") &&
+		m_context.GetAudioPlayer() && 
+		m_wasBackgroundMusicPlaying)
 	{
 		m_context.GetAudioPlayer()->Resume();
 	}

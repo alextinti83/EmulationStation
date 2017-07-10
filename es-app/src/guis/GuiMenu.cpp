@@ -19,8 +19,11 @@
 #include "components/MenuComponent.h"
 #include "VolumeControl.h"
 #include "Localization.h"
+#include "guis/GuiContext.h"
+#include "mediaplayer/IAudioPlayer.h"
 
-GuiMenu::GuiMenu(Window* window) : GuiComponent(window), mMenu(window, "MAIN MENU"), mVersion(window)
+GuiMenu::GuiMenu(gui::Context& context)
+: GuiComponent(context), mMenu(context.GetWindow(), "MAIN MENU"), mVersion(context.GetWindow())
 {
 	// MAIN MENU
 
@@ -110,7 +113,7 @@ GuiMenu::GuiMenu(Window* window) : GuiComponent(window), mMenu(window, "MAIN MEN
 				Settings::getInstance()->setString("OMXAudioDev", omx_audio_dev->getSelected());
 		});
 #endif
-
+		addBackgroundMusicEntries(s);
 		mWindow->pushGui(s);
 	});
 
@@ -851,4 +854,23 @@ void GuiMenu::addLoopMenuEntries(GuiSettings* s)
 	loop->setState(Settings::getInstance()->getBool("LoopMenuEntries"));
 	s->addWithLabel("LOOP MENU ENTRIES", loop);
 	s->addSaveFunc([ loop ] { Settings::getInstance()->setBool("LoopMenuEntries", loop->getState()); });
+}
+
+void GuiMenu::addBackgroundMusicEntries(GuiSettings* s)
+{
+	auto enabled = std::make_shared<SwitchComponent>(mWindow);
+	enabled->setState(Settings::getInstance()->getBool("BackgroundMusicEnabled"));
+	s->addWithLabel("BACKGROUND MUSIC", enabled);
+	s->addSaveFunc([ enabled, this ] { 
+		const bool state = enabled->getState();
+		Settings::getInstance()->setBool("BackgroundMusicEnabled", state); 
+		if (state)
+		{
+			m_context->GetAudioPlayer()->StartPlaylist();
+		}
+		else
+		{
+			m_context->GetAudioPlayer()->Stop();
+		}
+	});
 }
