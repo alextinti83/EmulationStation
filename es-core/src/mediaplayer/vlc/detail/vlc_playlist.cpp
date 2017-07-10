@@ -159,6 +159,19 @@ namespace mediaplayer
 					}
 				}
 			}
+
+			std::size_t playlist::get_item_count() const
+			{
+				unsigned count = 0;
+				if (is_valid())
+				{
+					lock_playlist lock(*m_media_list);
+					count = libvlc_media_list_count(m_media_list);
+
+				}
+				return count;
+			}
+
 		}
 	}
 }

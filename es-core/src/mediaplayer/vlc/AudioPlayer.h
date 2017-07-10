@@ -26,6 +26,8 @@ namespace mediaplayer
 			void Pause() override;
 			void Resume() override;
 			void Stop() override;
+			void Next() override;
+			void Prev() override;
 			void SetOnEventCallback(const OnEventCallback& c) override;
 			void StartPlaylist() override;
 			void AddToPlaylist(const std::string path) override;
@@ -34,8 +36,10 @@ namespace mediaplayer
 			void ClearPlaylist() override;
 			void SetPlaybacktMode(PlaybackModeE mode);
 			bool IsPlaying() const;
+			std::size_t PlaylistSize() const override;
 
 			static void Shuffle(std::vector<std::string>& list);
+
 		private:
 			std::unique_ptr<detail::audioplayer> m_impl;
 			std::string m_path;

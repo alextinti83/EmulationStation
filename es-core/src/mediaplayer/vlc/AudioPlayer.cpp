@@ -56,6 +56,16 @@ namespace mediaplayer
 			m_impl->stop();
 		}
 
+		void AudioPlayer::Next()
+		{
+			m_impl->get_playlist().next();
+		}
+
+		void AudioPlayer::Prev()
+		{
+			m_impl->get_playlist().prev();
+		}
+
 		void AudioPlayer::SetOnEventCallback(const OnEventCallback& c)
 		{
 			m_impl->set_on_event_callback([ this, c ] (event_t e)
@@ -151,13 +161,18 @@ namespace mediaplayer
 
 		void AudioPlayer::Shuffle(std::vector<std::string>& list)
 		{
-			long long seed = std::chrono::system_clock::now().time_since_epoch().count();
+			auto seed = std::chrono::system_clock::now().time_since_epoch().count();
 			shuffle(list.begin(), list.end(), std::default_random_engine(seed));
 		}
 
 		bool AudioPlayer::IsPlaying() const
 		{
 			return m_impl->get_state() == libvlc_Playing;
+		}
+
+		std::size_t AudioPlayer::PlaylistSize() const
+		{
+			return m_impl->get_playlist().get_item_count();
 		}
 
 	}

@@ -27,6 +27,7 @@ namespace mediaplayer
 				void prev();
 				bool delete_item(unsigned idx);
 				void clear_items();
+				std::size_t get_item_count() const;
 				int add_media(libvlc_media_t& media);
 				bool is_valid() const;
 				void set_playback_mode(playback_mode_t m);

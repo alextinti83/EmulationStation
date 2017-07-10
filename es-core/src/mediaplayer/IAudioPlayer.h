@@ -37,6 +37,8 @@ namespace mediaplayer
 		virtual void Pause() = 0;
 		virtual void Resume() = 0;
 		virtual void Stop() = 0;
+		virtual void Next() = 0;
+		virtual void Prev() = 0;
 		virtual void SetOnEventCallback(const OnEventCallback& c) = 0;
 		virtual void StartPlaylist() = 0;
 		virtual void AddToPlaylist(const std::string path) = 0;
@@ -44,7 +46,7 @@ namespace mediaplayer
 		virtual void AddToPlaylist(std::vector<std::string>& paths, ShuffleE shuffle) = 0;
 		virtual void SetPlaybacktMode(PlaybackModeE mode) = 0;
 		virtual void ClearPlaylist() = 0;
-
+		virtual std::size_t PlaylistSize() const = 0;
 		virtual bool IsPlaying() const = 0;
 	};
 }
