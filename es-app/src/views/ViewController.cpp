@@ -153,7 +153,11 @@ void ViewController::CheckBGMusicState()
 		bool play = false;
 		if (mState.viewing == GAME_LIST)
 		{
-			if (!videoPreviewPauseBGMusic)
+			if (videoPreviewPauseBGMusic)
+			{
+				m_context->GetAudioPlayer()->Pause();
+			}
+			else
 			{
 				play = true;
 			}
