@@ -48,6 +48,7 @@ namespace mediaplayer
 		virtual void ClearPlaylist() = 0;
 		virtual std::size_t PlaylistSize() const = 0;
 		virtual bool IsPlaying() const = 0;
+		virtual bool IsPaused() const = 0;
 		virtual void SetVolume(unsigned v) = 0;
 		virtual unsigned GetVolume() const = 0;
 	};
