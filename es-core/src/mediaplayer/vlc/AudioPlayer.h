@@ -34,8 +34,9 @@ namespace mediaplayer
 			void AddToPlaylist(const std::vector<std::string>& paths) override;
 			void AddToPlaylist(std::vector<std::string>& paths, ShuffleE shuffle) override;
 			void ClearPlaylist() override;
-			void SetPlaybacktMode(PlaybackModeE mode);
-			bool IsPlaying() const;
+			void SetPlaybacktMode(PlaybackModeE mode) override;
+			bool IsPlaying() const override;
+			bool IsPaused() const override;
 			std::size_t PlaylistSize() const override;
 			void SetVolume(unsigned v) override;
 			unsigned GetVolume() const override;

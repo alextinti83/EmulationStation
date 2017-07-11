@@ -173,6 +173,11 @@ namespace mediaplayer
 			return m_impl->get_state() == libvlc_Playing;
 		}
 
+		bool AudioPlayer::IsPaused() const
+		{
+			return m_impl->get_state() == libvlc_Paused;
+		}
+
 		std::size_t AudioPlayer::PlaylistSize() const
 		{
 			return m_impl->get_playlist().get_item_count();
