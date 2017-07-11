@@ -164,12 +164,12 @@ bool SystemView::input(InputConfig* config, Input input)
 		if (Settings::getInstance()->getBool("BackgroundMusicEnabled") && 
 			m_context->GetAudioPlayer()->PlaylistSize() > 1)
 		{
-			if (config->isMappedTo("pageup", input))
+			if (config->isMappedTo("pagedown", input))
 			{
 				m_context->GetAudioPlayer()->Next();
 				return true;
 			}
-			if (config->isMappedTo("pagedown", input))
+			if (config->isMappedTo("pageup", input))
 			{
 				m_context->GetAudioPlayer()->Prev();
 				return true;
@@ -381,8 +381,8 @@ std::vector<HelpPrompt> SystemView::getHelpPrompts()
 	if (Settings::getInstance()->getBool("BackgroundMusicEnabled") &&
 		m_context->GetAudioPlayer()->PlaylistSize() > 1)
 	{
-		prompts.push_back(HelpPrompt("l", "<< track"));
-		prompts.push_back(HelpPrompt("r", ">> track"));
+		prompts.push_back(HelpPrompt("l", ""));
+		prompts.push_back(HelpPrompt("r", " << track >>"));
 	}
 
 	if (Settings::getInstance()->getBool("ScreenSaverControls"))
