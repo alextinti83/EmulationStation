@@ -865,14 +865,7 @@ void GuiMenu::addBackgroundMusicEntries(GuiSettings* s)
 		{
 			const bool state = enabled->getState();
 			Settings::getInstance()->setBool("BackgroundMusicEnabled", state);
-			if (state)
-			{
-				m_context->GetAudioPlayer()->StartPlaylist();
-			}
-			else
-			{
-				m_context->GetAudioPlayer()->Stop();
-			}
+			ViewController::get()->CheckBGMusicState();
 		});
 
 	}

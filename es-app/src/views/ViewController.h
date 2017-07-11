@@ -40,6 +40,7 @@ public:
 	void goToRandomGame();
 
 	void onFileChanged(FileData* file, FileChangeType change);
+	void CheckBGMusicState();
 
 	// Plays a nice launch effect and launches the game at the end of it.
 	// Once the game terminates, plays a return effect.

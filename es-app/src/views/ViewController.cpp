@@ -104,13 +104,11 @@ void ViewController::goToSystemView(SystemData* system, const std::string transi
 		mCurrentView->onHide();
 	}
 
-	if (m_context && m_context->GetAudioPlayer() && Settings::getInstance()->getBool("BackgroundMusicEnabled"))
-	{
-		m_context->GetAudioPlayer()->Resume();
-	}
 
 	mState.viewing = SYSTEM_SELECT;
 	mState.system = system;
+
+	CheckBGMusicState();
 
 	auto systemList = getSystemListView();
 	systemList->setPosition(getSystemId(system) * ( float ) Renderer::getScreenWidth(), systemList->getPosition().y());
@@ -137,16 +135,49 @@ void ViewController::goToPrevGameList()
 	goToGameList(system->getPrevEnabled());
 }
 
-void ViewController::goToGameList(SystemData* system)
+void ViewController::CheckBGMusicState()
 {
-
-	if (m_context &&
-		m_context->GetAudioPlayer() &&
-		Settings::getInstance()->getBool("BackgroundMusicEnabled") &&
-		Settings::getInstance()->getBool("VideoPreviewPauseBGMusic"))
+	if (!m_context || !m_context->GetAudioPlayer())
+	{
+		return;
+	}
+	const bool musicEnabled = Settings::getInstance()->getBool("BackgroundMusicEnabled");
+	const bool videoPreviewPauseBGMusic = Settings::getInstance()->getBool("VideoPreviewPauseBGMusic");
+	const bool wasPlaylistStarted = m_context->GetAudioPlayer()->IsPaused() || m_context->GetAudioPlayer()->IsPlaying();
+	if (!musicEnabled)
 	{
 		m_context->GetAudioPlayer()->Pause();
 	}
+	else
+	{
+		bool play = false;
+		if (mState.viewing == GAME_LIST)
+		{
+			if (!videoPreviewPauseBGMusic)
+			{
+				play = true;
+			}
+		}
+		else
+		{
+			play = true;
+		}
+		if (play)
+		{
+			if (wasPlaylistStarted)
+			{
+				m_context->GetAudioPlayer()->Resume();
+			}
+			else
+			{
+				m_context->GetAudioPlayer()->StartPlaylist();
+			}
+		}
+	}
+}
+
+void ViewController::goToGameList(SystemData* system)
+{
 
 	if (mState.viewing == SYSTEM_SELECT)
 	{
@@ -161,6 +192,8 @@ void ViewController::goToGameList(SystemData* system)
 
 	mState.viewing = GAME_LIST;
 	mState.system = system;
+
+	CheckBGMusicState();
 
 	if (mCurrentView)
 	{
@@ -288,7 +321,7 @@ void ViewController::launch(FileData* game, Eigen::Vector3f center)
 		m_context->GetAudioPlayer()->Pause();
 	}
 
-	auto resumeAudio = [ wasBGMusicPlaying, this]
+	auto resumeAudio = [ wasBGMusicPlaying, this ]
 	{
 		if (wasBGMusicPlaying && m_context->GetAudioPlayer() &&
 			Settings::getInstance()->getBool("BackgroundMusicEnabled"))
