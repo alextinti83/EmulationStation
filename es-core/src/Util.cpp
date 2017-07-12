@@ -5,6 +5,42 @@
 
 namespace fs = boost::filesystem;
 
+#ifdef BOOST_WINDOWS_API
+#include <codecvt>
+std::string ws2s(const std::wstring& wstr)
+{
+	using convert_typeX = std::codecvt_utf8<wchar_t>;
+	std::wstring_convert<convert_typeX, wchar_t> converterX;
+
+	return converterX.to_bytes(wstr);
+}
+#endif
+
+void GetFilesInFolder(const std::string i_folderPath, std::vector<std::string>& o_filePaths)
+{
+	if (boost::filesystem::exists(i_folderPath))
+	{
+		uint32_t count = 0;
+		using fsIt = boost::filesystem::recursive_directory_iterator;
+		fsIt end;
+		for (fsIt i(i_folderPath); i != end; ++i)
+		{
+			++count;
+			boost::filesystem::path cp = ( *i );
+			if (!boost::filesystem::is_directory(cp))
+			{
+				cp.make_preferred();
+#ifdef BOOST_WINDOWS_API
+				std::string path = ws2s(cp.native());
+#else
+				std::string path = cp.generic_string();
+#endif
+				o_filePaths.emplace_back(path);
+			}
+		}
+	}
+}
+
 bool CheckWritePermission(const std::string& path)
 {
 	FILE *fp = fopen(path.c_str(), "w");

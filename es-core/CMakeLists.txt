@@ -20,8 +20,16 @@ set(CORE_HEADERS
 	${CMAKE_CURRENT_SOURCE_DIR}/src/Localization.h
 	${CMAKE_CURRENT_SOURCE_DIR}/src/IFocusable.h
 	${CMAKE_CURRENT_SOURCE_DIR}/src/helpers/IFocusableHelper.h
+	${CMAKE_CURRENT_SOURCE_DIR}/src/helpers/VlcHelper.h
 	${CMAKE_CURRENT_SOURCE_DIR}/src/NavigationController.h
 	
+	# mediaplayer
+	${CMAKE_CURRENT_SOURCE_DIR}/src/mediaplayer/IAudioPlayer.h
+	${CMAKE_CURRENT_SOURCE_DIR}/src/mediaplayer/vlc/AudioPlayer.h
+	${CMAKE_CURRENT_SOURCE_DIR}/src/mediaplayer/vlc/detail/vlc_audioplayer.h
+	${CMAKE_CURRENT_SOURCE_DIR}/src/mediaplayer/vlc/detail/vlc_playlist.h
+
+
 	# utils
 	${CMAKE_CURRENT_SOURCE_DIR}/src/utils/Temperature.h
 
@@ -55,6 +63,7 @@ set(CORE_HEADERS
 	${CMAKE_CURRENT_SOURCE_DIR}/src/components/VideoVlcComponent.h
 
 	# Guis
+	${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiContext.h
 	${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiDetectDevice.h
 	${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiInputConfig.h
 	${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiMsgBox.h
@@ -90,7 +99,13 @@ set(CORE_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/src/Util.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/Window.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/helpers/IFocusableHelper.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/helpers/VlcHelper.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/NavigationController.cpp
+
+	# mediaplayer
+	${CMAKE_CURRENT_SOURCE_DIR}/src/mediaplayer/vlc/AudioPlayer.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/mediaplayer/vlc/detail/vlc_audioplayer.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/mediaplayer/vlc/detail/vlc_playlist.cpp
 
 	# utils
 	${CMAKE_CURRENT_SOURCE_DIR}/src/utils/Temperature.cpp

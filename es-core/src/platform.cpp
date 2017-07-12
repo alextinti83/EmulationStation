@@ -41,6 +41,18 @@ std::string getHomePath()
 	return genericPath.generic_string();
 }
 
+std::string getVideoTitlePath()
+{
+	std::string titleFolder = getVideoTitleFolder();
+	return titleFolder + "last_title.srt";
+}
+
+std::string getVideoTitleFolder()
+{
+	std::string home = getHomePath();
+	return home + "/.emulationstation/tmp/";
+}
+
 int runShutdownCommand()
 {
 #ifdef WIN32 // windows

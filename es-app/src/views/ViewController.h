@@ -5,11 +5,16 @@
 
 class SystemData;
 
+namespace gui
+{
+	class Context;
+}
+
 // Used to smoothly transition the camera between multiple views (e.g. from system to system, from gamelist to gamelist).
 class ViewController : public GuiComponent
 {
 public:
-	static void init(Window* window);
+	static void init(gui::Context& guiContext);
 	static ViewController* get();
 
 	virtual ~ViewController();
@@ -34,6 +39,7 @@ public:
 	void goToRandomGame();
 
 	void onFileChanged(FileData* file, FileChangeType change);
+	void CheckBGMusicState();
 
 	// Plays a nice launch effect and launches the game at the end of it.
 	// Once the game terminates, plays a return effect.
@@ -80,9 +86,11 @@ public:
 	std::shared_ptr<SystemView> getSystemListView();
 
 private:
-	ViewController(Window* window);
+	ViewController(gui::Context& guiContext);
+
 	static ViewController* sInstance;
 
+	void InitBackgroundMusic();
 	void playViewTransition(const std::string& transition);
 	int getSystemId(SystemData* system);
 	

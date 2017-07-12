@@ -47,6 +47,9 @@ void Settings::setDefaults()
 	mBoolMap["Windowed"] = false;
 	mBoolMap["SplashScreen"] = true;
 	mBoolMap["LoopMenuEntries"] = true;
+	mBoolMap[ "BackgroundMusicEnabled" ] = true;
+	mBoolMap[ "VideoPreviewPauseBGMusic" ] = true;
+
 
 #ifdef _RPI_
 	// don't enable VSync by default on the Pi, since it already

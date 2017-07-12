@@ -5,6 +5,7 @@
 #include <Eigen/Dense>
 #include "HelpStyle.h"
 #include "IFocusable.h"
+#include "guis/GuiContext.h"
 
 class Window;
 class Animation;
@@ -17,6 +18,7 @@ typedef std::pair<std::string, std::string> HelpPrompt;
 class GuiComponent : public IFocusable
 {
 public:
+	GuiComponent(gui::Context& context);
 	GuiComponent(Window* window);
 	virtual ~GuiComponent();
 
@@ -143,6 +145,7 @@ protected:
 
 	bool mEnabled;
 	bool mVisible;
+	gui::Context* m_context;
 
 public:
 	const static unsigned char MAX_ANIMATIONS = 4;

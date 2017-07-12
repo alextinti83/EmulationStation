@@ -6,6 +6,8 @@
 #include <boost/date_time.hpp>
 
 
+void GetFilesInFolder(const std::string i_folderPath, std::vector<std::string>& o_filePaths);
+
 bool CheckWritePermission(const std::string& path);
 bool StartsWith(const std::string& str, const std::string& prefix);
 std::string strToUpper(const char* from);
