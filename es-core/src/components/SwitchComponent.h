@@ -20,10 +20,17 @@ public:
 	void setValue(const std::string& stateString) override;
 
 	virtual std::vector<HelpPrompt> getHelpPrompts() override;
+	
+	void SetOnValueChangeCallback(const std::function<void(bool newValue)>& callback)
+	{
+		m_onValueChanged = callback;
+	}
 
 private:
 	void onStateChanged();
 
 	ImageComponent mImage;
 	bool mState;
+	std::function<void(bool newValue)> m_onValueChanged;
+
 };
