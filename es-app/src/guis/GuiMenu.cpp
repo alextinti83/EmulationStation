@@ -80,8 +80,10 @@ GuiMenu::GuiMenu(gui::Context& context)
 		auto volume = std::make_shared<SliderComponent>(mWindow, 0.f, 100.f, 1.f, "%");
 		volume->setValue((float)VolumeControl::getInstance()->getVolume());
 		s->addWithLabel("SYSTEM VOLUME", volume);
-		s->addSaveFunc([volume] { VolumeControl::getInstance()->setVolume((int)round(volume->getValue())); });
-
+		volume->SetOnValueChangeCallback([ this ] (float oldValue, float newValue)
+		{
+			VolumeControl::getInstance()->setVolume(( int ) round(newValue));
+		});
 
 		// disable sounds
 		auto sounds_enabled = std::make_shared<SwitchComponent>(mWindow);
@@ -861,10 +863,9 @@ void GuiMenu::addBackgroundMusicEntries(GuiSettings* s)
 		auto enabled = std::make_shared<SwitchComponent>(mWindow);
 		enabled->setState(Settings::getInstance()->getBool("BackgroundMusicEnabled"));
 		s->addWithLabel("BACKGROUND MUSIC", enabled);
-		s->addSaveFunc([ enabled, this ]
+		enabled->SetOnValueChangeCallback([ this ] (bool newValue)
 		{
-			const bool state = enabled->getState();
-			Settings::getInstance()->setBool("BackgroundMusicEnabled", state);
+			Settings::getInstance()->setBool("BackgroundMusicEnabled", newValue);
 			ViewController::get()->CheckBGMusicState();
 		});
 
@@ -874,15 +875,20 @@ void GuiMenu::addBackgroundMusicEntries(GuiSettings* s)
 		unsigned v = m_context->GetAudioPlayer()->GetVolume();
 		volume->setValue(static_cast< float >( v ));
 		s->addWithLabel("BACKGROUND MUSIC VOLUME", volume);
-		s->addSaveFunc([ volume, this ] { m_context->GetAudioPlayer()->SetVolume(( int ) round(volume->getValue())); });
+		volume->SetOnValueChangeCallback([this] (float oldValue, float newValue) 
+		{
+			m_context->GetAudioPlayer()->SetVolume(( int ) round(newValue));
+		});
 	}
 	{
 		auto enabled = std::make_shared<SwitchComponent>(mWindow);
 		enabled->setState(Settings::getInstance()->getBool("VideoPreviewPauseBGMusic"));
 		s->addWithLabel("VIDEO PREVIEW PAUSES BG MUSIC", enabled);
-		s->addSaveFunc([ enabled, this ]
+		enabled->SetOnValueChangeCallback([ this ] (bool newValue)
 		{
-			Settings::getInstance()->setBool("VideoPreviewPauseBGMusic", enabled->getState());
+			Settings::getInstance()->setBool("VideoPreviewPauseBGMusic", newValue);
+			ViewController::get()->CheckBGMusicState();
+
 		});
 	}
 }
