@@ -136,7 +136,7 @@ void Window::input(InputConfig* config, Input input)
 				else if(config->isMappedTo("start", input))
 				{
 					// launch game!
-					cancelScreenSaver();
+					cancelScreenSaver(false);
 					mScreenSaver->launchGame();
 					// to force handling the wake up process
 					mSleeping = true;
@@ -160,7 +160,11 @@ void Window::input(InputConfig* config, Input input)
 	}
 
 	mTimeSinceLastInput = 0;
-	cancelScreenSaver();
+
+	if (input.value != 0)
+	{
+		cancelScreenSaver();
+	}
 
 	if(config->getDeviceId() == DEVICE_KEYBOARD && input.value && input.id == SDLK_g && SDL_GetModState() & KMOD_LCTRL && Settings::getInstance()->getBool("Debug"))
 	{
@@ -457,11 +461,11 @@ void Window::startScreenSaver()
  	}
  }
 
- void Window::cancelScreenSaver()
+ void Window::cancelScreenSaver(bool updateBGMusic)
  {
  	if (mScreenSaver && mRenderScreenSaver)
  	{
- 		mScreenSaver->stopScreenSaver();
+ 		mScreenSaver->stopScreenSaver(updateBGMusic);
  		mRenderScreenSaver = false;
 
  		// Tell the GUI components the screensaver has stopped

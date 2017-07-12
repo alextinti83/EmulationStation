@@ -11,8 +11,8 @@ public:
 	SystemScreenSaver(gui::Context&	context);
 	virtual ~SystemScreenSaver();
 
-	virtual void startScreenSaver();
-	virtual void stopScreenSaver();
+	virtual void startScreenSaver(bool updateBGMusicState = true);
+	virtual void stopScreenSaver(bool updateBGMusicState = true);
 	virtual void nextVideo();
 	virtual void renderScreenSaver();
 	virtual bool allowSleep();

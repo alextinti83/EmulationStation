@@ -15,8 +15,8 @@ class Window
 public:
 	class ScreenSaver {
 	public:
-		virtual void startScreenSaver() = 0;
-		virtual void stopScreenSaver() = 0;
+		virtual void startScreenSaver(bool updateBGMusicState = true) = 0;
+		virtual void stopScreenSaver(bool updateBGMusicState = true) = 0;
 		virtual void nextVideo() = 0;
 		virtual void renderScreenSaver() = 0;
 		virtual bool allowSleep() = 0;
@@ -56,7 +56,7 @@ public:
 	void setScreenSaver(ScreenSaver* screenSaver) { mScreenSaver = screenSaver; }
 
 	void startScreenSaver();
-	void cancelScreenSaver();
+	void cancelScreenSaver(bool updateBGMusic = true);
 	void renderScreenSaver();
 
 private:

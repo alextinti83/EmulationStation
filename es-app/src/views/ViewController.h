@@ -15,7 +15,6 @@ class ViewController : public GuiComponent
 {
 public:
 	static void init(gui::Context& guiContext);
-	static void init(Window* window);
 	static ViewController* get();
 
 	virtual ~ViewController();

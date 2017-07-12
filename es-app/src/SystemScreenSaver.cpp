@@ -59,11 +59,11 @@ bool SystemScreenSaver::isScreenSaverActive()
 	return (mState != STATE_INACTIVE);
 }
 
-void SystemScreenSaver::startScreenSaver()
+void SystemScreenSaver::startScreenSaver(bool updateBGMusicState)
 {
 	if (!mVideoScreensaver && (Settings::getInstance()->getString("ScreenSaverBehavior") == "random video"))
 	{
-		if (m_context.GetAudioPlayer() && Settings::getInstance()->getBool("BackgroundMusicEnabled"))
+		if (updateBGMusicState && m_context.GetAudioPlayer() && Settings::getInstance()->getBool("BackgroundMusicEnabled"))
 		{
 			m_wasBackgroundMusicPlaying = m_context.GetAudioPlayer()->IsPlaying();
 			if (m_wasBackgroundMusicPlaying)
@@ -123,13 +123,13 @@ void SystemScreenSaver::startScreenSaver()
 	mCurrentGame = NULL;
 }
 
-void SystemScreenSaver::stopScreenSaver()
+void SystemScreenSaver::stopScreenSaver(bool updateBGMusicState)
 {
 	delete mVideoScreensaver;
 	mVideoScreensaver = NULL;
 	mState = STATE_INACTIVE;
 
-	if (Settings::getInstance()->getBool("BackgroundMusicEnabled") &&
+	if (updateBGMusicState && Settings::getInstance()->getBool("BackgroundMusicEnabled") &&
 		m_context.GetAudioPlayer() && 
 		m_wasBackgroundMusicPlaying)
 	{
@@ -314,8 +314,9 @@ void SystemScreenSaver::update(int deltaTime)
 }
 
 void SystemScreenSaver::nextVideo() {
-	stopScreenSaver();
-	startScreenSaver();
+	const bool updateBGMusicState = false;
+	stopScreenSaver(updateBGMusicState);
+	startScreenSaver(updateBGMusicState);
 	mState = STATE_SCREENSAVER_ACTIVE;
 }
 
@@ -334,4 +335,5 @@ void SystemScreenSaver::launchGame()
  	{
  		view->launch(mCurrentGame);
  	}
+
 }
