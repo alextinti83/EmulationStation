@@ -119,11 +119,18 @@ void Window::textInput(const char* text)
 
 void Window::input(InputConfig* config, Input input)
 {
-	if (mScreenSaver) {
-		if(mScreenSaver->isScreenSaverActive() && Settings::getInstance()->getBool("ScreenSaverControls") &&
-		   (Settings::getInstance()->getString("ScreenSaverBehavior") == "random video"))
+	if (mScreenSaver && input.value != 0) {
+		if(    mScreenSaver->isScreenSaverActive()
+			&& Settings::getInstance()->getBool("ScreenSaverControls") 
+			&& Settings::getInstance()->getString("ScreenSaverBehavior") == "random video"
+			)
 		{
-			if(mScreenSaver->getCurrentGame() != NULL && (config->isMappedTo("right", input) || config->isMappedTo("start", input) || config->isMappedTo("select", input)))
+			if(mScreenSaver->getCurrentGame() != NULL 
+				&& (   config->isMappedTo("right", input) 
+					|| config->isMappedTo("start", input) 
+					|| config->isMappedTo("select", input)
+					)
+				)
 			{
 				if(config->isMappedTo("right", input) || config->isMappedTo("select", input))
 				{
@@ -140,10 +147,13 @@ void Window::input(InputConfig* config, Input input)
 					mScreenSaver->launchGame();
 					// to force handling the wake up process
 					mSleeping = true;
+					return;
 				}
+				
 			}
-			else if(input.value != 0)
+			else
 			{
+				cancelScreenSaver(false);
 				return;
 			}
 		}
@@ -161,10 +171,6 @@ void Window::input(InputConfig* config, Input input)
 
 	mTimeSinceLastInput = 0;
 
-	if (input.value != 0)
-	{
-		cancelScreenSaver();
-	}
 
 	if(config->getDeviceId() == DEVICE_KEYBOARD && input.value && input.id == SDLK_g && SDL_GetModState() & KMOD_LCTRL && Settings::getInstance()->getBool("Debug"))
 	{
