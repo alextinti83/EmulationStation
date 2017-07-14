@@ -5,7 +5,9 @@ It contains some additional features/improvements including:
 
 * [User Game Collections](https://github.com/talex-tnt/RetroStation/issues/18) (favorites)
 
-* [Hidden Games](https://github.com/talex-tnt/RetroStation/issues/22) 
+* [Hidden Games](https://github.com/talex-tnt/RetroStation/issues/22)
+
+* [Background Music](https://github.com/talex-tnt/RetroStation/issues/6)
 
 * [Change Player/Controller](https://github.com/talex-tnt/RetroStation/issues/7) 
 
