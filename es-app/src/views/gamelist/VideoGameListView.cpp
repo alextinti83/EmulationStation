@@ -139,7 +139,7 @@ void VideoGameListView::onThemeChanged(const std::shared_ptr<ThemeData>& theme)
 	BasicGameListView::onThemeChanged(theme);
 
 	using namespace ThemeFlags;
-	mMarquee.applyTheme(theme, getName(), "md_marquee", POSITION | ThemeFlags::SIZE | Z_INDEX);
+	mMarquee.applyTheme(theme, getName(), "md_marquee", POSITION | ThemeFlags::SIZE | Z_INDEX | COLOR);
 	mImage.applyTheme(theme, getName(), "md_image", POSITION | ThemeFlags::SIZE | Z_INDEX);
 	mVideo->applyTheme(theme, getName(), "md_video", POSITION | ThemeFlags::SIZE | ThemeFlags::DELAY | Z_INDEX);
 

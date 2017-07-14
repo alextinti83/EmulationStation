@@ -253,6 +253,9 @@ void ImageComponent::render(const Eigen::Affine3f& parentTrans)
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+			glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, mGLTextEnv);
+
+
 			glEnableClientState(GL_VERTEX_ARRAY);
 			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 			glEnableClientState(GL_COLOR_ARRAY);
@@ -363,7 +366,16 @@ void ImageComponent::applyTheme(const std::shared_ptr<ThemeData>& theme, const s
 	if(properties & COLOR && elem->has("color"))
 		setColorShift(elem->get<unsigned int>("color"));
 
-	if(properties & ThemeFlags::Z_INDEX && elem->has("zIndex"))
+	if ((properties & (COLOR | PATH)) && elem->has("textureMode"))
+	{
+		const std::string mode = elem->get<std::string>("textureMode");
+		if (mode == "decal")
+		{
+			mGLTextEnv = GL_DECAL;
+		}
+	}
+
+	if (properties & ThemeFlags::Z_INDEX && elem->has("zIndex"))
 		setZIndex(elem->get<float>("zIndex"));
 	else
 		setZIndex(getDefaultZIndex());
@@ -374,4 +386,9 @@ std::vector<HelpPrompt> ImageComponent::getHelpPrompts()
 	std::vector<HelpPrompt> ret;
 	ret.push_back(HelpPrompt("a", "select"));
 	return ret;
+}
+
+void ImageComponent::SetGLTextureEnv(GLfloat env)
+{
+	mGLTextEnv = env;
 }
