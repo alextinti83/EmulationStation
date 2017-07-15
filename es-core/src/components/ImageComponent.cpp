@@ -348,10 +348,15 @@ void ImageComponent::applyTheme(const std::shared_ptr<ThemeData>& theme, const s
 
 	if(properties & ThemeFlags::SIZE)
 	{
+		Eigen::Vector2f imageScale = scale;
+		if (elem->has("scale"))
+		{
+			imageScale *= elem->get<float>("scale");
+		}
 		if(elem->has("size"))
-			setResize(elem->get<Eigen::Vector2f>("size").cwiseProduct(scale));
+			setResize(elem->get<Eigen::Vector2f>("size").cwiseProduct(imageScale));
 		else if(elem->has("maxSize"))
-			setMaxSize(elem->get<Eigen::Vector2f>("maxSize").cwiseProduct(scale));
+			setMaxSize(elem->get<Eigen::Vector2f>("maxSize").cwiseProduct(imageScale));
 	}
 
 	// position + size also implies origin
