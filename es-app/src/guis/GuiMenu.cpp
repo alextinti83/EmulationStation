@@ -877,7 +877,9 @@ void GuiMenu::addBackgroundMusicEntries(GuiSettings* s)
 		s->addWithLabel("BACKGROUND MUSIC VOLUME", volume);
 		volume->SetOnValueChangeCallback([this] (float oldValue, float newValue) 
 		{
-			m_context->GetAudioPlayer()->SetVolume(( int ) round(newValue));
+			const int v = static_cast< int >( std::abs(newValue) );
+			Settings::getInstance()->setInt("BackgroundMusicVolume", v);
+			m_context->GetAudioPlayer()->SetVolume(( int ) round(v));
 		});
 	}
 	{

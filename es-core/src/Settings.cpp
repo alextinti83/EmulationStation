@@ -77,6 +77,7 @@ void Settings::setDefaults()
 	mIntMap["MaxVRAM"] = 100;
 	mIntMap[ "HiTemperature" ] = 50;
 	mIntMap[ "AutoScrollDelay" ] = 200;
+	mIntMap[ "BackgroundMusicVolume" ] = 100;
 
 	mStringMap["TransitionStyle"] = "fade";
 	mStringMap["ThemeSet"] = "";

@@ -76,6 +76,8 @@ void ViewController::InitBackgroundMusic()
 		GetFilesInFolder(musicFolder, files);
 		m_context->GetAudioPlayer()->AddToPlaylist(files, mediaplayer::ShuffleE::k_yes);
 		m_context->GetAudioPlayer()->SetPlaybacktMode(mediaplayer::PlaybackModeE::k_loop);
+		const int volume = Settings::getInstance()->getInt("BackgroundMusicVolume");
+		m_context->GetAudioPlayer()->SetVolume(volume);
 		if (Settings::getInstance()->getBool("BackgroundMusicEnabled"))
 		{
 			m_context->GetAudioPlayer()->StartPlaylist();
