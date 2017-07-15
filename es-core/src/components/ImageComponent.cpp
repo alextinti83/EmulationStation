@@ -270,6 +270,7 @@ void ImageComponent::render(const Eigen::Affine3f& parentTrans)
 			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 			glDisableClientState(GL_COLOR_ARRAY);
 
+			glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 			glDisable(GL_TEXTURE_2D);
 			glDisable(GL_BLEND);
 		}else{
