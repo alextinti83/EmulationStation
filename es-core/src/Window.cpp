@@ -153,7 +153,7 @@ void Window::input(InputConfig* config, Input input)
 			}
 			else
 			{
-				cancelScreenSaver(false);
+				cancelScreenSaver(true);
 				return;
 			}
 		}
