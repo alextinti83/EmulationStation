@@ -119,6 +119,7 @@ void Window::textInput(const char* text)
 
 void Window::input(InputConfig* config, Input input)
 {
+	static bool updateBGMusic = true;
 	if (mScreenSaver && input.value != 0) {
 		if(    mScreenSaver->isScreenSaverActive()
 			&& Settings::getInstance()->getBool("ScreenSaverControls") 
@@ -143,7 +144,7 @@ void Window::input(InputConfig* config, Input input)
 				else if(config->isMappedTo("start", input))
 				{
 					// launch game!
-					cancelScreenSaver(false);
+					cancelScreenSaver(!updateBGMusic);
 					mScreenSaver->launchGame();
 					// to force handling the wake up process
 					mSleeping = true;
@@ -153,8 +154,15 @@ void Window::input(InputConfig* config, Input input)
 			}
 			else
 			{
-				cancelScreenSaver(true);
+				cancelScreenSaver(updateBGMusic);
 				return;
+			}
+		}
+		else
+		{
+			if (mScreenSaver->isScreenSaverActive())
+			{
+				cancelScreenSaver(updateBGMusic);
 			}
 		}
 	}

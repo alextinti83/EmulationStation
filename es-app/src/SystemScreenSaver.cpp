@@ -301,10 +301,14 @@ void SystemScreenSaver::update(int deltaTime)
 	else if (mState == STATE_SCREENSAVER_ACTIVE)
 	{
 		// Update the timer that swaps the videos
-		mTimer += deltaTime;
-		if (mTimer > SWAP_VIDEO_TIMEOUT)
+		const bool randomVideo = Settings::getInstance()->getString("ScreenSaverBehavior") == "random video";
+		if (randomVideo)
 		{
-			nextVideo();
+			mTimer += deltaTime;
+			if (mTimer > SWAP_VIDEO_TIMEOUT)
+			{
+				nextVideo();
+			}
 		}
 	}
 
