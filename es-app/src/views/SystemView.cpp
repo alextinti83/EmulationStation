@@ -164,6 +164,17 @@ bool SystemView::input(InputConfig* config, Input input)
 		if (Settings::getInstance()->getBool("BackgroundMusicEnabled") && 
 			m_context->GetAudioPlayer()->PlaylistSize() > 1)
 		{
+			if (config->isMappedTo("y", input))
+			{
+				if (m_context->GetAudioPlayer()->IsPaused())
+				{
+					m_context->GetAudioPlayer()->Resume();
+				}
+				else
+				{
+					m_context->GetAudioPlayer()->Pause();
+				}
+			}
 			if (config->isMappedTo("pagedown", input))
 			{
 				m_context->GetAudioPlayer()->Next();
