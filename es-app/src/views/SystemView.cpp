@@ -392,6 +392,7 @@ std::vector<HelpPrompt> SystemView::getHelpPrompts()
 	if (Settings::getInstance()->getBool("BackgroundMusicEnabled") &&
 		m_context->GetAudioPlayer()->PlaylistSize() > 1)
 	{
+		prompts.push_back(HelpPrompt("y", "pause"));
 		prompts.push_back(HelpPrompt("l", ""));
 		prompts.push_back(HelpPrompt("r", " << track >>"));
 	}
