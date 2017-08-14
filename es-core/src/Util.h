@@ -6,11 +6,15 @@
 #include <boost/date_time.hpp>
 
 
+void GetFilesInFolder(const std::string i_folderPath, std::vector<std::string>& o_filePaths);
+
 bool CheckWritePermission(const std::string& path);
 bool StartsWith(const std::string& str, const std::string& prefix);
 std::string strToUpper(const char* from);
 std::string& strToUpper(std::string& str);
 std::string strToUpper(const std::string& str);
+
+std::string strToLower(std::string str);
 
 Eigen::Affine3f& roundMatrix(Eigen::Affine3f& mat);
 Eigen::Affine3f roundMatrix(const Eigen::Affine3f& mat);

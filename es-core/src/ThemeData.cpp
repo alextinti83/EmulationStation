@@ -35,6 +35,8 @@ std::map< std::string, ElementMapType > ThemeData::sElementMap = boost::assign::
 		("path", PATH)
 		("tile", BOOLEAN)
 		("color", COLOR)
+		("textureMode", STRING )
+		("scale", FLOAT )
 		("zIndex", FLOAT)))
 	("text", makeMap(boost::assign::map_list_of
 		("pos", NORMALIZED_PAIR)

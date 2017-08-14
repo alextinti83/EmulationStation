@@ -68,5 +68,6 @@ private:
 	bool mMultiLine;
 	bool mShift = false;
 	bool mShiftChange = false;
+	const std::function<void(const std::string&)> mOkCallback;
 };
 

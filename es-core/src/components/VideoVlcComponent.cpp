@@ -6,8 +6,8 @@
 #ifdef WIN32
 #include <codecvt>
 #endif
+#include "guis/GuiContext.h"
 
-libvlc_instance_t*		VideoVlcComponent::mVLC = NULL;
 
 // VLC prepares to render a video frame.
 static void *lock(void *data, void **p_pixels) {
@@ -30,17 +30,15 @@ static void display(void *data, void *id) {
 	//Data to be displayed
 }
 
-VideoVlcComponent::VideoVlcComponent(Window* window, std::string subtitles) :
-	VideoComponent(window),
+VideoVlcComponent::VideoVlcComponent(gui::Context& guiContext) :
+	VideoComponent(guiContext.GetWindow()),
 	mMediaPlayer(nullptr)
 {
+	m_context = &guiContext;
 	memset(&mContext, 0, sizeof(mContext));
 
 	// Get an empty texture for rendering the video
 	mTexture = TextureResource::get("");
-
-	// Make sure VLC has been initialised
-	setupVLC(subtitles);
 }
 
 VideoVlcComponent::~VideoVlcComponent()
@@ -229,30 +227,6 @@ void VideoVlcComponent::freeContext()
 	}
 }
 
-void VideoVlcComponent::setupVLC(std::string subtitles)
-{
-	// If VLC hasn't been initialised yet then do it now
-	if (!mVLC)
-	{
-		const char** args;
-		const char* newargs[] = { "--quiet", "--sub-file", subtitles.c_str() };
-		const char* singleargs[] = { "--quiet" };
-		int argslen = 0;
-
-		if (!subtitles.empty())
-		{
-			argslen = sizeof(newargs) / sizeof(newargs[0]);
-			args = newargs;
-		}
-		else
-		{
-			argslen = sizeof(singleargs) / sizeof(singleargs[0]);
-			args = singleargs;
-		}
-		mVLC = libvlc_new(argslen, args);
-	}
-}
-
 void VideoVlcComponent::handleLooping()
 {
 	if (mIsPlaying && mMediaPlayer)
@@ -280,13 +254,14 @@ void VideoVlcComponent::startVideo()
 		std::string path(mVideoPath.c_str());
 #endif
 		// Make sure we have a video path
-		if (mVLC && (path.size() > 0))
+		libvlc_instance_t* vlcInstance = m_context ? m_context->GetVlcInstance() : nullptr;
+		if (vlcInstance && (path.size() > 0))
 		{
 			// Set the video that we are going to be playing so we don't attempt to restart it
 			mPlayingVideoPath = mVideoPath;
 
 			// Open the media
-			mMedia = libvlc_media_new_path(mVLC, path.c_str());
+			mMedia = libvlc_media_new_path(vlcInstance, path.c_str());
 			if (mMedia)
 			{
 				unsigned 	track_count;

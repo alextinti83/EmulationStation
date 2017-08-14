@@ -5,6 +5,7 @@
 #include <Eigen/Dense>
 #include "HelpStyle.h"
 #include "IFocusable.h"
+#include "guis/GuiContext.h"
 
 class Window;
 class Animation;
@@ -17,6 +18,7 @@ typedef std::pair<std::string, std::string> HelpPrompt;
 class GuiComponent : public IFocusable
 {
 public:
+	GuiComponent(gui::Context& context);
 	GuiComponent(Window* window);
 	virtual ~GuiComponent();
 
@@ -108,10 +110,13 @@ public:
 	// Returns true if the component is busy doing background processing (e.g. HTTP downloads)
 	bool isProcessing() const;
 
+	void SetBackButton(const std::string& buttonName);
+
 	void setEnabled(bool enabled);
 	void setVisible(bool visible);
 	bool isEnabled() const { return mEnabled; }
 	bool isVisible() const { return mVisible; }
+
 
 public: //INavigation
 	bool UpdateFocus(FocusPosition position, bool enableFocus) override;
@@ -140,6 +145,7 @@ protected:
 
 	bool mEnabled;
 	bool mVisible;
+	gui::Context* m_context;
 
 public:
 	const static unsigned char MAX_ANIMATIONS = 4;
@@ -147,5 +153,7 @@ public:
 private:
 	Eigen::Affine3f mTransform; //Don't access this directly! Use getTransform()!
 	AnimationController* mAnimationMap[MAX_ANIMATIONS];
+	std::string mBackButton;
+
 
 };

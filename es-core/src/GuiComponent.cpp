@@ -7,10 +7,19 @@
 
 GuiComponent::GuiComponent(Window* window) : mWindow(window), mParent(NULL), mOpacity(255),
 	mPosition(Eigen::Vector3f::Zero()), mSize(Eigen::Vector2f::Zero()), mTransform(Eigen::Affine3f::Identity()),
-	mIsProcessing(false), mEnabled(true), mVisible(true)
+	mIsProcessing(false), mEnabled(true), mVisible(true), m_context(nullptr)
 {
 	for(unsigned char i = 0; i < MAX_ANIMATIONS; i++)
 		mAnimationMap[i] = NULL;
+}
+
+GuiComponent::GuiComponent(gui::Context& context)
+	: mWindow(context.GetWindow()), mParent(NULL), mOpacity(255),
+	mPosition(Eigen::Vector3f::Zero()), mSize(Eigen::Vector2f::Zero()), mTransform(Eigen::Affine3f::Identity()),
+	mIsProcessing(false), mEnabled(true), mVisible(true), m_context(&context)
+{
+	for (unsigned char i = 0; i < MAX_ANIMATIONS; i++)
+		mAnimationMap[ i ] = NULL;
 }
 
 GuiComponent::~GuiComponent()
@@ -28,6 +37,14 @@ GuiComponent::~GuiComponent()
 
 bool GuiComponent::input(InputConfig* config, Input input)
 {
+	if (input.value != 0 && !mBackButton.empty())
+	{
+		if (config->isMappedTo(mBackButton, input))
+		{
+			delete this;
+			return true;
+		}
+	}
 	for ( GuiComponent* child : mChildren )
 	{
 		if ( child->input(config, input) )
@@ -370,6 +387,10 @@ void GuiComponent::updateHelpPrompts()
 	}
 
 	std::vector<HelpPrompt> prompts = getHelpPrompts();
+	if (!mBackButton.empty())
+	{
+		prompts.push_back(HelpPrompt(mBackButton, "BACK"));
+	}
 
 	if(mWindow->peekGui() == this)
 		mWindow->setHelpPrompts(prompts, getHelpStyle());
@@ -433,6 +454,11 @@ void GuiComponent::topWindow(bool isTop)
 {
 	for(unsigned int i = 0; i < getChildCount(); i++)
 		getChild(i)->topWindow(isTop);
+}
+
+void GuiComponent::SetBackButton(const std::string& buttonName)
+{
+	mBackButton = buttonName;
 }
 
 bool GuiComponent::UpdateFocus(FocusPosition position, bool enableFocus)

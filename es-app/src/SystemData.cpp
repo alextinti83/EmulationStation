@@ -645,6 +645,18 @@ bool SystemData::IsEnabled() const
 {
 	return m_enabled;
 }
+SystemData* SystemData::GetSystemByName(const std::string& name)
+{
+	for (auto& system : sSystemVector)
+	{
+		if (system->getName() == name)
+		{
+			return system;
+		}
+	}
+	return nullptr;
+}
+
 
 std::vector<SystemData*> SystemData::GetSystems()
 {

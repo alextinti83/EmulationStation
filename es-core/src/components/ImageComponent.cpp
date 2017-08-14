@@ -23,7 +23,7 @@ Eigen::Vector2f ImageComponent::getCenter() const
 
 ImageComponent::ImageComponent(Window* window, bool forceLoad, bool dynamic) : GuiComponent(window),
 	mTargetIsMax(false), mFlipX(false), mFlipY(false), mOrigin(0.0, 0.0), mTargetSize(0, 0), mColorShift(0xFFFFFFFF),
-	mForceLoad(forceLoad), mDynamic(dynamic), mFadeOpacity(0u), mFading(false)
+	mForceLoad(forceLoad), mDynamic(dynamic), mFadeOpacity(0u), mFading(false), mGLTextEnv(GL_MODULATE)
 {
 	updateColors();
 }
@@ -253,6 +253,9 @@ void ImageComponent::render(const Eigen::Affine3f& parentTrans)
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+			glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, mGLTextEnv);
+
+
 			glEnableClientState(GL_VERTEX_ARRAY);
 			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 			glEnableClientState(GL_COLOR_ARRAY);
@@ -267,6 +270,7 @@ void ImageComponent::render(const Eigen::Affine3f& parentTrans)
 			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 			glDisableClientState(GL_COLOR_ARRAY);
 
+			glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 			glDisable(GL_TEXTURE_2D);
 			glDisable(GL_BLEND);
 		}else{
@@ -344,10 +348,15 @@ void ImageComponent::applyTheme(const std::shared_ptr<ThemeData>& theme, const s
 
 	if(properties & ThemeFlags::SIZE)
 	{
+		Eigen::Vector2f imageScale = scale;
+		if (elem->has("scale"))
+		{
+			imageScale *= elem->get<float>("scale");
+		}
 		if(elem->has("size"))
-			setResize(elem->get<Eigen::Vector2f>("size").cwiseProduct(scale));
+			setResize(elem->get<Eigen::Vector2f>("size").cwiseProduct(imageScale));
 		else if(elem->has("maxSize"))
-			setMaxSize(elem->get<Eigen::Vector2f>("maxSize").cwiseProduct(scale));
+			setMaxSize(elem->get<Eigen::Vector2f>("maxSize").cwiseProduct(imageScale));
 	}
 
 	// position + size also implies origin
@@ -363,7 +372,16 @@ void ImageComponent::applyTheme(const std::shared_ptr<ThemeData>& theme, const s
 	if(properties & COLOR && elem->has("color"))
 		setColorShift(elem->get<unsigned int>("color"));
 
-	if(properties & ThemeFlags::Z_INDEX && elem->has("zIndex"))
+	if ((properties & (COLOR | PATH)) && elem->has("textureMode"))
+	{
+		const std::string mode = elem->get<std::string>("textureMode");
+		if (mode == "decal")
+		{
+			mGLTextEnv = GL_DECAL;
+		}
+	}
+
+	if (properties & ThemeFlags::Z_INDEX && elem->has("zIndex"))
 		setZIndex(elem->get<float>("zIndex"));
 	else
 		setZIndex(getDefaultZIndex());
@@ -374,4 +392,9 @@ std::vector<HelpPrompt> ImageComponent::getHelpPrompts()
 	std::vector<HelpPrompt> ret;
 	ret.push_back(HelpPrompt("a", "select"));
 	return ret;
+}
+
+void ImageComponent::SetGLTextureEnv(GLfloat env)
+{
+	mGLTextEnv = env;
 }

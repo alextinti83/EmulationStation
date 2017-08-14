@@ -13,12 +13,15 @@
 #include "views/gamelist/IGameListView.h"
 #include <stdio.h>
 
+#include "guis/GuiContext.h"
+#include "mediaplayer/IAudioPlayer.h"
+
 #define FADE_TIME 			300
 #define SWAP_VIDEO_TIMEOUT	30000
 
-SystemScreenSaver::SystemScreenSaver(Window* window) :
+SystemScreenSaver::SystemScreenSaver(gui::Context&	context) :
 	mVideoScreensaver(NULL),
-	mWindow(window),
+	mWindow(context.GetWindow()),
 	mCounted(false),
 	mVideoCount(0),
 	mState(STATE_INACTIVE),
@@ -26,10 +29,12 @@ SystemScreenSaver::SystemScreenSaver(Window* window) :
 	mTimer(0),
 	mSystemName(""),
 	mGameName(""),
-	mCurrentGame(NULL)
+	mCurrentGame(NULL),
+	m_context(context),
+	m_wasBackgroundMusicPlaying(false)
 {
-	mWindow->setScreenSaver(this);
-	std::string path = getTitleFolder();
+	context.GetWindow()->setScreenSaver(this);
+	std::string path = getVideoTitleFolder();
 	if(!boost::filesystem::exists(path))
 		boost::filesystem::create_directory(path);
 	srand((unsigned int)time(NULL));
@@ -38,7 +43,7 @@ SystemScreenSaver::SystemScreenSaver(Window* window) :
 SystemScreenSaver::~SystemScreenSaver()
 {
 	// Delete subtitle file, if existing
-	remove(getTitlePath().c_str());
+	remove(getVideoTitlePath().c_str());
 	mCurrentGame = NULL;
 	delete mVideoScreensaver;
 }
@@ -54,10 +59,19 @@ bool SystemScreenSaver::isScreenSaverActive()
 	return (mState != STATE_INACTIVE);
 }
 
-void SystemScreenSaver::startScreenSaver()
+void SystemScreenSaver::startScreenSaver(bool updateBGMusicState)
 {
 	if (!mVideoScreensaver && (Settings::getInstance()->getString("ScreenSaverBehavior") == "random video"))
 	{
+		if (updateBGMusicState && m_context.GetAudioPlayer() && Settings::getInstance()->getBool("BackgroundMusicEnabled"))
+		{
+			m_wasBackgroundMusicPlaying = m_context.GetAudioPlayer()->IsPlaying();
+			if (m_wasBackgroundMusicPlaying)
+			{
+				m_context.GetAudioPlayer()->Pause();
+			}
+		}
+
 		// Configure to fade out the windows
 		mState = STATE_FADE_OUT_WINDOW;
 		mOpacity = 0.0f;
@@ -79,11 +93,11 @@ void SystemScreenSaver::startScreenSaver()
 
 #ifdef _RPI_
 			if (Settings::getInstance()->getBool("ScreenSaverOmxPlayer"))
-				mVideoScreensaver = new VideoPlayerComponent(mWindow, getTitlePath());
+				mVideoScreensaver = new VideoPlayerComponent(m_context.GetWindow(), getVideoTitlePath());
 			else
-				mVideoScreensaver = new VideoVlcComponent(mWindow, getTitlePath());
+				mVideoScreensaver = new VideoVlcComponent(m_context);
 #else
-			mVideoScreensaver = new VideoVlcComponent(mWindow, getTitlePath());
+			mVideoScreensaver = new VideoVlcComponent(m_context);
 #endif
 
 			mVideoScreensaver->setOrigin(0.5f, 0.5f);
@@ -109,11 +123,18 @@ void SystemScreenSaver::startScreenSaver()
 	mCurrentGame = NULL;
 }
 
-void SystemScreenSaver::stopScreenSaver()
+void SystemScreenSaver::stopScreenSaver(bool updateBGMusicState)
 {
 	delete mVideoScreensaver;
 	mVideoScreensaver = NULL;
 	mState = STATE_INACTIVE;
+
+	if (updateBGMusicState && Settings::getInstance()->getBool("BackgroundMusicEnabled") &&
+		m_context.GetAudioPlayer() && 
+		m_wasBackgroundMusicPlaying)
+	{
+		m_context.GetAudioPlayer()->Resume();
+	}
 }
 
 void SystemScreenSaver::renderScreenSaver()
@@ -280,10 +301,14 @@ void SystemScreenSaver::update(int deltaTime)
 	else if (mState == STATE_SCREENSAVER_ACTIVE)
 	{
 		// Update the timer that swaps the videos
-		mTimer += deltaTime;
-		if (mTimer > SWAP_VIDEO_TIMEOUT)
+		const bool randomVideo = Settings::getInstance()->getString("ScreenSaverBehavior") == "random video";
+		if (randomVideo)
 		{
-			nextVideo();
+			mTimer += deltaTime;
+			if (mTimer > SWAP_VIDEO_TIMEOUT)
+			{
+				nextVideo();
+			}
 		}
 	}
 
@@ -293,8 +318,9 @@ void SystemScreenSaver::update(int deltaTime)
 }
 
 void SystemScreenSaver::nextVideo() {
-	stopScreenSaver();
-	startScreenSaver();
+	const bool updateBGMusicState = false;
+	stopScreenSaver(updateBGMusicState);
+	startScreenSaver(updateBGMusicState);
 	mState = STATE_SCREENSAVER_ACTIVE;
 }
 
@@ -313,4 +339,5 @@ void SystemScreenSaver::launchGame()
  	{
  		view->launch(mCurrentGame);
  	}
+
 }

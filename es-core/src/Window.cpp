@@ -119,11 +119,19 @@ void Window::textInput(const char* text)
 
 void Window::input(InputConfig* config, Input input)
 {
-	if (mScreenSaver) {
-		if(mScreenSaver->isScreenSaverActive() && Settings::getInstance()->getBool("ScreenSaverControls") &&
-		   (Settings::getInstance()->getString("ScreenSaverBehavior") == "random video"))
+	static bool updateBGMusic = true;
+	if (mScreenSaver && input.value != 0) {
+		if(    mScreenSaver->isScreenSaverActive()
+			&& Settings::getInstance()->getBool("ScreenSaverControls") 
+			&& Settings::getInstance()->getString("ScreenSaverBehavior") == "random video"
+			)
 		{
-			if(mScreenSaver->getCurrentGame() != NULL && (config->isMappedTo("right", input) || config->isMappedTo("start", input) || config->isMappedTo("select", input)))
+			if(mScreenSaver->getCurrentGame() != NULL 
+				&& (   config->isMappedTo("right", input) 
+					|| config->isMappedTo("start", input) 
+					|| config->isMappedTo("select", input)
+					)
+				)
 			{
 				if(config->isMappedTo("right", input) || config->isMappedTo("select", input))
 				{
@@ -136,15 +144,25 @@ void Window::input(InputConfig* config, Input input)
 				else if(config->isMappedTo("start", input))
 				{
 					// launch game!
-					cancelScreenSaver();
+					cancelScreenSaver(!updateBGMusic);
 					mScreenSaver->launchGame();
 					// to force handling the wake up process
 					mSleeping = true;
+					return;
 				}
+				
 			}
-			else if(input.value != 0)
+			else
 			{
+				cancelScreenSaver(updateBGMusic);
 				return;
+			}
+		}
+		else
+		{
+			if (mScreenSaver->isScreenSaverActive())
+			{
+				cancelScreenSaver(updateBGMusic);
 			}
 		}
 	}
@@ -160,7 +178,7 @@ void Window::input(InputConfig* config, Input input)
 	}
 
 	mTimeSinceLastInput = 0;
-	cancelScreenSaver();
+
 
 	if(config->getDeviceId() == DEVICE_KEYBOARD && input.value && input.id == SDLK_g && SDL_GetModState() & KMOD_LCTRL && Settings::getInstance()->getBool("Debug"))
 	{
@@ -457,11 +475,11 @@ void Window::startScreenSaver()
  	}
  }
 
- void Window::cancelScreenSaver()
+ void Window::cancelScreenSaver(bool updateBGMusic)
  {
  	if (mScreenSaver && mRenderScreenSaver)
  	{
- 		mScreenSaver->stopScreenSaver();
+ 		mScreenSaver->stopScreenSaver(updateBGMusic);
  		mRenderScreenSaver = false;
 
  		// Tell the GUI components the screensaver has stopped

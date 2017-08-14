@@ -26,6 +26,7 @@ Settings::Settings()
 	loadFile();
 }
 
+
 Settings* Settings::getInstance()
 {
 	if(sInstance == NULL)
@@ -46,6 +47,9 @@ void Settings::setDefaults()
 	mBoolMap["Windowed"] = false;
 	mBoolMap["SplashScreen"] = true;
 	mBoolMap["LoopMenuEntries"] = true;
+	mBoolMap[ "BackgroundMusicEnabled" ] = true;
+	mBoolMap[ "VideoPreviewPauseBGMusic" ] = true;
+
 
 #ifdef _RPI_
 	// don't enable VSync by default on the Pi, since it already
@@ -73,6 +77,7 @@ void Settings::setDefaults()
 	mIntMap["MaxVRAM"] = 100;
 	mIntMap[ "HiTemperature" ] = 50;
 	mIntMap[ "AutoScrollDelay" ] = 200;
+	mIntMap[ "BackgroundMusicVolume" ] = 100;
 
 	mStringMap["TransitionStyle"] = "fade";
 	mStringMap["ThemeSet"] = "";
@@ -80,7 +85,7 @@ void Settings::setDefaults()
 	mStringMap["Scraper"] = "TheGamesDB";
 	mStringMap["GamelistViewStyle"] = "automatic";
 	mStringMap[ "ShowTemperature" ] = "never";
-
+	mStringMap[ "LastSystemSelected" ] = "";
 	mBoolMap["ScreenSaverControls"] = true;
 	mStringMap["ScreenSaverGameInfo"] = "never";
 	mBoolMap["StretchVideoOnScreenSaver"] = false;

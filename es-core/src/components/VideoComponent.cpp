@@ -3,25 +3,19 @@
 #include "ThemeData.h"
 #include "Util.h"
 #include "Window.h"
+#include "helpers/VlcHelper.h"
 #ifdef WIN32
 #include <codecvt>
 #endif
+#include "GuiComponent.h"
+#include "guis/GuiContext.h"
+#include "Settings.h"
 
 #define FADE_TIME_MS	200
 
-std::string getTitlePath() {
-	std::string titleFolder = getTitleFolder();
-	return titleFolder + "last_title.srt";
-}
-
-std::string getTitleFolder() {
-	std::string home = getHomePath();
-	return home + "/.emulationstation/tmp/";
-}
-
 void writeSubtitle(const char* gameName, const char* systemName, bool always)
 {
-	FILE* file = fopen(getTitlePath().c_str(), "w");
+	FILE* file = fopen(getVideoTitlePath().c_str(), "w");
 	if (always) {
 		fprintf(file, "1\n00:00:01,000 --> 00:00:30,000\n");
 	}
@@ -71,7 +65,7 @@ VideoComponent::VideoComponent(Window* window) :
 		topWindow(false);
 	}
 
-	std::string path = getTitleFolder();
+	std::string path = getVideoTitleFolder();
 	if(!boost::filesystem::exists(path))
 		boost::filesystem::create_directory(path);
 }
@@ -81,7 +75,7 @@ VideoComponent::~VideoComponent()
 	// Stop any currently running video
 	stopVideo();
 	// Delete subtitle file, if existing
-	remove(getTitlePath().c_str());
+	remove(getVideoTitlePath().c_str());
 }
 
 void VideoComponent::setOrigin(float originX, float originY)
@@ -152,8 +146,6 @@ void VideoComponent::setOpacity(unsigned char opacity)
 
 void VideoComponent::render(const Eigen::Affine3f& parentTrans)
 {
-	float x, y;
-
 	Eigen::Affine3f trans = parentTrans * getTransform();
 	GuiComponent::renderChildren(trans);
 
@@ -348,7 +340,7 @@ void VideoComponent::manageState()
 void VideoComponent::onShow()
 {
 	mShowing = true;
-	manageState();
+	manageState();	
 }
 
 void VideoComponent::onHide()

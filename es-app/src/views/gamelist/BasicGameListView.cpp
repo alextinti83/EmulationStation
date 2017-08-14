@@ -6,9 +6,11 @@
 #include "SystemData.h"
 #include "Settings.h"
 #include "FileFilterIndex.h"
+#include "guis/GuiTextEditPopupKeyboard.h"
 
 BasicGameListView::BasicGameListView(Window* window, FileData* root)
-	: ISimpleGameListView(window, root), mList(window)
+	: ISimpleGameListView(window, root), mList(window), 
+	mFilterKey()
 {
 	mList.setSize(mSize.x(), mSize.y() * 0.8f);
 	mList.setPosition(0, mSize.y() * 0.2f);
@@ -51,6 +53,10 @@ void BasicGameListView::populateList(const std::vector<FileData*>& files)
 
 		for ( FileData* filedata : files )
 		{
+			if (!acceptFilter(filedata->getName()))
+			{
+				continue;
+			}
 			if ( filedata->getType() == FOLDER )
 			{
 				folders.push_back(filedata);
@@ -171,5 +177,66 @@ void BasicGameListView::remove(FileData *game)
 std::vector<HelpPrompt> BasicGameListView::getHelpPrompts()
 {
 	std::vector<HelpPrompt> prompts = ISimpleGameListView::getHelpPrompts();
+	prompts.push_back(HelpPrompt("x", "filter"));
 	return prompts;
 }
+
+bool BasicGameListView::input(InputConfig* config, Input input)
+{
+	if (input.value != 0 && config->isMappedTo("x", input))
+	{
+		auto keyboard = new GuiTextEditPopupKeyboard(mWindow, "Filter games by name",
+			mFilterKey,
+			std::bind(&BasicGameListView::onFilterChanged, this, std::placeholders::_1), false);
+		keyboard->SetBackButton("x");
+		mWindow->pushGui(keyboard);
+		return true;
+	}
+	return ISimpleGameListView::input(config, input);
+}
+
+void BasicGameListView::onFilterChanged(const std::string& filter)
+{
+	if (filter != mFilterKey)
+	{
+		mFilterKey = filter;
+		std::transform(mFilterKey.begin(), mFilterKey.end(), mFilterKey.begin(), ::tolower);
+		populateList(mRoot->getChildrenListToDisplay());
+	}
+}
+
+void Tokenize(const std::string& i_text, const std::string& i_delimiter, std::vector<std::string>& o_tokens)
+{
+	std::size_t start = 0;
+	std::size_t end = 0;
+	while (end != std::string::npos)
+	{
+		end = i_text.find(i_delimiter, start);
+		o_tokens.emplace_back(i_text.substr(start, end));
+		start = std::min(end + i_delimiter.length(), i_text.length());
+	};
+}
+
+bool BasicGameListView::acceptFilter(const std::string& name) const
+{
+	if (mFilterKey.empty())
+	{
+		return true;
+	}
+	const std::string lowerText = mFilterKey;
+	const std::string lowerName = strToLower(name);
+	std::vector<std::string> tokens;
+	Tokenize(lowerText, " ", tokens);
+	std::size_t pos = 0;
+	for (std::string& token : tokens)
+	{
+		pos = lowerName.find(token, pos);
+		if  (pos == std::string::npos)
+		{
+			return false;
+		}
+		pos = std::min(pos + token.length(), lowerName.length());
+	}
+	return true;
+}
+

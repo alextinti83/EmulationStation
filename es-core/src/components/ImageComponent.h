@@ -61,6 +61,8 @@ public:
 	virtual void applyTheme(const std::shared_ptr<ThemeData>& theme, const std::string& view, const std::string& element, unsigned int properties) override;
 
 	virtual std::vector<HelpPrompt> getHelpPrompts() override;
+
+	void SetGLTextureEnv(GLfloat env);
 private:
 	Eigen::Vector2f mTargetSize;
 	Eigen::Vector2f mOrigin;
@@ -90,6 +92,7 @@ private:
 	bool					 mFading;
 	bool				     mForceLoad;
 	bool					mDynamic;
+	GLfloat					mGLTextEnv;
 };
 
 #endif

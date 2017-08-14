@@ -19,8 +19,11 @@
 #include "components/MenuComponent.h"
 #include "VolumeControl.h"
 #include "Localization.h"
+#include "guis/GuiContext.h"
+#include "mediaplayer/IAudioPlayer.h"
 
-GuiMenu::GuiMenu(Window* window) : GuiComponent(window), mMenu(window, "MAIN MENU"), mVersion(window)
+GuiMenu::GuiMenu(gui::Context& context)
+: GuiComponent(context), mMenu(context.GetWindow(), "MAIN MENU"), mVersion(context.GetWindow())
 {
 	// MAIN MENU
 
@@ -77,8 +80,10 @@ GuiMenu::GuiMenu(Window* window) : GuiComponent(window), mMenu(window, "MAIN MEN
 		auto volume = std::make_shared<SliderComponent>(mWindow, 0.f, 100.f, 1.f, "%");
 		volume->setValue((float)VolumeControl::getInstance()->getVolume());
 		s->addWithLabel("SYSTEM VOLUME", volume);
-		s->addSaveFunc([volume] { VolumeControl::getInstance()->setVolume((int)round(volume->getValue())); });
-
+		volume->SetOnValueChangeCallback([ this ] (float oldValue, float newValue)
+		{
+			VolumeControl::getInstance()->setVolume(( int ) round(newValue));
+		});
 
 		// disable sounds
 		auto sounds_enabled = std::make_shared<SwitchComponent>(mWindow);
@@ -110,14 +115,14 @@ GuiMenu::GuiMenu(Window* window) : GuiComponent(window), mMenu(window, "MAIN MEN
 				Settings::getInstance()->setString("OMXAudioDev", omx_audio_dev->getSelected());
 		});
 #endif
-
+		addBackgroundMusicEntries(s);
 		mWindow->pushGui(s);
 	});
 
 	addEntry("UI SETTINGS", 0x777777FF, true,
 		[this] {
 			auto s = new GuiSettings(mWindow, "UI SETTINGS");
-
+			addSystemsEntry(s);
 			// theme set
 			auto themeSets = ThemeData::getThemeSets();
 
@@ -777,7 +782,6 @@ void GuiMenu::addTemperatureEntry(GuiSettings* s)
 			());
 		});
 
-		// volume
 		auto slider = std::make_shared<SliderComponent>(window, 0.f, 100.f, 1.f, " C");
 		slider->setValue(static_cast<float>(Settings::getInstance()->getInt("HiTemperature")));
 		s->addWithLabel("SET HI-TEMP", slider);
@@ -851,4 +855,42 @@ void GuiMenu::addLoopMenuEntries(GuiSettings* s)
 	loop->setState(Settings::getInstance()->getBool("LoopMenuEntries"));
 	s->addWithLabel("LOOP MENU ENTRIES", loop);
 	s->addSaveFunc([ loop ] { Settings::getInstance()->setBool("LoopMenuEntries", loop->getState()); });
+}
+
+void GuiMenu::addBackgroundMusicEntries(GuiSettings* s)
+{
+	{
+		auto enabled = std::make_shared<SwitchComponent>(mWindow);
+		enabled->setState(Settings::getInstance()->getBool("BackgroundMusicEnabled"));
+		s->addWithLabel("BACKGROUND MUSIC", enabled);
+		enabled->SetOnValueChangeCallback([ this ] (bool newValue)
+		{
+			Settings::getInstance()->setBool("BackgroundMusicEnabled", newValue);
+			ViewController::get()->CheckBGMusicState();
+		});
+
+	}
+	{
+		auto volume = std::make_shared<SliderComponent>(mWindow, 0.f, 100.f, 1.f, "%");
+		unsigned v = m_context->GetAudioPlayer()->GetVolume();
+		volume->setValue(static_cast< float >( v ));
+		s->addWithLabel("BACKGROUND MUSIC VOLUME", volume);
+		volume->SetOnValueChangeCallback([this] (float oldValue, float newValue) 
+		{
+			const int v = static_cast< int >( std::abs(newValue) );
+			Settings::getInstance()->setInt("BackgroundMusicVolume", v);
+			m_context->GetAudioPlayer()->SetVolume(( int ) round(v));
+		});
+	}
+	{
+		auto enabled = std::make_shared<SwitchComponent>(mWindow);
+		enabled->setState(Settings::getInstance()->getBool("VideoPreviewPauseBGMusic"));
+		s->addWithLabel("VIDEO PREVIEW PAUSES BG MUSIC", enabled);
+		enabled->SetOnValueChangeCallback([ this ] (bool newValue)
+		{
+			Settings::getInstance()->setBool("VideoPreviewPauseBGMusic", newValue);
+			ViewController::get()->CheckBGMusicState();
+
+		});
+	}
 }

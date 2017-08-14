@@ -27,9 +27,8 @@ class VideoVlcComponent : public VideoComponent
 	};
 
 public:
-	static void setupVLC(std::string subtitles);
 
-	VideoVlcComponent(Window* window, std::string subtitles);
+	VideoVlcComponent(gui::Context& guiContext);
 	virtual ~VideoVlcComponent();
 
 	void render(const Eigen::Affine3f& parentTrans) override;
@@ -61,7 +60,6 @@ private:
 	void freeContext();
 
 private:
-	static libvlc_instance_t*		mVLC;
 	libvlc_media_t*					mMedia;
 	libvlc_media_player_t*			mMediaPlayer;
 	VideoContext					mContext;

@@ -8,19 +8,24 @@
 #include "SystemData.h"
 #include "Settings.h"
 #include "Util.h"
+#include "guis/GuiContext.h"
+#include "mediaplayer/IAudioPlayer.h"
 
 // buffer values for scrolling velocity (left, stopped, right)
 const int logoBuffersLeft[] = { -5, -2, -1 };
 const int logoBuffersRight[] = { 1, 2, 5 };
 
-SystemView::SystemView(Window* window) : IList<SystemViewData, SystemData*>(window, LIST_SCROLL_STYLE_SLOW, LIST_ALWAYS_LOOP),
-										 mViewNeedsReload(true),
-										 mSystemInfo(window, "SYSTEM INFO", Font::get(FONT_SIZE_SMALL), 0x33333300, ALIGN_CENTER)
+SystemView::SystemView(gui::Context& context) 
+	: 
+	IList<SystemViewData, SystemData*>(context.GetWindow(),	LIST_SCROLL_STYLE_SLOW, LIST_ALWAYS_LOOP),
+	mViewNeedsReload(true),
+	mSystemInfo(context.GetWindow(), "SYSTEM INFO", Font::get(FONT_SIZE_SMALL), 0x33333300, ALIGN_CENTER)
 {
+	m_context = &context;
 	mCamOffset = 0;
 	mExtrasCamOffset = 0;
 	mExtrasFadeOpacity = 0.0f;
-
+	
 	setSize((float)Renderer::getScreenWidth(), (float)Renderer::getScreenHeight());
 	populate();
 }
@@ -94,6 +99,7 @@ void SystemView::populate()
 
 void SystemView::goToSystem(SystemData* system, bool animate)
 {
+	Settings::getInstance()->setString("LastSystemSelected", system->getName());
 	setCursor(system);
 
 	if(!animate)
@@ -117,11 +123,13 @@ bool SystemView::input(InputConfig* config, Input input)
 			if (config->isMappedTo("up", input))
 			{
 				listInput(-1);
+				Settings::getInstance()->setString("LastSystemSelected", getSelected()->getName());
 				return true;
 			}
 			if (config->isMappedTo("down", input))
 			{
 				listInput(1);
+				Settings::getInstance()->setString("LastSystemSelected", getSelected()->getName());
 				return true;
 			}
 			break;
@@ -130,11 +138,13 @@ bool SystemView::input(InputConfig* config, Input input)
 			if (config->isMappedTo("left", input))
 			{
 				listInput(-1);
+				Settings::getInstance()->setString("LastSystemSelected", getSelected()->getName());
 				return true;
 			}
 			if (config->isMappedTo("right", input))
 			{
 				listInput(1);
+				Settings::getInstance()->setString("LastSystemSelected", getSelected()->getName());
 				return true;
 			}
 			break;
@@ -150,6 +160,31 @@ bool SystemView::input(InputConfig* config, Input input)
 		{
 			ViewController::get()->goToRandomGame();
 			return true;
+		}
+		if (Settings::getInstance()->getBool("BackgroundMusicEnabled") && 
+			m_context->GetAudioPlayer()->PlaylistSize() > 1)
+		{
+			if (config->isMappedTo("y", input))
+			{
+				if (m_context->GetAudioPlayer()->IsPaused())
+				{
+					m_context->GetAudioPlayer()->Resume();
+				}
+				else
+				{
+					m_context->GetAudioPlayer()->Pause();
+				}
+			}
+			if (config->isMappedTo("pagedown", input))
+			{
+				m_context->GetAudioPlayer()->Next();
+				return true;
+			}
+			if (config->isMappedTo("pageup", input))
+			{
+				m_context->GetAudioPlayer()->Prev();
+				return true;
+			}
 		}
 	}else{
 		if(config->isMappedTo("left", input) ||
@@ -354,8 +389,16 @@ std::vector<HelpPrompt> SystemView::getHelpPrompts()
 	prompts.push_back(HelpPrompt("a", "select"));
 	prompts.push_back(HelpPrompt("x", "random"));
 
+	if (Settings::getInstance()->getBool("BackgroundMusicEnabled") &&
+		m_context->GetAudioPlayer()->PlaylistSize() > 1)
+	{
+		prompts.push_back(HelpPrompt("y", "pause"));
+		prompts.push_back(HelpPrompt("l", ""));
+		prompts.push_back(HelpPrompt("r", " << track >>"));
+	}
+
 	if (Settings::getInstance()->getBool("ScreenSaverControls"))
-		prompts.push_back(HelpPrompt("select", "launch screensaver"));
+		prompts.push_back(HelpPrompt("select", "screensaver"));
 
 	return prompts;
 }
