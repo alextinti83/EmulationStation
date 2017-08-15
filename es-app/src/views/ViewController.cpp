@@ -258,7 +258,7 @@ void ViewController::playViewTransition(const std::string& transition_style)
 	{
 		// fade
 		// stop whatever's currently playing, leaving mFadeOpacity wherever it is
-		cancelAnimation(0);
+		cancelAnimation(1);
 
 		auto fadeFunc = [ this ] (float t)
 		{
@@ -271,7 +271,7 @@ void ViewController::playViewTransition(const std::string& transition_style)
 		{
 			this->mCamera.translation() = -target;
 			updateHelpPrompts();
-			setAnimation(new LambdaAnimation(fadeFunc, FADE_DURATION), FADE_WAIT, nullptr, true);
+			setAnimation(new LambdaAnimation(fadeFunc, FADE_DURATION), FADE_WAIT, nullptr, true, 1);
 		});
 
 		// fast-forward animation if we're partway faded
