@@ -297,6 +297,10 @@ int main(int argc, char* argv[])
 	{
 		if(fs::exists(InputManager::getConfigPath()) && InputManager::getInstance()->getNumConfiguredDevices() > 0)
 		{
+			std::clock_t c_end = std::clock();
+			LOG(LogInfo) << "Waiting for omsxplayer. Boot time: " << ( c_end - c_start ) / CLOCKS_PER_SEC << " secs";
+			WaitForVideoSplashScreen();
+			LOG(LogInfo) << "End wait. Boot time: " << ( c_end - c_start ) / CLOCKS_PER_SEC << " secs";
 			ViewController::get()->goToStart();
 		}else{
 			window.pushGui(new GuiDetectDevice(&window, true, [] { ViewController::get()->goToStart(); }));
