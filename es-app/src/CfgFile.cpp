@@ -7,6 +7,8 @@
 #include "EmulationStation.h"
 #include <boost/date_time/local_time/local_time.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string.hpp>
+
 #include <string>
 #include "Util.h"
 
@@ -107,6 +109,8 @@ void CfgEntry::SetLine(const std::string& line)
 		{
 			_key = key;
 			_value = value;
+			boost::trim(_key);
+			boost::trim(_value);
 		}
 		else
 		{
