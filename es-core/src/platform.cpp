@@ -4,7 +4,8 @@
 #include <SDL.h>
 #include <iostream>
 #include <fcntl.h>
-
+#include <chrono>
+#include <thread>
 #ifdef WIN32
 #include <codecvt>
 #endif
