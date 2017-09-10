@@ -299,57 +299,87 @@ GuiMenu::GuiMenu(gui::Context& context)
 			s->addWithLabel("SHOW FRAMERATE", framerate);
 			s->addSaveFunc([framerate] { Settings::getInstance()->setBool("DrawFramerate", framerate->getState()); });
 
+			// SCRAPER:
+			// scrape from
+			auto scraper_list = std::make_shared< OptionListComponent< std::string > >(mWindow, "SCRAPE FROM", false);
+			std::vector<std::string> scrapers = getScraperList();
+			for (auto it = scrapers.begin(); it != scrapers.end(); it++)
+				scraper_list->add(*it, *it, *it == Settings::getInstance()->getString("Scraper"));
 
+			s->addWithLabel("SCRAPE FROM", scraper_list);
+			s->addSaveFunc([ scraper_list ] { Settings::getInstance()->setString("Scraper", scraper_list->getSelected()); });
+
+			// scrape ratings
+			auto scrape_ratings = std::make_shared<SwitchComponent>(mWindow);
+			scrape_ratings->setState(Settings::getInstance()->getBool("ScrapeRatings"));
+			s->addWithLabel("SCRAPE RATINGS", scrape_ratings);
+			s->addSaveFunc([ scrape_ratings ] { Settings::getInstance()->setBool("ScrapeRatings", scrape_ratings->getState()); });
+
+			// scrape now
 			ComponentListRow row;
-			row.makeAcceptInputHandler([ this ]
-			{
-				mWindow->pushGui(new GuiMsgBox(mWindow, "Do you really want to make ES Crash?", "YES",
-					[]
-				{
-					LOG(LogWarning) << "Abort requested by user.";
-					abort();
-				}, "NO", nullptr));
-			});
-			row.addElement(std::make_shared<TextComponent>(mWindow, "ABORT/CRASH!!", Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
-			s->addRow(row);
-			row.elements.clear();
+			auto openScrapeNow = [ this ] { mWindow->pushGui(new GuiScraperStart(mWindow)); };
+			std::function<void()> openAndSave = openScrapeNow;
+			openAndSave = [ s, openAndSave ] { s->save(); openAndSave(); };
+			row.makeAcceptInputHandler(openAndSave);
 
+			auto scrape_now = std::make_shared<TextComponent>(mWindow, "SCRAPE NOW", Font::get(FONT_SIZE_MEDIUM), 0x777777FF);
+			auto bracket = makeArrow(mWindow);
+			row.addElement(scrape_now, true);
+			row.addElement(bracket, false);
+			s->addRow(row);
 
 			mWindow->pushGui(s);
 	});
 
-	auto openScrapeNow = [ this ] { mWindow->pushGui(new GuiScraperStart(mWindow)); };
-	addEntry("SCRAPER", 0x777777FF, true,
-		[ this, openScrapeNow ]
+	addEntry("DEBUG", 0x777777FF, true,
+		[ this ]
 	{
-		auto s = new GuiSettings(mWindow, "SCRAPER");
+		auto s = new GuiSettings(mWindow, "DEBUG ES");
 
-		// scrape from
-		auto scraper_list = std::make_shared< OptionListComponent< std::string > >(mWindow, "SCRAPE FROM", false);
-		std::vector<std::string> scrapers = getScraperList();
-		for (auto it = scrapers.begin(); it != scrapers.end(); it++)
-			scraper_list->add(*it, *it, *it == Settings::getInstance()->getString("Scraper"));
+		Window* window = mWindow;
 
-		s->addWithLabel("SCRAPE FROM", scraper_list);
-		s->addSaveFunc([ scraper_list ] { Settings::getInstance()->setString("Scraper", scraper_list->getSelected()); });
-
-		// scrape ratings
-		auto scrape_ratings = std::make_shared<SwitchComponent>(mWindow);
-		scrape_ratings->setState(Settings::getInstance()->getBool("ScrapeRatings"));
-		s->addWithLabel("SCRAPE RATINGS", scrape_ratings);
-		s->addSaveFunc([ scrape_ratings ] { Settings::getInstance()->setBool("ScrapeRatings", scrape_ratings->getState()); });
-
-		// scrape now
 		ComponentListRow row;
-		std::function<void()> openAndSave = openScrapeNow;
-		openAndSave = [ s, openAndSave ] { s->save(); openAndSave(); };
-		row.makeAcceptInputHandler(openAndSave);
-
-		auto scrape_now = std::make_shared<TextComponent>(mWindow, "SCRAPE NOW", Font::get(FONT_SIZE_MEDIUM), 0x777777FF);
-		auto bracket = makeArrow(mWindow);
-		row.addElement(scrape_now, true);
-		row.addElement(bracket, false);
+		
+		row.makeAcceptInputHandler([ this ]
+		{
+			mWindow->pushGui(new GuiMsgBox(mWindow, "Do you really want to make ES Crash?", "YES",
+				[]
+			{
+				LOG(LogWarning) << "Abort requested by user.";
+				abort();
+			}, "NO", nullptr));
+		});
+		row.addElement(std::make_shared<TextComponent>(mWindow, "ABORT/CRASH!!", Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
 		s->addRow(row);
+		row.elements.clear();
+
+		row.makeAcceptInputHandler([ window ]
+		{
+			window->pushGui(new GuiMsgBox(window, "REALLY RESTART ES?", "YES",
+				[]
+			{
+				if (quitES("/tmp/es-restart") != 0)
+					LOG(LogWarning) << "Restart terminated with non-zero result!";
+			}, "NO", nullptr));
+		});
+		row.addElement(std::make_shared<TextComponent>(window, "RESTART EMULATIONSTATION", Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
+		s->addRow(row);
+
+
+		if (Settings::getInstance()->getBool("ShowExit"))
+		{
+			row.elements.clear();
+			row.makeAcceptInputHandler([ window ]
+			{
+				window->pushGui(new GuiMsgBox(window, "REALLY QUIT ES?", "YES",
+					[]
+				{
+					quitES("/tmp/es-quit");
+				}, "NO", nullptr));
+			});
+			row.addElement(std::make_shared<TextComponent>(window, "QUIT EMULATIONSTATION", Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
+			s->addRow(row);
+		}
 
 		mWindow->pushGui(s);
 	});
@@ -387,33 +417,6 @@ GuiMenu::GuiMenu(gui::Context& context)
 			row.addElement(std::make_shared<TextComponent>(window, "RESTART SYSTEM", Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
 			s->addRow(row);
 			row.elements.clear();
-
-
-			row.makeAcceptInputHandler([window] {
-				window->pushGui(new GuiMsgBox(window, "REALLY RESTART?", "YES",
-				[] {
-					if(quitES("/tmp/es-restart") != 0)
-						LOG(LogWarning) << "Restart terminated with non-zero result!";
-				}, "NO", nullptr));
-			});
-			row.addElement(std::make_shared<TextComponent>(window, "RESTART EMULATIONSTATION", Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
-			s->addRow(row);
-			
-		
-			if(Settings::getInstance()->getBool("ShowExit"))
-			{
-				row.elements.clear();
-				row.makeAcceptInputHandler([window] {
-					window->pushGui(new GuiMsgBox(window, "REALLY QUIT?", "YES", 
-					[] { 
-						SDL_Event ev;
-						ev.type = SDL_QUIT;
-						SDL_PushEvent(&ev);
-					}, "NO", nullptr));
-				});
-				row.addElement(std::make_shared<TextComponent>(window, "QUIT EMULATIONSTATION", Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
-				s->addRow(row);
-			}
 
 			mWindow->pushGui(s);
 	});
