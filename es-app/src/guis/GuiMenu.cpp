@@ -340,18 +340,7 @@ GuiMenu::GuiMenu(gui::Context& context)
 
 		ComponentListRow row;
 		
-		row.makeAcceptInputHandler([ this ]
-		{
-			mWindow->pushGui(new GuiMsgBox(mWindow, "Do you really want to make ES Crash?", "YES",
-				[]
-			{
-				LOG(LogWarning) << "Abort requested by user.";
-				abort();
-			}, "NO", nullptr));
-		});
-		row.addElement(std::make_shared<TextComponent>(mWindow, "ABORT/CRASH!!", Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
-		s->addRow(row);
-		row.elements.clear();
+
 
 		row.makeAcceptInputHandler([ window ]
 		{
@@ -381,6 +370,18 @@ GuiMenu::GuiMenu(gui::Context& context)
 			s->addRow(row);
 		}
 
+		row.makeAcceptInputHandler([ this ]
+		{
+			mWindow->pushGui(new GuiMsgBox(mWindow, "Do you really want to make ES Crash?", "YES",
+				[]
+			{
+				LOG(LogWarning) << "Abort requested by user.";
+				abort();
+			}, "NO", nullptr));
+		});
+		row.addElement(std::make_shared<TextComponent>(mWindow, "ABORT/CRASH!!", Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
+		s->addRow(row);
+		row.elements.clear();
 		mWindow->pushGui(s);
 	});
 	addEntry("QUIT", 0x777777FF, true, 
