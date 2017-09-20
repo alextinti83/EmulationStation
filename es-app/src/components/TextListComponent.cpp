@@ -32,7 +32,11 @@ TextListComponent::TextListComponent(Window* window) :
 	mColors[ 0 ] = 0x0000FFFF;
 	mColors[ 1 ] = 0x00FF00FF;
 	mColors[ 2 ] = 0xFFFF00FF;
-
+	
+	mBar.posY = 0.f;
+	mBar.targetPosY = mBar.posY;
+	mBar.sizeX = 2.0f;
+	mBar.posX = -(mBar.sizeX + 4);
 }
 
 void TextListComponent::update(int deltaTime)
@@ -89,6 +93,8 @@ void TextListComponent::update(int deltaTime)
 		}
 	}
 
+	mBar.posY += ( mBar.targetPosY - mBar.posY ) * 0.25f;
+
 	GuiComponent::update(deltaTime);
 }
 
@@ -105,6 +111,8 @@ void TextListComponent::render(const Eigen::Affine3f& parentTrans)
 	}
 	std::pair<int, int> edges = ComputeListEdgeIndexes();
 	RenderSelectorImage(trans, edges.first, edges.second);
+
+	RenderBar(edges.second - edges.first);
 
 	PushClipRect(trans);
 
@@ -133,6 +141,7 @@ void TextListComponent::render(const Eigen::Affine3f& parentTrans)
 		}
 		y += entrySize;
 	}
+
 
 	Renderer::popClipRect();
 
@@ -247,6 +256,19 @@ void TextListComponent::RenderSelectorImage(Eigen::Affine3f trans, int startEntr
 	}
 }
 
+void TextListComponent::RenderBar(const uint32_t visibleCount)
+{
+	const uint32_t totalCount = mEntries.size();
+	if (visibleCount < totalCount)
+	{
+		const float rowHeight = GetRowHeight();
+		const float visibleListHeight = GetFullyVisibleRowCount() * rowHeight;
+		mBar.sizeY = static_cast< float >( visibleCount ) / static_cast< float >( totalCount ) *  visibleListHeight;
+		mBar.sizeY = std::max(mBar.sizeY, rowHeight);
+		Renderer::drawRect(mBar.posX, mBar.posY, mBar.sizeX, mBar.sizeY, mColors[ 0 ]);
+	}
+}
+
 uint32_t TextListComponent::GetColor(int i, uint32_t defaultColorId) const
 {
 	if (mCursor == i && mSelectedColor)
@@ -264,13 +286,26 @@ void TextListComponent::BuildTextCache(BaseT::Entry& entry, uint32_t color)
 	entry.data.textCache->setColor(color);
 }
 
+float TextListComponent::GetRowHeight() const
+{
+	const float rowHeight = mFont->getSize() * mLineSpacing;
+	return rowHeight;
+}
+
+uint32_t TextListComponent::GetFullyVisibleRowCount() const
+{
+	float rowHeight = GetRowHeight();
+	uint32_t screenCount = static_cast<uint32_t>( mSize.y() / rowHeight );
+	return screenCount;
+}
+
 std::pair<int, int> TextListComponent::ComputeListEdgeIndexes() const
 {
 	int startEntry = 0;
 	const float entrySize = mFont->getSize() * mLineSpacing;
 
 	//number of entries that can fit on the screen simultaniously
-	int screenCount = ( int ) ( mSize.y() / entrySize  );
+	uint32_t screenCount = GetFullyVisibleRowCount();
 
 	if (size() >= screenCount)
 	{
@@ -355,8 +390,17 @@ void TextListComponent::onCursorChanged(const CursorState& state)
 {
 	mMarqueeOffset = 0;
 	mMarqueeWaitTime = 0;
-	if ( mCursorChangedCallback )
+	if (mCursorChangedCallback)
+	{
 		mCursorChangedCallback(state);
+	}
+	if (mEntries.size() > 0)
+	{
+		//const int extraCutOff = static_cast<int> (mSize.y()) % mEntries.size();
+		const float visibleListHeight = GetFullyVisibleRowCount() * GetRowHeight();
+		const float scrollRatio = static_cast< float >( mCursor ) / static_cast< float >( mEntries.size());
+		mBar.targetPosY = scrollRatio * ( visibleListHeight - mBar.sizeY );
+	}
 }
 
 
