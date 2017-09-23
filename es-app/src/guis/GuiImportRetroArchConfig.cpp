@@ -6,9 +6,11 @@
 class GuiImportRetroArchConfigEntry : public GuiPagedListViewEntry
 {
 public:
-	GuiImportRetroArchConfigEntry(boost::filesystem::path path): mPath(path) { }
-	virtual std::string GetText() const override { return mPath.filename().generic_string(); }
+	GuiImportRetroArchConfigEntry(boost::filesystem::path root, boost::filesystem::path path): mPath(path), mRoot(root) { }
+	virtual std::string GetText() const override { return boost::filesystem::relative(mPath, mRoot).generic_string(); }
 	boost::filesystem::path mPath;
+	boost::filesystem::path mRoot;
+
 };
 
 GuiImportRetroArchConfig::GuiImportRetroArchConfig(
@@ -60,7 +62,7 @@ void GuiImportRetroArchConfig::ReloadConfigs()
 			const boost::filesystem::path cp = ( *i );
 			if (!boost::filesystem::is_directory(cp))
 			{
-				std::unique_ptr<GuiImportRetroArchConfigEntry> entry(new GuiImportRetroArchConfigEntry(cp));
+				std::unique_ptr<GuiImportRetroArchConfigEntry> entry(new GuiImportRetroArchConfigEntry(m_configFolder, cp));
 				AddEntry(std::move(entry));
 			}
 
