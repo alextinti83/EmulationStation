@@ -24,6 +24,7 @@ private:
 	void addSystemsEntry(GuiSettings* s);
 	void openScreensaverOptions();
 	void addLoopMenuEntries(GuiSettings* s);
+	void addDebugEntry(GuiSettings* s);
 	void addBackgroundMusicEntries(GuiSettings* s);
 	MenuComponent mMenu;
 	TextComponent mVersion;

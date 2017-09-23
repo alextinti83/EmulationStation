@@ -328,62 +328,14 @@ GuiMenu::GuiMenu(gui::Context& context)
 			row.addElement(bracket, false);
 			s->addRow(row);
 
+			addDebugEntry(s);
+
 			mWindow->pushGui(s);
+
 	});
 
-	addEntry("DEBUG", 0x777777FF, true,
-		[ this ]
-	{
-		auto s = new GuiSettings(mWindow, "DEBUG ES");
+	
 
-		Window* window = mWindow;
-
-		ComponentListRow row;
-		
-
-
-		row.makeAcceptInputHandler([ window ]
-		{
-			window->pushGui(new GuiMsgBox(window, "REALLY RESTART ES?", "YES",
-				[]
-			{
-				if (quitES("/tmp/es-restart") != 0)
-					LOG(LogWarning) << "Restart terminated with non-zero result!";
-			}, "NO", nullptr));
-		});
-		row.addElement(std::make_shared<TextComponent>(window, "RESTART EMULATIONSTATION", Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
-		s->addRow(row);
-
-
-		if (Settings::getInstance()->getBool("ShowExit"))
-		{
-			row.elements.clear();
-			row.makeAcceptInputHandler([ window ]
-			{
-				window->pushGui(new GuiMsgBox(window, "REALLY QUIT ES?", "YES",
-					[]
-				{
-					quitES("/tmp/es-quit");
-				}, "NO", nullptr));
-			});
-			row.addElement(std::make_shared<TextComponent>(window, "QUIT EMULATIONSTATION", Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
-			s->addRow(row);
-		}
-
-		row.makeAcceptInputHandler([ this ]
-		{
-			mWindow->pushGui(new GuiMsgBox(mWindow, "Do you really want to make ES Crash?", "YES",
-				[]
-			{
-				LOG(LogWarning) << "Abort requested by user.";
-				abort();
-			}, "NO", nullptr));
-		});
-		row.addElement(std::make_shared<TextComponent>(mWindow, "ABORT/CRASH!!", Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
-		s->addRow(row);
-		row.elements.clear();
-		mWindow->pushGui(s);
-	});
 	addEntry("QUIT", 0x777777FF, true, 
 		[this] {
 			auto s = new GuiSettings(mWindow, "QUIT");
@@ -874,6 +826,70 @@ void GuiMenu::addLoopMenuEntries(GuiSettings* s)
 	loop->setState(Settings::getInstance()->getBool("LoopMenuEntries"));
 	s->addWithLabel("LOOP MENU ENTRIES", loop);
 	s->addSaveFunc([ loop ] { Settings::getInstance()->setBool("LoopMenuEntries", loop->getState()); });
+}
+
+void GuiMenu::addDebugEntry(GuiSettings* s)
+{
+	ComponentListRow row;
+	auto debug = [ this ]
+	{
+		auto s = new GuiSettings(mWindow, "DEBUG ES");
+
+		Window* window = mWindow;
+
+		ComponentListRow row;
+
+		row.makeAcceptInputHandler([ window ]
+		{
+			window->pushGui(new GuiMsgBox(window, "REALLY RESTART ES?", "YES",
+				[]
+			{
+				if (quitES("/tmp/es-restart") != 0)
+					LOG(LogWarning) << "Restart terminated with non-zero result!";
+			}, "NO", nullptr));
+		});
+		row.addElement(std::make_shared<TextComponent>(window, "RESTART EMULATIONSTATION", Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
+		s->addRow(row);
+
+
+		if (Settings::getInstance()->getBool("ShowExit"))
+		{
+			row.elements.clear();
+			row.makeAcceptInputHandler([ window ]
+			{
+				window->pushGui(new GuiMsgBox(window, "REALLY QUIT ES?", "YES",
+					[]
+				{
+					quitES("/tmp/es-quit");
+				}, "NO", nullptr));
+			});
+			row.addElement(std::make_shared<TextComponent>(window, "QUIT EMULATIONSTATION", Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
+			s->addRow(row);
+		}
+
+		row.elements.clear();
+		row.makeAcceptInputHandler([ this ]
+		{
+			mWindow->pushGui(new GuiMsgBox(mWindow, "Do you really want to make ES crash?", "YES",
+				[]
+			{
+				LOG(LogWarning) << "Abort requested by user.";
+				abort();
+			}, "NO", nullptr));
+		});
+		row.addElement(std::make_shared<TextComponent>(mWindow, "ABORT/CRASH!!", Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
+		s->addRow(row);
+		mWindow->pushGui(s);
+	};
+	row.makeAcceptInputHandler(debug);
+	
+	auto debugTextComponent = std::make_shared<TextComponent>(mWindow, "DEBUG", Font::get(FONT_SIZE_MEDIUM), 0x777777FF);
+	auto bracket = makeArrow(mWindow);
+	row.addElement(debugTextComponent, true);
+	row.addElement(bracket, false);
+
+	s->addRow(row);
+	mWindow->pushGui(s);
 }
 
 void GuiMenu::addBackgroundMusicEntries(GuiSettings* s)
