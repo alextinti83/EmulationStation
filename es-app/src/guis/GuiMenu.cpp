@@ -889,7 +889,6 @@ void GuiMenu::addDebugEntry(GuiSettings* s)
 	row.addElement(bracket, false);
 
 	s->addRow(row);
-	mWindow->pushGui(s);
 }
 
 void GuiMenu::addBackgroundMusicEntries(GuiSettings* s)
