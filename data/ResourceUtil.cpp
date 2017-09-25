@@ -2,7 +2,7 @@
 
 #include "Resources.h"
 
-const size_t res2hNrOfFiles = 46;
+const size_t res2hNrOfFiles = 47;
 const Res2hEntry res2hFiles[res2hNrOfFiles] = {
     {":/busy_2.svg", busy_2_svg_size, busy_2_svg_data},
     {":/frame.png", frame_png_size, frame_png_data},
@@ -29,27 +29,29 @@ const Res2hEntry res2hFiles[res2hNrOfFiles] = {
     {":/button_filled.png", button_filled_png_size, button_filled_png_data},
     {":/checkbox_unchecked.svg", checkbox_unchecked_svg_size, checkbox_unchecked_svg_data},
     {":/opensans_hebrew_condensed_light.ttf", opensans_hebrew_condensed_light_ttf_size, opensans_hebrew_condensed_light_ttf_data},
-    {":/help/dpad_right.svg", help_dpad_right_svg_size, help_dpad_right_svg_data},
-    {":/help/dpad_all.svg", help_dpad_all_svg_size, help_dpad_all_svg_data},
-    {":/help/button_x.svg", help_button_x_svg_size, help_button_x_svg_data},
-    {":/help/dpad_up.svg", help_dpad_up_svg_size, help_dpad_up_svg_data},
-    {":/help/dpad_updown.svg", help_dpad_updown_svg_size, help_dpad_updown_svg_data},
-    {":/help/analog_down.svg", help_analog_down_svg_size, help_analog_down_svg_data},
-    {":/help/button_r.svg", help_button_r_svg_size, help_button_r_svg_data},
-    {":/help/analog_up.svg", help_analog_up_svg_size, help_analog_up_svg_data},
-    {":/help/button_start.svg", help_button_start_svg_size, help_button_start_svg_data},
-    {":/help/button_a.svg", help_button_a_svg_size, help_button_a_svg_data},
-    {":/help/analog_right.svg", help_analog_right_svg_size, help_analog_right_svg_data},
-    {":/help/button_hotkey.svg", help_button_hotkey_svg_size, help_button_hotkey_svg_data},
-    {":/help/dpad_left.svg", help_dpad_left_svg_size, help_dpad_left_svg_data},
-    {":/help/button_select.svg", help_button_select_svg_size, help_button_select_svg_data},
-    {":/help/button_l.svg", help_button_l_svg_size, help_button_l_svg_data},
-    {":/help/analog_left.svg", help_analog_left_svg_size, help_analog_left_svg_data},
-    {":/help/button_b.svg", help_button_b_svg_size, help_button_b_svg_data},
-    {":/help/analog_thumb.svg", help_analog_thumb_svg_size, help_analog_thumb_svg_data},
-    {":/help/dpad_down.svg", help_dpad_down_svg_size, help_dpad_down_svg_data},
-    {":/help/dpad_leftright.svg", help_dpad_leftright_svg_size, help_dpad_leftright_svg_data},
-    {":/help/button_y.svg", help_button_y_svg_size, help_button_y_svg_data}
+    {":/help/dpad_right.svg", help__dpad_right_svg_size, help__dpad_right_svg_data},
+    {":/help/dpad_all.svg", help__dpad_all_svg_size, help__dpad_all_svg_data},
+    {":/help/button_x.svg", help__button_x_svg_size, help__button_x_svg_data},
+    {":/help/dpad_up.svg", help__dpad_up_svg_size, help__dpad_up_svg_data},
+    {":/help/dpad_updown.svg", help__dpad_updown_svg_size, help__dpad_updown_svg_data},
+    {":/help/analog_down.svg", help__analog_down_svg_size, help__analog_down_svg_data},
+    {":/help/button_r.svg", help__button_r_svg_size, help__button_r_svg_data},
+    {":/help/analog_up.svg", help__analog_up_svg_size, help__analog_up_svg_data},
+    {":/help/button_start.svg", help__button_start_svg_size, help__button_start_svg_data},
+    {":/help/button_a.svg", help__button_a_svg_size, help__button_a_svg_data},
+    {":/help/analog_right.svg", help__analog_right_svg_size, help__analog_right_svg_data},
+    {":/help/button_hotkey.svg", help__button_hotkey_svg_size, help__button_hotkey_svg_data},
+    {":/help/dpad_left.svg", help__dpad_left_svg_size, help__dpad_left_svg_data},
+    {":/help/button_select.svg", help__button_select_svg_size, help__button_select_svg_data},
+    {":/help/button_l.svg", help__button_l_svg_size, help__button_l_svg_data},
+    {":/help/analog_left.svg", help__analog_left_svg_size, help__analog_left_svg_data},
+    {":/help/button_b.svg", help__button_b_svg_size, help__button_b_svg_data},
+    {":/help/analog_thumb.svg", help__analog_thumb_svg_size, help__analog_thumb_svg_data},
+    {":/help/dpad_down.svg", help__dpad_down_svg_size, help__dpad_down_svg_data},
+    {":/help/dpad_leftright.svg", help__dpad_leftright_svg_size, help__dpad_leftright_svg_data},
+    {":/help/button_y.svg", help__button_y_svg_size, help__button_y_svg_data},
+	{":/retropie.svg", retropie_svg_size, retropie_svg_data}
+
 };
 
 res2hMapType::value_type mapTemp[] = {
@@ -98,7 +100,9 @@ res2hMapType::value_type mapTemp[] = {
     std::make_pair(":/help/analog_thumb.svg", res2hFiles[42]),
     std::make_pair(":/help/dpad_down.svg", res2hFiles[43]),
     std::make_pair(":/help/dpad_leftright.svg", res2hFiles[44]),
-    std::make_pair(":/help/button_y.svg", res2hFiles[45])
+    std::make_pair(":/help/button_y.svg", res2hFiles[45]),
+	std::make_pair(":/retropie.svg", res2hFiles[ 46 ])
+
 };
 
 res2hMapType res2hMap(mapTemp, mapTemp + sizeof mapTemp / sizeof mapTemp[0]);
