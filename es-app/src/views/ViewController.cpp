@@ -350,7 +350,7 @@ void ViewController::PlayEasterEgg()
 
 	}
 	static const Eigen::Vector2f screenSize(Renderer::getScreenWidth(), Renderer::getScreenHeight());
-	const float imageWidth = screenSize.x()*0.2f;
+	const float imageWidth = screenSize.x()*0.15f;
 	mEasterEggImage->setResize(imageWidth, 0.f);
 	mEasterEggImage->setPosition(
 		screenSize.x(),
