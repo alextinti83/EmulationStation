@@ -93,6 +93,8 @@ private:
 	void InitBackgroundMusic();
 	void playViewTransition(const std::string& transition);
 	int getSystemId(SystemData* system);
+	void PlayEasterEgg();
+	void StopEasterEgg();
 	
 	std::shared_ptr<GuiComponent> mCurrentView;
 	std::map< SystemData*, std::shared_ptr<IGameListView> > mGameListViews;
@@ -103,4 +105,7 @@ private:
 	bool mLockInput;
 
 	State mState;
+
+	bool mHasEasterEggImage;
+	ImageComponent* mEasterEggImage;
 };

@@ -16,6 +16,12 @@
 #include "mediaplayer/IAudioPlayer.h"
 #include "guis/GuiContext.h"
 
+namespace
+{
+	static const std::string k_easterEggSoundPath = getHomePath() + "/.emulationstation/easter_egg/toasty.wav";
+	static const std::string k_easterEggImagePath = getHomePath() + "/.emulationstation/easter_egg/toasty.jpg";
+}
+
 ViewController* ViewController::sInstance = NULL;
 
 ViewController* ViewController::get()
@@ -35,10 +41,13 @@ ViewController::ViewController(gui::Context& guiContext)
 	mCurrentView(nullptr),
 	mCamera(Eigen::Affine3f::Identity()),
 	mFadeOpacity(0),
-	mLockInput(false)
+	mLockInput(false),
+	mEasterEggImage(nullptr)
 {
 	m_context = &guiContext;
 	mState.viewing = NOTHING;
+	mHasEasterEggImage = boost::filesystem::exists(k_easterEggImagePath);
+	srand(time(NULL));
 }
 
 ViewController::~ViewController()
@@ -312,8 +321,64 @@ void ViewController::onFileChanged(FileData* file, FileChangeType change)
 		it->second->onFileChanged(file, change);
 }
 
+
+void ViewController::StopEasterEgg()
+{
+	Sound::get(k_easterEggSoundPath)->stop();
+	if (mEasterEggImage)
+	{
+		removeChild(mEasterEggImage);
+		delete mEasterEggImage;
+		mEasterEggImage = nullptr;
+	}
+}
+
+
+void ViewController::PlayEasterEgg()
+{
+	auto random = rand() % 100;
+	if ( random < 50)
+	{
+		return;
+	}
+	Sound::get(k_easterEggSoundPath)->play();
+
+	mEasterEggImage = new ImageComponent(mWindow, true);
+	if (mHasEasterEggImage)
+	{
+		mEasterEggImage->setImage(k_easterEggImagePath);
+
+	}
+	static const Eigen::Vector2f screenSize(Renderer::getScreenWidth(), Renderer::getScreenHeight());
+	const float imageWidth = screenSize.x()*0.2f;
+	mEasterEggImage->setResize(imageWidth, 0.f);
+	mEasterEggImage->setPosition(
+		screenSize.x(),
+		screenSize.y() - mEasterEggImage->getSize().y());
+
+	mEasterEggImage->setAnimation(new LambdaAnimation([ this ] (float t)
+	{
+		const float step = smoothStep(0.0, 1.0, t);
+		mEasterEggImage->setPosition(
+			( screenSize.x() - mEasterEggImage->getSize().x()*step ),
+			( mEasterEggImage->getPosition().y() ));
+	}, 250), 0, [this] {
+		mEasterEggImage->setAnimation(new LambdaAnimation([ this ] (float t)
+		{
+			const float step = smoothStep(0.0, 1.0, t);
+			mEasterEggImage->setPosition(
+				( screenSize.x() - mEasterEggImage->getSize().x()*(1.f-step) ),
+				( mEasterEggImage->getPosition().y() ));
+		}, 250), 300);
+	});
+
+	addChild(mEasterEggImage);
+}
+
 void ViewController::launch(FileData* game, Eigen::Vector3f center)
 {
+	PlayEasterEgg();
+
 	if (game->getType() != GAME)
 	{
 		LOG(LogError) << "tried to launch something that isn't a game";
@@ -359,6 +424,7 @@ void ViewController::launch(FileData* game, Eigen::Vector3f center)
 		};
 		setAnimation(new LambdaAnimation(fadeFunc, 800), 0, [ this, game, fadeFunc, resumeAudio ]
 		{
+			StopEasterEgg();
 			game->getSystem()->launchGame(m_context->GetWindow(), game);
 			mLockInput = false;
 			setAnimation(new LambdaAnimation(fadeFunc, 800), 0, nullptr, true);
@@ -369,8 +435,10 @@ void ViewController::launch(FileData* game, Eigen::Vector3f center)
 	else if (transition_style == "slide" || transition_style == "simple slide")
 	{
 		// move camera to zoom in on center + fade out, launch game, come back in
-		setAnimation(new LaunchAnimation(mCamera, mFadeOpacity, center, 1500), 0, [ this, origCamera, center, game, resumeAudio ]
+		setAnimation(new LaunchAnimation(mCamera, mFadeOpacity, center, 800), 0,
+			[ this, origCamera, center, game, resumeAudio ]
 		{
+			StopEasterEgg();
 			game->getSystem()->launchGame(m_context->GetWindow(), game);
 			mCamera = origCamera;
 			mLockInput = false;
@@ -381,8 +449,10 @@ void ViewController::launch(FileData* game, Eigen::Vector3f center)
 	}
 	else
 	{
-		setAnimation(new LaunchAnimation(mCamera, mFadeOpacity, center, 10), 0, [ this, origCamera, center, game, resumeAudio ]
+		setAnimation(new LaunchAnimation(mCamera, mFadeOpacity, center, 10), 0,
+			[ this, origCamera, center, game, resumeAudio ]
 		{
+			StopEasterEgg();
 			game->getSystem()->launchGame(m_context->GetWindow(), game);
 			mCamera = origCamera;
 			mLockInput = false;
@@ -504,6 +574,10 @@ void ViewController::update(int deltaTime)
 	}
 
 	updateSelf(deltaTime);
+	if (mEasterEggImage)
+	{
+		mEasterEggImage->advanceAnimation(0, deltaTime);
+	}
 }
 
 void ViewController::render(const Eigen::Affine3f& parentTrans)
@@ -537,6 +611,10 @@ void ViewController::render(const Eigen::Affine3f& parentTrans)
 	{
 		Renderer::setMatrix(parentTrans);
 		Renderer::drawRect(0, 0, Renderer::getScreenWidth(), Renderer::getScreenHeight(), 0x00000000 | ( unsigned char ) ( mFadeOpacity * 255 ));
+	}
+	if (mEasterEggImage)
+	{
+		mEasterEggImage->render(parentTrans);
 	}
 }
 
