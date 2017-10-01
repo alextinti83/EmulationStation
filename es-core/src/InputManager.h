@@ -27,6 +27,7 @@ private:
 
 	std::map<SDL_JoystickID, int*> mPrevAxisValues;
 
+
 	bool initialized() const;
 
 	void addJoystickByDeviceIndex(int id);
@@ -49,8 +50,10 @@ public:
 	int getNumJoysticks();
 	int getButtonCountByDevice(int deviceId);
 	int getNumConfiguredDevices();
+	std::string configureEmulators();
 
 	std::string getDeviceGUIDString(int deviceId);
+	
 
 	InputConfig* getInputConfigByDevice(int deviceId);
 

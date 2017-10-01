@@ -141,6 +141,9 @@ void SystemData::launchGame(Window* window, FileData* game)
 {
 	LOG(LogInfo) << "Attempting to launch game...";
 
+	std::string controllersConfig = InputManager::getInstance()->configureEmulators();
+	LOG(LogInfo) << "Controllers config : " << controllersConfig;
+
 	AudioManager::getInstance()->deinit();
 	VolumeControl::getInstance()->deinit();
 	window->deinit();
@@ -152,6 +155,7 @@ void SystemData::launchGame(Window* window, FileData* game)
 	const std::string rom_raw = fs::path(game->getPath()).make_preferred().string();
 
 	command = strreplace(command, "%ROM%", rom);
+	command = strreplace(command, "%CONTROLLERSCONFIG%", controllersConfig);
 	command = strreplace(command, "%BASENAME%", basename);
 	command = strreplace(command, "%ROM_RAW%", rom_raw);
 

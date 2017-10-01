@@ -84,7 +84,8 @@ public:
 class InputConfig
 {
 public:
-	InputConfig(int deviceId, const std::string& deviceName, const std::string& deviceGUID);
+	InputConfig(int deviceId, const std::string& deviceName, const std::string& deviceGUID, 
+		int deviceIndex, int deviceNbAxes);
 
 	void clear();
 	void mapInput(const std::string& name, Input input);
@@ -108,12 +109,16 @@ public:
 	void writeToXML(pugi::xml_node parent);
 
 	bool isConfigured();
+	inline int getDeviceNbAxes() const { return mDeviceNbAxes; };
+	inline int getDeviceIndex() const { return mDeviceIndex; };
 
 private:
 	std::map<std::string, Input> mNameMap;
 	const int mDeviceId;
 	const std::string mDeviceName;
 	const std::string mDeviceGUID;
+	const int mDeviceNbAxes; // number of axes of the device
+	const int mDeviceIndex;
 };
 
 #endif

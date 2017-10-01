@@ -58,7 +58,7 @@ void InputManager::init()
 		addJoystickByDeviceIndex(i);
 	}
 
-	mKeyboardInputConfig = new InputConfig(DEVICE_KEYBOARD, "Keyboard", KEYBOARD_GUID_STRING);
+	mKeyboardInputConfig = new InputConfig(DEVICE_KEYBOARD, "Keyboard", KEYBOARD_GUID_STRING, -1, 0);
 	loadInputConfig(mKeyboardInputConfig);
 }
 
@@ -78,7 +78,7 @@ void InputManager::addJoystickByDeviceIndex(int id)
 	SDL_JoystickGetGUIDString(SDL_JoystickGetGUID(joy), guid, 65);
 
 	// create the InputConfig
-	mInputConfigs[joyId] = new InputConfig(joyId, SDL_JoystickName(joy), guid);
+	mInputConfigs[joyId] = new InputConfig(joyId, SDL_JoystickName(joy), guid, id, SDL_JoystickNumAxes(joy));
 	if(!loadInputConfig(mInputConfigs[joyId]))
 	{
 		LOG(LogInfo) << "Added unconfigured joystick " << SDL_JoystickName(joy) << " (GUID: " << guid << ", instance ID: " << joyId << ", device index: " << id << ").";
@@ -444,3 +444,128 @@ std::string InputManager::getDeviceGUIDString(int deviceId)
 	SDL_JoystickGetGUIDString(SDL_JoystickGetGUID(it->second), guid, 65);
 	return std::string(guid);
 }
+
+std::string InputManager::configureEmulators()
+{
+	std::stringstream command;
+	// 1 recuperer les configurated
+
+
+	std::list<InputConfig *> availableConfigured;
+
+
+	for (auto it = 0; it < InputManager::getInstance()->getNumJoysticks(); it++)
+	{
+		InputConfig * config = InputManager::getInstance()->getInputConfigByDevice(it);
+		//LOG(LogInfo) << "I am checking for an input named "<< config->getDeviceName() << " this configured ? "<<config->isConfigured();
+		if (config->isConfigured())
+		{
+			availableConfigured.push_back(config);
+			LOG(LogInfo) << "Available and configurated : " << config->getDeviceName();
+		}
+	}
+	//2 pour chaque joueur verifier si il y a un configurated
+	// associer le input au joueur
+	// enlever des disponibles 
+	std::map<int, InputConfig*> playerJoysticks;
+
+	// First loop, search for GUID + NAME. High Priority
+	for (int player = 0; player < MAX_PLAYERS; player++)
+	{
+		std::stringstream sstm;
+		sstm << "INPUT P" << player + 1;
+		std::string confName = sstm.str() + "NAME";
+		std::string confGuid = sstm.str() + "GUID";
+
+		std::string playerConfigName = Settings::getInstance()->getString(confName);
+		std::string playerConfigGuid = Settings::getInstance()->getString(confGuid);
+
+		for (std::list<InputConfig *>::iterator it1 = availableConfigured.begin(); it1 != availableConfigured.end(); ++it1)
+		{
+			InputConfig * config = *it1;
+			bool nameFound = playerConfigName.compare(config->getDeviceName()) == 0;
+			bool guidfound = playerConfigGuid.compare(config->getDeviceGUIDString()) == 0;
+
+			if (nameFound && guidfound)
+			{
+				availableConfigured.erase(it1);
+				playerJoysticks[ player ] = config;
+				LOG(LogInfo) << "Saved " << config->getDeviceName() << " for player " << player;
+				break;
+			}
+		}
+	}
+	// Second loop, search for NAME. Low Priority
+	for (int player = 0; player < MAX_PLAYERS; player++)
+	{
+		std::stringstream sstm;
+		sstm << "INPUT P" << player + 1;
+		std::string confName = sstm.str() + "NAME";
+
+		std::string playerConfigName = Settings::getInstance()->getString(confName);
+
+		for (std::list<InputConfig *>::iterator it1 = availableConfigured.begin(); it1 != availableConfigured.end(); ++it1)
+		{
+			InputConfig * config = *it1;
+			bool nameFound = playerConfigName.compare(config->getDeviceName()) == 0;
+			if (nameFound)
+			{
+				availableConfigured.erase(it1);
+				playerJoysticks[ player ] = config;
+				LOG(LogInfo) << "Found " << config->getDeviceName() << " for player " << player;
+				break;
+			}
+		}
+	}
+
+	// Last loop, search for free controllers for remaining players.
+	for (int player = 0; player < MAX_PLAYERS; player++)
+	{
+		// si aucune config a été trouvé pour le joueur, on essaie de lui filer un libre
+		if (playerJoysticks[ player ] == NULL)
+		{
+			LOG(LogInfo) << "No config for player " << player;
+
+			for (std::list<InputConfig *>::iterator it1 = availableConfigured.begin(); it1 != availableConfigured.end(); ++it1)
+			{
+				playerJoysticks[ player ] = *it1;
+				availableConfigured.erase(it1);
+				LOG(LogInfo) << "So i set " << playerJoysticks[ player ]->getDeviceName() << " for player " << player;
+				break;
+			}
+		}
+	}
+
+	// in case of hole (player 1 missing, but player 4 set, fill the holes with last players joysticks)
+	for (int player = 0; player < MAX_PLAYERS; player++)
+	{
+		if (playerJoysticks[ player ] == NULL)
+		{
+			for (int repplayer = MAX_PLAYERS; repplayer > player; repplayer--)
+			{
+				if (playerJoysticks[ player ] == NULL && playerJoysticks[ repplayer ] != NULL)
+				{
+					playerJoysticks[ player ] = playerJoysticks[ repplayer ];
+					playerJoysticks[ repplayer ] = NULL;
+				}
+			}
+		}
+	}
+
+	for (int player = 0; player < MAX_PLAYERS; player++)
+	{
+		InputConfig * playerInputConfig = playerJoysticks[ player ];
+		if (playerInputConfig != NULL)
+		{
+			command << "-p" << player + 1 << "index " << playerInputConfig->getDeviceIndex() << " -p" << player + 1 << "guid " << playerInputConfig->getDeviceGUIDString() << " -p" << player + 1 << "name \"" << playerInputConfig->getDeviceName() << "\" -p" << player + 1 << "nbaxes " << playerInputConfig->getDeviceNbAxes() << " ";
+		}/*else {
+		 command << " " << "DEFAULT" << " -1 DEFAULTDONOTFINDMEINCOMMAND";
+		 }*/
+
+	}
+	//LOG(LogInfo) << "I have for "<< "INPUT P" << player << " a configname : " << playerConfigName;
+	//command << " \"" << systemName << "\"" ;
+	LOG(LogInfo) << "Configure emulators command : " << command.str().c_str();
+	return command.str();
+}
+
