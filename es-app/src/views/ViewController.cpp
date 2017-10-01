@@ -19,7 +19,7 @@
 namespace
 {
 	static const std::string k_easterEggSoundPath = getHomePath() + "/.emulationstation/easter_egg/toasty.wav";
-	static const std::string k_easterEggImagePath = getHomePath() + "/.emulationstation/easter_egg/toasty.jpg";
+	static const std::string k_easterEggImagePath = getHomePath() + "/.emulationstation/easter_egg/toasty.png";
 }
 
 ViewController* ViewController::sInstance = NULL;
