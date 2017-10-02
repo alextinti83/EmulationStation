@@ -37,16 +37,21 @@ GuiMenu::GuiMenu(gui::Context& context)
 
 	mMenu.SetScrollDelay(std::chrono::milliseconds(Settings::getInstance()->getInt("AutoScrollDelay")));
 
-#if 0
+#if 1
 	addEntry("CONFIGURE INPUT", 0x777777FF, true,
 		[ this ]
 	{
 		Window* window = mWindow;
-		window->pushGui(new GuiMsgBox(window, "ARE YOU SURE YOU WANT TO CONFIGURE INPUT?", "YES",
-			[ window ]
+		window->pushGui(new GuiMsgBox(window,
+			_("YOU ARE GOING TO CONFIGURE A CONTROLLER. IF YOU HAVE ONLY ONE JOYSTICK, "
+				"CONFIGURE THE DIRECTIONS KEYS AND SKIP JOYSTICK CONFIG BY HOLDING A BUTTON. "
+				"IF YOU DO NOT HAVE A SPECIAL KEY FOR HOTKEY, CHOOSE THE SELECT BUTTON. SKIP "
+				"ALL BUTTONS YOU DO NOT HAVE BY HOLDING A KEY. BUTTONS NAMES ARE BASED ON THE "
+				"SNES CONTROLLER."), _("OK"),
+			[ window, this]
 		{
-			window->pushGui(new GuiDetectDevice(window, false, nullptr));
-		}, "NO", nullptr)
+			window->pushGui(new GuiDetectDevice(window, false, [] { }));
+		}, "CANCEL", nullptr)
 		);
 	});
 #else
@@ -699,8 +704,8 @@ void GuiMenu::createConfigInput()
 			window->pushGui(new GuiDetectDevice(window, false, [ this, s ]
 			{
 				//	s->setSave(false);
-				delete s;
-				this->createConfigInput();
+				//delete s;
+				//this->createConfigInput();
 			}));
 		}, "CANCEL", nullptr)
 		);
