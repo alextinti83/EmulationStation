@@ -37,7 +37,7 @@ GuiMenu::GuiMenu(gui::Context& context)
 
 	mMenu.SetScrollDelay(std::chrono::milliseconds(Settings::getInstance()->getInt("AutoScrollDelay")));
 
-#if 1
+#if 0
 	addEntry("CONFIGURE INPUT", 0x777777FF, true,
 		[ this ]
 	{
