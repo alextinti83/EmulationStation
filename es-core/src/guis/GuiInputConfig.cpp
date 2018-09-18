@@ -399,6 +399,24 @@ bool GuiInputConfig::assign(Input input, int inputId)
 	if(mTargetConfig->getMappedTo(input).size() > 0 && !mTargetConfig->isMappedTo(inputName[inputId], input) && inputName[inputId] != "HotKeyEnable")
 	{
 		error(mMappings.at(inputId), "Already mapped!");
+		if (inputSkippable[ mHeldInputId ])
+		{
+			mWindow->pushGui(new GuiMsgBox(mWindow, "Button Already Mapped",
+				"Finish", [this] 
+			{
+				mGrid.UpdateFocus(FocusPosition::Bottom, true);
+			},
+				"Next Button", [ this ]
+			{
+				rowDone();
+			},
+				"Try Again", [ this ]
+			{
+				//retry with another button
+			}
+			));
+		}
+
 		return false;
 	}
 

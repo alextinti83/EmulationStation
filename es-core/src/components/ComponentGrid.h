@@ -73,6 +73,7 @@ public:
 	bool StartScrollingCursor(Eigen::Vector2i dir);
 	void StopScrollingCursor();
 
+	bool UpdateFocus(FocusPosition position, bool focus) override;
 
 private:
 	class GridEntry
@@ -124,7 +125,6 @@ private:
 
 	GridEntry* getCellAt(int x, int y);
 	inline GridEntry* getCellAt(const Eigen::Vector2i& pos) { return getCellAt(pos.x(), pos.y()); }
-	bool UpdateFocus(FocusPosition position, bool focus) override;
 	bool ResetFocusPosition(const GridEntry* gridEntry, FocusPosition position, bool focusableFound);
 	bool ResetFocusForEntry(const GridEntry* entry, FocusPosition position, bool focus);
 
