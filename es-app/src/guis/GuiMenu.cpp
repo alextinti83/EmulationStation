@@ -92,12 +92,6 @@ GuiMenu::GuiMenu(gui::Context& context)
 				if (result)
 				{
 					InputManager::getInstance()->writeDeviceConfig(config);
-
-					//Window* window = mWindow;
-					//while (window->peekGui() && window->peekGui()->isPersistent() == false)
-					//{
-					//	delete window->peekGui();
-					//}
 				}
 				else
 				{
@@ -107,7 +101,8 @@ GuiMenu::GuiMenu(gui::Context& context)
 			});
 			for (const std::string& configName : configNames)
 			{
-				selectConfigList->AddEntry(std::make_unique<ListEntry>(configName));
+				std::unique_ptr<ListEntry> entry(new ListEntry(configName));
+				selectConfigList->AddEntry(std::move(entry));
 			}
 			//make sure a and b are not skippable
 			selectConfigList->addButton("Create", "", [ this, selectConfigList, config ] ()
@@ -124,7 +119,8 @@ GuiMenu::GuiMenu(gui::Context& context)
 				});
 				for (const std::string& configName : configNames)
 				{
-					deletelist->AddEntry(std::make_unique<ListEntry>(configName));
+					std::unique_ptr<ListEntry> entry(new ListEntry(configName));
+					deletelist->AddEntry(std::move(entry));
 				}
 				deletelist->SetCloseOnEntrySelected(true);
 				deletelist->ShowLineNumbers(false);
