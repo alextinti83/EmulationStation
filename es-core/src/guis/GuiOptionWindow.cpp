@@ -1,6 +1,5 @@
 #include "guis/GuiOptionWindow.h"
 #include "Window.h"
-#include "views/ViewController.h"
 
 GuiOptionWindow::GuiOptionWindow(Window* window, const std::string& title) 
 	: GuiComponent(window)
@@ -43,7 +42,7 @@ bool GuiOptionWindow::input(InputConfig* config, Input input)
 	{
 		// close everything
 		Window* window = mWindow;
-		while (window->peekGui() && window->peekGui() != ViewController::get())
+		while (window->peekGui() && window->peekGui()->isPersistent() == false)
 			delete window->peekGui();
 		return true;
 	}

@@ -239,6 +239,110 @@ bool InputManager::parseEvent(const SDL_Event& ev, Window* window)
 	return false;
 }
 
+std::vector<std::string> InputManager::FindConfigPresetNames(const std::string& i_deviceGUID) const
+{
+	std::vector<std::string> configNames;
+	assert(initialized());
+
+	std::string path = GetConfigPresetsPath();
+
+	pugi::xml_document doc;
+
+	if (fs::exists(path))
+	{
+		// merge files
+		pugi::xml_parse_result result = doc.load_file(path.c_str());
+		if (!result)
+		{
+			LOG(LogError) << "Error parsing input config: " << result.description();
+		}
+		else
+		{
+			// successfully loaded, delete the old entry if it exists
+			pugi::xml_node root = doc.child("inputList");
+			if (root)
+			{
+				for (pugi::xml_node tool = root.first_child(); tool; tool = tool.next_sibling())
+				{
+					std::string configName, guid;
+
+					for (pugi::xml_attribute attr = tool.first_attribute(); attr; attr = attr.next_attribute())
+					{
+						//std::cout << " " << attr.name() << "=" << attr.value();
+						if (strcmp(attr.name(), "deviceGUID") == 0 )
+						{
+							guid = attr.value();
+						}
+						if (strcmp(attr.name(), "configName") == 0)
+						{
+							configName = attr.value();
+						}
+					}
+					if (i_deviceGUID == guid)
+					{
+						configNames.emplace_back(configName);
+					}
+
+				}
+			}
+		}
+	}
+	return configNames;
+}
+
+
+bool InputManager::LoadConfigPresetNames(const std::string& i_deviceGUID, const std::string& i_configName, InputConfig* o_config) const
+{
+	std::vector<std::string> configNames;
+	assert(initialized());
+
+	std::string path = GetConfigPresetsPath();
+
+	pugi::xml_document doc;
+
+	if (fs::exists(path))
+	{
+		// merge files
+		pugi::xml_parse_result result = doc.load_file(path.c_str());
+		if (!result)
+		{
+			LOG(LogError) << "Error parsing input config: " << result.description();
+		}
+		else
+		{
+			// successfully loaded, delete the old entry if it exists
+			pugi::xml_node root = doc.child("inputList");
+			if (root)
+			{
+				for (pugi::xml_node node = root.first_child(); node; node = node.next_sibling())
+				{
+					std::string configName, guid;
+
+					for (pugi::xml_attribute attr = node.first_attribute(); attr; attr = attr.next_attribute())
+					{
+						if (strcmp(attr.name(), "deviceGUID") == 0)
+						{
+							guid = attr.value();
+						}
+						if (strcmp(attr.name(), "configName") == 0)
+						{
+							configName = attr.value();
+						}
+					}
+					if (i_deviceGUID == guid && configName == i_configName)
+					{
+						o_config->loadFromXML(node);
+						return true;
+					}
+
+				}
+			}
+		}
+	}
+	return false;
+}
+
+
 bool InputManager::loadInputConfig(InputConfig* config)
 {
 	std::string path = getConfigPath();
@@ -259,8 +363,10 @@ bool InputManager::loadInputConfig(InputConfig* config)
 		return false;
 
 	pugi::xml_node configNode = root.find_child_by_attribute("inputConfig", "deviceGUID", config->getDeviceGUIDString().c_str());
-	if(!configNode)
-		configNode = root.find_child_by_attribute("inputConfig", "deviceName", config->getDeviceName().c_str());
+
+//	if(!configNode)
+//		configNode = root.find_child_by_attribute("inputConfig", "deviceName", config->getDeviceName().c_str());
+
 	if(!configNode)
 		return false;
 
@@ -287,6 +393,105 @@ void InputManager::loadDefaultKBConfig()
 
 	cfg->mapInput("pageup", Input(DEVICE_KEYBOARD, TYPE_KEY, SDLK_RIGHTBRACKET, 1, true));
 	cfg->mapInput("pagedown", Input(DEVICE_KEYBOARD, TYPE_KEY, SDLK_LEFTBRACKET, 1, true));
+}
+namespace
+{
+	struct FindConfigByNameAndGUID
+	{
+		FindConfigByNameAndGUID(const std::string& i_guid, const std::string& i_configName) : m_guid(i_guid), m_configName(i_configName) { }
+		bool operator()(pugi::xml_attribute attr) const
+		{
+			return strcmp(attr.name(), "deviceGUID") == 0 || strcmp(attr.name(), "configName") == 0;
+		}
+
+		bool operator()(pugi::xml_node node) const
+		{
+			const std::string guid = node.attribute("deviceGUID").as_string();
+			const std::string configName = node.attribute("configName").as_string();
+			const std::string nodeName = node.name();
+			const bool result = 
+				nodeName == "inputConfig" &&
+				guid == m_guid &&
+				configName == m_configName;
+			return result;
+		}
+
+		const std::string m_guid;
+		const std::string m_configName;
+	};
+}
+
+void InputManager::saveConfigPreset(InputConfig* config)
+{
+	assert(initialized());
+
+	std::string path = GetConfigPresetsPath();
+
+	pugi::xml_document doc;
+
+	if (fs::exists(path))
+	{
+		// merge files
+		pugi::xml_parse_result result = doc.load_file(path.c_str());
+		if (!result)
+		{
+			LOG(LogError) << "Error parsing input config: " << result.description();
+		}
+		else
+		{
+			// successfully loaded, delete the old entry if it exists
+			pugi::xml_node root = doc.child("inputList");
+			if (root)
+			{
+				pugi::xml_node oldEntry = root.find_child(FindConfigByNameAndGUID(config->getDeviceGUIDString(), config->GetConfigName()));
+				if (oldEntry)
+				{
+					root.remove_child(oldEntry);
+				}
+			}
+		}
+	}
+
+	pugi::xml_node root = doc.child("inputList");
+	if (!root)
+	{
+		root = doc.append_child("inputList");
+	}
+
+	config->writeToXML(root);
+	doc.save_file(path.c_str());
+}
+
+void InputManager::removeConfigPreset(const std::string& i_configName, const std::string& i_deviceGUID)
+{
+	assert(initialized());
+
+	std::string path = GetConfigPresetsPath();
+
+	pugi::xml_document doc;
+
+	if (fs::exists(path))
+	{
+		pugi::xml_parse_result result = doc.load_file(path.c_str());
+		if (!result)
+		{
+			LOG(LogError) << "Error parsing input config: " << result.description();
+		}
+		else
+		{
+			pugi::xml_node root = doc.child("inputList");
+			if (root)
+			{
+				pugi::xml_node oldEntry = root.find_child(FindConfigByNameAndGUID(i_deviceGUID, i_configName));
+				if (oldEntry)
+				{
+					root.remove_child(oldEntry);
+				}
+			}
+		}
+	}
+
+	doc.save_file(path.c_str());
 }
 
 void InputManager::writeDeviceConfig(InputConfig* config)
@@ -329,12 +534,12 @@ void InputManager::writeDeviceConfig(InputConfig* config)
 					{
 						root.remove_child(oldEntry);
 					}
-					oldEntry = root.find_child_by_attribute("inputConfig", "deviceName",
-															config->getDeviceName().c_str());
-					if(oldEntry)
-					{
-						root.remove_child(oldEntry);
-					}
+					//oldEntry = root.find_child_by_attribute("inputConfig", "deviceName",
+					//										config->getDeviceName().c_str());
+					//if(oldEntry)
+					//{
+					//	root.remove_child(oldEntry);
+					//}
 				}
 			}
 		}
@@ -392,6 +597,13 @@ void InputManager::doOnFinish()
 			}
 		}
 	}
+}
+
+std::string InputManager::GetConfigPresetsPath()
+{
+	std::string path = getHomePath();
+	path += "/.emulationstation/es_input_presets.cfg";
+	return path;
 }
 
 std::string InputManager::getConfigPath()

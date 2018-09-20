@@ -21,9 +21,45 @@
 #include "Localization.h"
 #include "guis/GuiContext.h"
 #include "mediaplayer/IAudioPlayer.h"
+#include "guis/GuiPagedListView.h"
+#include "guis/GuiInputConfig.h"
+
+
+
+namespace
+{
+	class ListEntry : public GuiPagedListViewEntry
+	{
+	public:
+		ListEntry(const std::string& i_text) : m_text(i_text) { }
+		std::string GetText() const
+		{
+			return m_text;
+		};
+	private:
+		const std::string m_text;
+	};
+}
+
+void GuiMenu::ShowGUIDetectDeviceGUI()
+{
+	Window* window = mWindow;
+	window->pushGui(new GuiMsgBox(window,
+		_("YOU ARE GOING TO CONFIGURE A CONTROLLER. IF YOU HAVE ONLY ONE JOYSTICK, "
+			"CONFIGURE THE DIRECTIONS KEYS AND SKIP JOYSTICK CONFIG BY HOLDING A BUTTON. "
+			"IF YOU DO NOT HAVE A SPECIAL KEY FOR HOTKEY, CHOOSE THE SELECT BUTTON. SKIP "
+			"ALL BUTTONS YOU DO NOT HAVE BY HOLDING A KEY. BUTTONS NAMES ARE BASED ON THE "
+			"SNES CONTROLLER."), "CANCEL", nullptr, _("OK"),
+		[ window, this ]
+	{
+		window->pushGui(new GuiDetectDevice(window, false, [] { }));
+	})
+	);
+
+}
 
 GuiMenu::GuiMenu(gui::Context& context)
-: GuiComponent(context), mMenu(context.GetWindow(), "MAIN MENU"), mVersion(context.GetWindow())
+: GuiComponent(context), mMenu(context.GetWindow(), "MAIN MENU"), mVersion(context.GetWindow()), mLatestInputConfigUsed(nullptr)
 {
 	// MAIN MENU
 
@@ -38,21 +74,73 @@ GuiMenu::GuiMenu(gui::Context& context)
 	mMenu.SetScrollDelay(std::chrono::milliseconds(Settings::getInstance()->getInt("AutoScrollDelay")));
 
 #if 1
+
 	addEntry("CONFIGURE CONTROLLER", 0x777777FF, true,
 		[ this ]
 	{
-		Window* window = mWindow;
-		window->pushGui(new GuiMsgBox(window,
-			_("YOU ARE GOING TO CONFIGURE A CONTROLLER. IF YOU HAVE ONLY ONE JOYSTICK, "
-				"CONFIGURE THE DIRECTIONS KEYS AND SKIP JOYSTICK CONFIG BY HOLDING A BUTTON. "
-				"IF YOU DO NOT HAVE A SPECIAL KEY FOR HOTKEY, CHOOSE THE SELECT BUTTON. SKIP "
-				"ALL BUTTONS YOU DO NOT HAVE BY HOLDING A KEY. BUTTONS NAMES ARE BASED ON THE "
-				"SNES CONTROLLER."), _("OK"),
-			[ window, this]
+		std::vector<std::string> configNames; 
+		if (mLatestInputConfigUsed)
 		{
-			window->pushGui(new GuiDetectDevice(window, false, [] { }));
-		}, "CANCEL", nullptr)
-		);
+			configNames = InputManager::getInstance()->FindConfigPresetNames(mLatestInputConfigUsed->getDeviceGUIDString());
+		}
+		if (configNames.size() > 0)
+		{
+			InputConfig* config = mLatestInputConfigUsed;
+			GuiPagedListView* selectConfigList = new GuiPagedListView(mWindow, "Select Config", [ this, config ] (GuiPagedListViewEntry* selected)
+			{
+				const bool result = InputManager::getInstance()->LoadConfigPresetNames(config->getDeviceGUIDString(), selected->GetText(), config);
+				if (result)
+				{
+					InputManager::getInstance()->writeDeviceConfig(config);
+
+					//Window* window = mWindow;
+					//while (window->peekGui() && window->peekGui()->isPersistent() == false)
+					//{
+					//	delete window->peekGui();
+					//}
+				}
+				else
+				{
+					LOG(LogError) << "Error parsing input config with name: " << selected->GetText();
+				}
+
+			});
+			for (const std::string& configName : configNames)
+			{
+				selectConfigList->AddEntry(std::make_unique<ListEntry>(configName));
+			}
+			//make sure a and b are not skippable
+			selectConfigList->addButton("Create", "", [ this, selectConfigList, config ] ()
+			{
+				ShowGUIDetectDeviceGUI();
+				delete selectConfigList;
+			});
+			selectConfigList->addButton("Delete", "", [ this,  config, configNames, selectConfigList ] ()
+			{
+				GuiPagedListView* deletelist = new GuiPagedListView(mWindow, "Delete Config", [ this, config, selectConfigList ] (GuiPagedListViewEntry* selected)
+				{
+					delete selectConfigList;
+					InputManager::getInstance()->removeConfigPreset(selected->GetText(), config->getDeviceGUIDString());
+				});
+				for (const std::string& configName : configNames)
+				{
+					deletelist->AddEntry(std::make_unique<ListEntry>(configName));
+				}
+				deletelist->SetCloseOnEntrySelected(true);
+				deletelist->ShowLineNumbers(false);
+				deletelist->ReloadCurrentPage();
+				mWindow->pushGui(deletelist);
+
+			});
+			selectConfigList->SetCloseOnEntrySelected(true);
+			selectConfigList->ShowLineNumbers(false);
+			selectConfigList->ReloadCurrentPage();
+			mWindow->pushGui(selectConfigList);
+		}
+		else
+		{
+			ShowGUIDetectDeviceGUI();
+		}
 	});
 #else
 	addEntry("CONTROLLERS SETTINGS", 0x777777FF, true, [ this ] { this->createConfigInput(); });
@@ -423,6 +511,8 @@ void GuiMenu::addEntry(const char* name, unsigned int color, bool add_arrow, con
 
 bool GuiMenu::input(InputConfig* config, Input input)
 {
+	mLatestInputConfigUsed = config;
+
 	if(GuiComponent::input(config, input))
 		return true;
 
@@ -431,6 +521,7 @@ bool GuiMenu::input(InputConfig* config, Input input)
 		delete this;
 		return true;
 	}
+
 
 	return false;
 }
@@ -698,7 +789,7 @@ void GuiMenu::createConfigInput()
 				"CONFIGURE THE DIRECTIONS KEYS AND SKIP JOYSTICK CONFIG BY HOLDING A BUTTON. "
 				"IF YOU DO NOT HAVE A SPECIAL KEY FOR HOTKEY, CHOOSE THE SELECT BUTTON. SKIP "
 				"ALL BUTTONS YOU DO NOT HAVE BY HOLDING A KEY. BUTTONS NAMES ARE BASED ON THE "
-				"SNES CONTROLLER."), _("OK"),
+				"SNES CONTROLLER."), "CANCEL", nullptr, _("OK"),
 			[ window, this, s ]
 		{
 			window->pushGui(new GuiDetectDevice(window, false, [ this, s ]
@@ -707,7 +798,7 @@ void GuiMenu::createConfigInput()
 				//delete s;
 				//this->createConfigInput();
 			}));
-		}, "CANCEL", nullptr)
+		})
 		);
 	});
 

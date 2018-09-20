@@ -7,6 +7,7 @@
 #include "components/MenuComponent.h"
 #include "components/ButtonComponent.h"
 #include "Util.h"
+#include "GuiTextEditPopupKeyboard.h"
 
 // static const int inputCount = 10;
 // static const char* inputName[inputCount] = { "Up", "Down", "Left", "Right", "A", "B", "Start", "Select", "PageUp", "PageDown" };
@@ -263,27 +264,39 @@ GuiInputConfig::GuiInputConfig(Window* window, InputConfig* target, bool reconfi
 	// buttons
 	std::vector< std::shared_ptr<ButtonComponent> > buttons;
 	std::function<void()> okFunction = [this, okCallback] {
-		InputManager::getInstance()->writeDeviceConfig(mTargetConfig); // save
-		if(okCallback)
-			okCallback();
-		delete this; 
+		const std::string name = "";
+		mWindow->pushGui(new GuiTextEditPopupKeyboard(mWindow,
+			"Input Config Name:", name,
+			[ this, okCallback ]
+		(const std::string& name)
+		{
+			mTargetConfig->SetConfigName(name);
+			InputManager::getInstance()->saveConfigPreset(mTargetConfig); //Presets allow multiple configs per pad
+			InputManager::getInstance()->writeDeviceConfig(mTargetConfig); // save
+			if (okCallback)
+				okCallback();
+			delete this;
+		}, false));
 	};
+
+
 	buttons.push_back(std::make_shared<ButtonComponent>(mWindow, "OK", "ok", [this, okFunction] {
 		// check if the hotkey enable button is set. if not prompt the user to use select or nothing.
 		Input input;
 		if (!mTargetConfig->getInputByName("HotKeyEnable", &input)) {
 			mWindow->pushGui(new GuiMsgBox(mWindow,
-				"YOU DIDN'T CHOOSE A HOTKEY ENABLE BUTTON. THIS IS REQUIRED FOR EXITING GAMES WITH A CONTROLLER. DO YOU WANT TO USE THE SELECT BUTTON DEFAULT ? PLEASE ANSWER YES TO USE SELECT OR NO TO NOT SET A HOTKEY ENABLE BUTTON.",
-				"YES", [this, okFunction] {
-					Input input;
-					mTargetConfig->getInputByName("Select", &input);
-					mTargetConfig->mapInput("HotKeyEnable", input);
-					okFunction();
-					},
+				"The HOTKEY ENABLE button\n- which is required for quitting games -\nwas NOT set.\nDo you want to use the SELECT button as HOTKEY ENABLE button?",
 				"NO", [this, okFunction] {
 					// for a disabled hotkey enable button, set to a key with id 0,
 					// so the input configuration script can be backwards compatible.
 					mTargetConfig->mapInput("HotKeyEnable", Input(DEVICE_KEYBOARD, TYPE_KEY, 0, 1, true));
+					okFunction();
+				},
+				"YES", [ this, okFunction ]
+				{
+					Input input;
+					mTargetConfig->getInputByName("Select", &input);
+					mTargetConfig->mapInput("HotKeyEnable", input);
 					okFunction();
 				}
 			));

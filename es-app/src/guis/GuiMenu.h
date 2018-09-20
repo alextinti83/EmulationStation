@@ -17,6 +17,7 @@ public:
 	HelpStyle getHelpStyle() override;
 
 private:
+	void ShowGUIDetectDeviceGUI();
 	void createConfigInput();
 	void clearLoadedInput();
 	void addEntry(const char* name, unsigned int color, bool add_arrow, const std::function<void()>& func);
@@ -29,5 +30,6 @@ private:
 	MenuComponent mMenu;
 	TextComponent mVersion;
 	std::vector<StrInputConfig*> mLoadedInput; // used to keep information about loaded devices in case there are unpluged between device window load and save
+	InputConfig* mLatestInputConfigUsed;
 
 };

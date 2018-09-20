@@ -39,9 +39,13 @@ public:
 	static InputManager* getInstance();
 
 	void writeDeviceConfig(InputConfig* config);
+	void saveConfigPreset(InputConfig* config);
+	void removeConfigPreset(const std::string& i_configName, const std::string& i_deviceGUID);
+	
 	void doOnFinish();
 	static std::string getConfigPath();
 	static std::string getTemporaryConfigPath();
+	static std::string GetConfigPresetsPath();
 
 	void init();
 	void deinit();
@@ -55,6 +59,9 @@ public:
 	InputConfig* getInputConfigByDevice(int deviceId);
 
 	bool parseEvent(const SDL_Event& ev, Window* window);
+
+	std::vector<std::string> FindConfigPresetNames(const std::string& i_deviceGUID) const;
+	bool LoadConfigPresetNames(const std::string& i_deviceGUID, const std::string& i_configName, InputConfig* o_config) const;
 };
 
 #endif

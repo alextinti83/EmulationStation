@@ -16,9 +16,11 @@ public:
 	void onSizeChanged() override;
 
 private:
+	void UpdateDeviceInfo();
 	bool mFirstRun;
 	InputConfig* mHoldingConfig;
 	int mHoldTime;
+	int mPressTime;
 
 	NinePatchComponent mBackground;
 	ComponentGrid mGrid;
@@ -30,4 +32,5 @@ private:
 	std::shared_ptr<TextComponent> mDeviceHeld;
 
 	std::function<void()> mDoneCallback;
+	uint32_t m_pressCount;
 };

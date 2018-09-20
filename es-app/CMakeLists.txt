@@ -33,10 +33,8 @@ set(ES_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiScraperMulti.h
     ${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiScraperStart.h
     ${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiGamelistFilter.h
-	${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiOptionWindow.h
 	${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiRetroArchOptions.h
 	${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiRetroArchConfig.h
-	${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiPagedListView.h
 	${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiImportRetroArchConfig.h
 	${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiGameCollectionsSettings.h
 	${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiCfgEditor.h
@@ -96,10 +94,8 @@ set(ES_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiScraperMulti.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiScraperStart.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiGamelistFilter.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiOptionWindow.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiRetroArchOptions.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiRetroArchConfig.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiPagedListView.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiImportRetroArchConfig.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiGameCollectionsSettings.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiCfgEditor.cpp

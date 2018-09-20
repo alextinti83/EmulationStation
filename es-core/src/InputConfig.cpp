@@ -63,6 +63,16 @@ bool InputConfig::isConfigured()
 	return mNameMap.size() > 0;
 }
 
+void InputConfig::SetConfigName(const std::string& i_configName)
+{
+	mConfigName = i_configName;
+}
+
+const std::string& InputConfig::GetConfigName() const
+{
+	return mConfigName;
+}
+
 void InputConfig::mapInput(const std::string& name, Input input)
 {
 	mNameMap[toLower(name)] = input;
@@ -175,6 +185,8 @@ void InputConfig::loadFromXML(pugi::xml_node node)
 void InputConfig::writeToXML(pugi::xml_node parent)
 {
 	pugi::xml_node cfg = parent.append_child("inputConfig");
+
+	cfg.append_attribute("configName") = mConfigName.c_str();
 
 	if(mDeviceId == DEVICE_KEYBOARD)
 	{

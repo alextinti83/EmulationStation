@@ -20,7 +20,7 @@ public:
 		m_entries.push_back(std::move(entry));
 	}
 	void ClearEntries()
-	{
+	{	
 		m_entries.clear();
 	}
 	using SortEntriesFunc = std::function<
@@ -35,11 +35,15 @@ public:
 	
 	void SetOnButtonPressedCallback(const std::string& button, OnEntrySelectedCallback callback);
 	void SetHelpPrompt(const HelpPrompt& prompt);
+	void update(int deltaTime) override;
+
+	void SetCloseOnEntrySelected(bool i_closeOnEntrySelected) { mCloseOnEntrySelected = i_closeOnEntrySelected; }
 
 private:
 	void OnButtonAdded(std::shared_ptr<ButtonComponent> button) override;
 	void InsertRow(GuiPagedListViewEntry& entry, uint32_t rowIndex);
 	std::string GetPageLabelText() const;
+	uint32_t GetPageCount() const;
 	uint32_t GetLastPage() const;
 	bool IsLastPage() const;
 	bool IsFirstPage() const;
@@ -69,5 +73,6 @@ private:
 	std::vector<HelpPrompt> m_helpPrompts;
 
 	bool mShowLineNum;
+	bool mCloseOnEntrySelected;
 
 };

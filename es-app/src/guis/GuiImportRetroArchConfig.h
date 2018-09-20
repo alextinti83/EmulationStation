@@ -1,5 +1,5 @@
 #pragma  once
-#include "GuiPagedListView.h"
+#include "guis/GuiPagedListView.h"
 
 class GuiImportRetroArchConfig : public GuiPagedListView
 {

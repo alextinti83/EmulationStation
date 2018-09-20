@@ -109,11 +109,21 @@ public:
 
 	bool isConfigured();
 
+	void SetConfigName(const std::string& i_configName);
+	const std::string& GetConfigName() const;
+
 private:
 	std::map<std::string, Input> mNameMap;
 	const int mDeviceId;
 	const std::string mDeviceName;
 	const std::string mDeviceGUID;
+
+	//as matter of fact many cheap pads have the same mDeviceName and mDeviceGUID
+	//even thought they have different button layouts
+	//as workaround I'm adding an extra identifier to the config
+	//so that a pad can have multiple configuration and when the pad is connected
+	//the user decides which one to load eventually.
+	std::string mConfigName;
 };
 
 #endif

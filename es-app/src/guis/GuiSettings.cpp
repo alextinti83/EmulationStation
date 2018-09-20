@@ -49,7 +49,8 @@ bool GuiSettings::input(InputConfig* config, Input input)
 	{
 		// close everything
 		Window* window = mWindow;
-		while(window->peekGui() && window->peekGui() != ViewController::get())
+
+		while(window->peekGui() && window->peekGui()->isPersistent() == false)
 			delete window->peekGui();
 		return true;
 	}

@@ -44,6 +44,7 @@ ViewController::ViewController(gui::Context& guiContext)
 	mLockInput(false),
 	mEasterEggImage(nullptr)
 {
+	setIsPersistent(true);
 	m_context = &guiContext;
 	mState.viewing = NOTHING;
 	mHasEasterEggImage = boost::filesystem::exists(k_easterEggImagePath);

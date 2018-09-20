@@ -7,7 +7,7 @@
 
 GuiComponent::GuiComponent(Window* window) : mWindow(window), mParent(NULL), mOpacity(255),
 	mPosition(Eigen::Vector3f::Zero()), mSize(Eigen::Vector2f::Zero()), mTransform(Eigen::Affine3f::Identity()),
-	mIsProcessing(false), mEnabled(true), mVisible(true), m_context(nullptr)
+	mIsProcessing(false), mEnabled(true), mVisible(true), mIsPersistent(false), m_context(nullptr)
 {
 	for(unsigned char i = 0; i < MAX_ANIMATIONS; i++)
 		mAnimationMap[i] = NULL;
@@ -16,7 +16,7 @@ GuiComponent::GuiComponent(Window* window) : mWindow(window), mParent(NULL), mOp
 GuiComponent::GuiComponent(gui::Context& context)
 	: mWindow(context.GetWindow()), mParent(NULL), mOpacity(255),
 	mPosition(Eigen::Vector3f::Zero()), mSize(Eigen::Vector2f::Zero()), mTransform(Eigen::Affine3f::Identity()),
-	mIsProcessing(false), mEnabled(true), mVisible(true), m_context(&context)
+	mIsProcessing(false), mEnabled(true), mVisible(true), mIsPersistent(false), m_context(&context)
 {
 	for (unsigned char i = 0; i < MAX_ANIMATIONS; i++)
 		mAnimationMap[ i ] = NULL;
@@ -424,6 +424,11 @@ void GuiComponent::setVisible(bool visible)
 		mVisible = visible;
 		OnVisibleChanged(oldValue, mVisible);
 	}
+}
+
+void GuiComponent::setIsPersistent(bool i_isPersistent)
+{
+	mIsPersistent = i_isPersistent;
 }
 
 void GuiComponent::onShow()

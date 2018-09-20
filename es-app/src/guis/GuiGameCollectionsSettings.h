@@ -1,5 +1,5 @@
 #pragma  once
-#include "GuiOptionWindow.h"
+#include "guis/GuiOptionWindow.h"
 #include "components/ComponentList.h"
 #include "components/OptionListComponent.h"
 #include "GameCollection.h"

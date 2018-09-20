@@ -114,8 +114,10 @@ public:
 
 	void setEnabled(bool enabled);
 	void setVisible(bool visible);
+	void setIsPersistent(bool i_isPersistent);
 	bool isEnabled() const { return mEnabled; }
 	bool isVisible() const { return mVisible; }
+	bool isPersistent() const { return mIsPersistent; }
 
 
 public: //INavigation
@@ -145,6 +147,8 @@ protected:
 
 	bool mEnabled;
 	bool mVisible;
+	bool mIsPersistent; //Persistent Gui shouldn't be closed
+
 	gui::Context* m_context;
 
 public:

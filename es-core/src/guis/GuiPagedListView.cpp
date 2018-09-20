@@ -1,7 +1,6 @@
 #include "guis/GuiPagedListView.h"
 #include "guis/GuiMsgBox.h"
 #include "Window.h"
-#include "views/ViewController.h"
 
 const uint32_t GuiPagedListView::k_pageEntryCount(6);
 
@@ -13,7 +12,8 @@ GuiPagedListView::GuiPagedListView(
 	: GuiOptionWindow(window, title), 
 	m_onEntrySelected(callback),
 	m_currentPage(0),
-	mShowLineNum(true)
+	mShowLineNum(true),
+	mCloseOnEntrySelected(false)
 {
 
 	mMenu.setSize(Renderer::getScreenWidth() * widthSizePerc, mMenu.getSize().y());
@@ -37,12 +37,18 @@ GuiPagedListView::GuiPagedListView(
 
 std::string GuiPagedListView::GetPageLabelText() const
 {
-	return "Page " + std::to_string(m_currentPage+1) + "/" + std::to_string(GetLastPage()+1);
+	const uint32_t lastPage = GetLastPage();
+	return "Page " + std::to_string(m_currentPage+1) + "/" + std::to_string(lastPage +1);
+}
+
+uint32_t GuiPagedListView::GetPageCount() const
+{
+	return std::max(static_cast< uint32_t >( std::ceil(m_entries.size() / k_pageEntryCount) ), 1u);
 }
 
 uint32_t GuiPagedListView::GetLastPage() const
 {
-	return static_cast<uint32_t>(std::ceil(m_entries.size() / k_pageEntryCount));
+	return GetPageCount()-1;
 }
 
 bool GuiPagedListView::IsLastPage() const
@@ -142,6 +148,10 @@ bool GuiPagedListView::OnRowSelected(InputConfig* config, Input input, GuiPagedL
 	if (config->isMappedTo("a", input) && input.value)
 	{
 		m_onEntrySelected(entry);
+		if (mCloseOnEntrySelected)
+		{
+			delete this;
+		}
 		return true;
 	}
 	for (auto& pair : m_onButtonPressed)
@@ -206,7 +216,7 @@ bool GuiPagedListView::input(InputConfig* config, Input input)
 	{
 		// close everything
 		Window* window = mWindow;
-		while (window->peekGui() && window->peekGui() != ViewController::get())
+		while (window->peekGui() && window->peekGui()->isPersistent() == false)
 			delete window->peekGui();
 		return true;
 	}
@@ -227,4 +237,13 @@ std::vector<HelpPrompt> GuiPagedListView::getHelpPrompts()
 void GuiPagedListView::SetHelpPrompt(const HelpPrompt& prompt)
 {
 	m_helpPrompts.emplace_back(prompt);
+}
+
+
+void GuiPagedListView::update(int deltaTime)
+{
+	GuiOptionWindow::update(deltaTime);
+
+	const bool pageButtonVisible = GetLastPage() != 0;
+	m_pageCountButton->setVisible(pageButtonVisible);
 }

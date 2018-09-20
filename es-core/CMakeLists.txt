@@ -69,6 +69,9 @@ set(CORE_HEADERS
 	${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiMsgBox.h
 	${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiTextEditPopup.h
 	${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiTextEditPopupKeyboard.h
+	${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiOptionWindow.h
+	${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiPagedListView.h
+
 
 	# Resources
 	${CMAKE_CURRENT_SOURCE_DIR}/src/resources/Font.h
@@ -139,6 +142,8 @@ set(CORE_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiMsgBox.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiTextEditPopup.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiTextEditPopupKeyboard.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiOptionWindow.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiPagedListView.cpp
 
 	# Resources
 	${CMAKE_CURRENT_SOURCE_DIR}/src/resources/Font.cpp
