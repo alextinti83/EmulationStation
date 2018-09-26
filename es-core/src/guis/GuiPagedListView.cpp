@@ -145,14 +145,17 @@ GuiPagedListView::~GuiPagedListView()
 
 bool GuiPagedListView::OnRowSelected(InputConfig* config, Input input, GuiPagedListViewEntry* entry)
 {
-	if (config->isMappedTo("a", input) && input.value)
+	for (const std::string& okButton : entry->GetOkButtons())
 	{
-		m_onEntrySelected(entry);
-		if (mCloseOnEntrySelected)
+		if (config->isMappedTo(okButton, input) && input.value)
 		{
-			delete this;
+			m_onEntrySelected(entry);
+			if (mCloseOnEntrySelected)
+			{
+				delete this;
+			}
+			return true;
 		}
-		return true;
 	}
 	for (auto& pair : m_onButtonPressed)
 	{
@@ -177,32 +180,10 @@ bool GuiPagedListView::IsAnyOfMyButtonsFocused() const
 	return false;
 }
 
+
 bool GuiPagedListView::input(InputConfig* config, Input input)
 {
-	if (!IsAnyOfMyButtonsFocused() && input.value != 0)
-	{
-		if (config->isMappedTo("right", input))
-		{
-			LoadNextPages();
-			return true;
-		}
-		if (config->isMappedTo("left", input))
-		{
-			LoadPrevPages();
-			return true;
-		}
-
-		if (config->isMappedTo("pageup", input))
-		{
-			LoadNextPages(10);
-			return true;
-		}
-		if (config->isMappedTo("pagedown", input))
-		{
-			LoadPrevPages(10);
-			return true;
-		}
-	}
+	
 	
 
 	if (config->isMappedTo("b", input) && input.value != 0)
@@ -221,7 +202,36 @@ bool GuiPagedListView::input(InputConfig* config, Input input)
 		return true;
 	}
 
-	return GuiComponent::input(config, input);
+	const bool result =  GuiComponent::input(config, input);
+
+	if (result == false)
+	{
+		if (!IsAnyOfMyButtonsFocused() && input.value != 0)
+		{
+			if (config->isMappedTo("right", input))
+			{
+				LoadNextPages();
+				return true;
+			}
+			if (config->isMappedTo("left", input))
+			{
+				LoadPrevPages();
+				return true;
+			}
+
+			if (config->isMappedTo("pageup", input))
+			{
+				LoadNextPages(10);
+				return true;
+			}
+			if (config->isMappedTo("pagedown", input))
+			{
+				LoadPrevPages(10);
+				return true;
+			}
+		}
+	}
+	return result;
 }
 
 std::vector<HelpPrompt> GuiPagedListView::getHelpPrompts()

@@ -40,6 +40,22 @@ struct ComponentListRow
 			return false;
 		};
 	}
+
+	inline void makeAcceptInputHandler(const std::function<void()>& func, const std::vector<std::string>& i_okButtons)
+	{
+		input_handler = [ func, i_okButtons ] (InputConfig* config, Input input) -> bool
+		{
+			for (const std::string& i_button : i_okButtons)
+			{
+				if (config->isMappedTo(i_button, input) && input.value != 0)
+				{
+					func();
+					return true;
+				}
+			}
+			return false;
+		};
+	}
 };
 
 class ComponentList : public IList<ComponentListRow, void*>

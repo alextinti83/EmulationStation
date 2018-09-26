@@ -21,6 +21,7 @@ private:
 	void createConfigInput();
 	void clearLoadedInput();
 	void addEntry(const char* name, unsigned int color, bool add_arrow, const std::function<void()>& func);
+	void addEntry(const char* name, unsigned int color, bool add_arrow, const std::function<void()>& func, const std::vector<std::string>& i_okButtons);
 	void addTemperatureEntry(GuiSettings* s);
 	void addSystemsEntry(GuiSettings* s);
 	void openScreensaverOptions();

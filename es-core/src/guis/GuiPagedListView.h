@@ -5,6 +5,7 @@
 class GuiPagedListViewEntry
 {
 public:
+	virtual const std::vector<std::string> GetOkButtons() const { return { "a" }; }
 	virtual std::string GetText() const = 0;
 };
 
@@ -51,6 +52,7 @@ private:
 	void LoadPrevPages(uint32_t count = 1);
 	bool OnRowSelected(InputConfig* config, Input input, GuiPagedListViewEntry*);
 	bool IsAnyOfMyButtonsFocused() const;
+	std::unique_ptr<GuiPagedListViewEntry>* GetSelectedEntry();
 	
 	bool input(InputConfig* config, Input input) override;
 

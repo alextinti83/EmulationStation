@@ -31,8 +31,9 @@ namespace
 	class ListEntry : public GuiPagedListViewEntry
 	{
 	public:
+		const std::vector<std::string> GetOkButtons() const override { return { "a", "right" }; }
 		ListEntry(const std::string& i_text) : m_text(i_text) { }
-		std::string GetText() const
+		std::string GetText() const override
 		{
 			return m_text;
 		};
@@ -85,32 +86,41 @@ GuiMenu::GuiMenu(gui::Context& context)
 		}
 		if (configNames.size() > 0)
 		{
+			const std::string createNewConfigEntryName = "New Input Configuration";
 			InputConfig* config = mLatestInputConfigUsed;
-			GuiPagedListView* selectConfigList = new GuiPagedListView(mWindow, "Select Config", [ this, config ] (GuiPagedListViewEntry* selected)
+			GuiPagedListView* selectConfigList = new GuiPagedListView(mWindow, "Select Config", [ this, config, createNewConfigEntryName ] (GuiPagedListViewEntry* selected)
 			{
-				const bool result = InputManager::getInstance()->LoadConfigPresetNames(config->getDeviceGUIDString(), selected->GetText(), config);
-				if (result)
+				if (selected->GetText() == createNewConfigEntryName)
 				{
-					InputManager::getInstance()->writeDeviceConfig(config);
+					ShowGUIDetectDeviceGUI();
 				}
 				else
 				{
-					LOG(LogError) << "Error parsing input config with name: " << selected->GetText();
+					const bool result = InputManager::getInstance()->LoadConfigPresetNames(config->getDeviceGUIDString(), selected->GetText(), config);
+					if (result)
+					{
+						InputManager::getInstance()->writeDeviceConfig(config);
+					}
+					else
+					{
+						LOG(LogError) << "Error parsing input config with name: " << selected->GetText();
+					}
 				}
-
 			});
 			for (const std::string& configName : configNames)
 			{
 				std::unique_ptr<ListEntry> entry(new ListEntry(configName));
 				selectConfigList->AddEntry(std::move(entry));
 			}
-			//make sure a and b are not skippable
-			selectConfigList->addButton("Create", "", [ this, selectConfigList, config ] ()
-			{
-				ShowGUIDetectDeviceGUI();
-				delete selectConfigList;
-			});
-			selectConfigList->addButton("Delete", "", [ this,  config, configNames, selectConfigList ] ()
+			std::unique_ptr<ListEntry> entry(new ListEntry(createNewConfigEntryName));
+			selectConfigList->AddEntry(std::move(entry));
+
+			//selectConfigList->addButton("Create", "", [ this, selectConfigList, config ] ()
+			//{
+			//	ShowGUIDetectDeviceGUI();
+			//	delete selectConfigList;
+			//});
+			selectConfigList->addButton("Delete Config", "", [ this,  config, configNames, selectConfigList ] ()
 			{
 				GuiPagedListView* deletelist = new GuiPagedListView(mWindow, "Delete Config", [ this, config, selectConfigList ] (GuiPagedListViewEntry* selected)
 				{
@@ -128,6 +138,8 @@ GuiMenu::GuiMenu(gui::Context& context)
 				mWindow->pushGui(deletelist);
 
 			});
+			selectConfigList->SetHelpPrompt(HelpPrompt("a", "or  >   Load Config"));
+
 			selectConfigList->SetCloseOnEntrySelected(true);
 			selectConfigList->ShowLineNumbers(false);
 			selectConfigList->ReloadCurrentPage();
@@ -137,7 +149,7 @@ GuiMenu::GuiMenu(gui::Context& context)
 		{
 			ShowGUIDetectDeviceGUI();
 		}
-	});
+	}, { "a", "right"});
 #else
 	addEntry("CONTROLLERS SETTINGS", 0x777777FF, true, [ this ] { this->createConfigInput(); });
 #endif
@@ -501,6 +513,25 @@ void GuiMenu::addEntry(const char* name, unsigned int color, bool add_arrow, con
 	}
 	
 	row.makeAcceptInputHandler(func);
+
+	mMenu.addRow(row);
+}
+
+void GuiMenu::addEntry(const char* name, unsigned int color, bool add_arrow, const std::function<void()>& func, const std::vector<std::string>& i_okButtons)
+{
+	std::shared_ptr<Font> font = Font::get(FONT_SIZE_MEDIUM);
+
+	// populate the list
+	ComponentListRow row;
+	row.addElement(std::make_shared<TextComponent>(mWindow, name, font, color), true);
+
+	if (add_arrow)
+	{
+		std::shared_ptr<ImageComponent> bracket = makeArrow(mWindow);
+		row.addElement(bracket, false);
+	}
+
+	row.makeAcceptInputHandler(func, i_okButtons);
 
 	mMenu.addRow(row);
 }
